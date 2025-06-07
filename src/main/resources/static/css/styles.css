@@ -1,0 +1,58 @@
+body {
+  font-family: Arial, sans-serif;
+  background-color: #f6f6f6;
+  margin: 0;
+  padding: 0;
+}
+
+.container {
+  width: 90%;
+  max-width: 500px;
+  margin: 50px auto;
+  background-color: #fff;
+  padding: 20px;
+  box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+}
+
+h1 {
+  text-align: center;
+  color: #333;
+}
+
+.form-group {
+  margin-bottom: 15px;
+}
+
+label {
+  display: block;
+  font-weight: bold;
+  margin-bottom: 5px;
+}
+
+input[type="text"],
+input[type="date"],
+select {
+  width: 100%;
+  padding: 8px;
+  box-sizing: border-box;
+}
+
+button[type="submit"] {
+  width: 100%;
+  padding: 10px;
+  background-color: #4285f4;
+  color: #fff;
+  font-size: 16px;
+  border: none;
+  cursor: pointer;
+}
+
+button[type="submit"]:hover {
+  background-color: #357ae8;
+}
+
+#message {
+  margin-top: 20px;
+  text-align: center;
+  font-weight: bold;
+}

@@ -1,0 +1,88 @@
+package com.app.HotelBooking.model;
+
+import jakarta.persistence.*;
+import java.time.LocalDate;
+
+@Entity
+public class Reserva {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long idReserva;
+
+    private String nombre;
+    private String apellido;
+    private String dni;
+    private LocalDate fechaDesde;
+    private LocalDate fechaHasta;
+
+    @OneToOne(mappedBy = "reserva")
+    private Habitacion habitacion;
+
+    public Reserva() {}
+
+    public Reserva(String nombre, String apellido, String dni, LocalDate fechaDesde, LocalDate fechaHasta) {
+        this.nombre = nombre;
+        this.apellido = apellido;
+        this.dni = dni;
+        this.fechaDesde = fechaDesde;
+        this.fechaHasta = fechaHasta;
+    }
+
+    // Getters y Setters
+    public Long getIdReserva() {
+        return idReserva;
+    }
+
+    public void setIdReserva(Long idReserva) {
+        this.idReserva = idReserva;
+    }
+
+    public String getNombre() {
+        return nombre;
+    }
+
+    public void setNombre(String nombre) {
+        this.nombre = nombre;
+    }
+
+    public String getApellido() {
+        return apellido;
+    }
+
+    public void setApellido(String apellido) {
+        this.apellido = apellido;
+    }
+
+    public String getDni() {
+        return dni;
+    }
+
+    public void setDni(String dni) {
+        this.dni = dni;
+    }
+
+    public LocalDate getFechaDesde() {
+        return fechaDesde;
+    }
+
+    public void setFechaDesde(LocalDate fechaDesde) {
+        this.fechaDesde = fechaDesde;
+    }
+
+    public LocalDate getFechaHasta() {
+        return fechaHasta;
+    }
+
+    public void setFechaHasta(LocalDate fechaHasta) {
+        this.fechaHasta = fechaHasta;
+    }
+
+    public Habitacion getHabitacion() {
+        return habitacion;
+    }
+
+    public void setHabitacion(Habitacion habitacion) {
+        this.habitacion = habitacion;
+    }
+}
