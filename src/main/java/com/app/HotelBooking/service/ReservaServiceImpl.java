@@ -29,17 +29,7 @@ public class ReservaServiceImpl implements ReservaService {
             throw new ReservaException("La habitación está ocupada");
         }
 
-        // Opcional: Validación avanzada de reservas solapadas.
-        // Si en el futuro se permite tener varias reservas históricas o futuras para la misma habitación,
-        // se podría agregar aquí una consulta que verifique si el rango [fechaDesde, fechaHasta]
-        // se solapa con alguna reserva existente para esta habitación.
-        //
-        // Ejemplo (pseudocódigo):
-        // List<Reserva> reservasExistentes = reservaRepository.findByHabitacionAndFechaOverlap(
-        //     habitacion, reserva.getFechaDesde(), reserva.getFechaHasta());
-        // if (!reservasExistentes.isEmpty()) {
-        //     throw new ReservaException("El rango de fechas se solapa con una reserva existente");
-        // }
+        // Opcional: Validación de reservas solapadas (comentario de ejemplo)
 
         // Asocia la reserva con la habitación y actualiza el estado
         habitacion.setReserva(reserva);
@@ -50,5 +40,24 @@ public class ReservaServiceImpl implements ReservaService {
         habitacionRepository.save(habitacion);
 
         return reservaGuardada;
+    }
+
+    // Nuevo método para actualizar la reserva
+    @Override
+    public Reserva actualizarReserva(Long id, Reserva reservaActualizada) {
+        Reserva reservaExistente = reservaRepository.findById(id)
+                .orElseThrow(() -> new ReservaException("Reserva no encontrada"));
+
+        // Actualiza los campos que se permiten modificar
+        reservaExistente.setNombre(reservaActualizada.getNombre());
+        reservaExistente.setApellido(reservaActualizada.getApellido());
+        reservaExistente.setDni(reservaActualizada.getDni());
+        reservaExistente.setFechaDesde(reservaActualizada.getFechaDesde());
+        reservaExistente.setFechaHasta(reservaActualizada.getFechaHasta());
+
+        // Si en el futuro deseas permitir actualizar otros campos o relaciones,
+        // puedes hacerlo aquí.
+
+        return reservaRepository.save(reservaExistente);
     }
 }

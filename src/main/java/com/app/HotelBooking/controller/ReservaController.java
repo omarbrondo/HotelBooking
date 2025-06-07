@@ -32,6 +32,13 @@ public class ReservaController {
         return ResponseEntity.ok(habitacionesLibres);
     }
 
+    // Endpoint para actualizar una reserva existente
+    @PutMapping("/reservas/{id}")
+    public ResponseEntity<Reserva> actualizarReserva(@PathVariable Long id, @RequestBody Reserva reservaActualizada) {
+        Reserva reservaActual = reservaService.actualizarReserva(id, reservaActualizada);
+        return ResponseEntity.ok(reservaActual);
+    }
+
     // Endpoint para registrar una nueva reserva
     @PostMapping("/reservas")
     public ResponseEntity<Reserva> crearReserva(@RequestBody ReservaDTO reservaDTO) {

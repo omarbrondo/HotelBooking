@@ -26,28 +26,27 @@ document.addEventListener("DOMContentLoaded", function () {
       });
   }
 
-  // Función para cargar las habitaciones ocupadas y sus datos de reserva
+  // Función para cargar las habitaciones ocupadas y construir la tabla
   function cargarHabitacionesOcupadas() {
     fetch("/api/habitaciones/ocupadas")
       .then(response => response.json())
       .then(data => {
-        // Limpiar el tbody de la tabla
         tablaOcupadasBody.innerHTML = "";
         // Recorrer cada habitación ocupada
         data.forEach(habitacion => {
           const tr = document.createElement("tr");
-          
+
           // Celda: Nombre de la habitación
           const tdHabitacion = document.createElement("td");
           tdHabitacion.textContent = habitacion.nombreHabitacion;
           tr.appendChild(tdHabitacion);
-          
+
           // Celda: Precio
           const tdPrecio = document.createElement("td");
           tdPrecio.textContent = `$${habitacion.precio}`;
           tr.appendChild(tdPrecio);
-          
-          // Celda: Huésped (si existe reserva asociada)
+
+          // Celda: Huésped (si existe reserva)
           const tdHuesped = document.createElement("td");
           if (habitacion.reserva) {
             tdHuesped.textContent = `${habitacion.reserva.nombre} ${habitacion.reserva.apellido}`;
@@ -55,32 +54,91 @@ document.addEventListener("DOMContentLoaded", function () {
             tdHuesped.textContent = "Sin reserva";
           }
           tr.appendChild(tdHuesped);
-          
+
           // Celda: Fecha Desde
           const tdFechaDesde = document.createElement("td");
           tdFechaDesde.textContent = habitacion.reserva ? habitacion.reserva.fechaDesde : "";
           tr.appendChild(tdFechaDesde);
-          
+
           // Celda: Fecha Hasta
           const tdFechaHasta = document.createElement("td");
           tdFechaHasta.textContent = habitacion.reserva ? habitacion.reserva.fechaHasta : "";
           tr.appendChild(tdFechaHasta);
-          
-          // Celda: Acciones
+
+          // Celda: Acciones (Botón Editar)
           const tdAcciones = document.createElement("td");
-          // Aquí agregamos un botón de "Editar" (la funcionalidad se implementará más adelante)
           const btnEditar = document.createElement("button");
           btnEditar.textContent = "Editar";
           btnEditar.classList.add("btn-editar");
-          // Agrega un event listener para iniciar el proceso de edición
+
+          // Asignar el listener al botón "Editar" dentro del contexto de la iteración
           btnEditar.addEventListener("click", () => {
-            // Por ahora mostramos un SweetAlert; luego se puede implementar el modal de edición
+            // Verificar que la habitación tenga una reserva asociada para editar
+            if (!habitacion.reserva) {
+              Swal.fire({
+                icon: 'info',
+                title: 'Sin reserva',
+                text: 'No hay datos para editar en esta habitación.'
+              });
+              return;
+            }
+  
+            // Abrir un modal de SweetAlert2 con campos prellenados para editar la reserva
             Swal.fire({
-              icon: 'info',
               title: 'Editar Reserva',
-              text: 'Funcionalidad de edición pendiente de implementación.'
+              html:
+                '<input id="swal-input1" class="swal2-input" placeholder="Nombre" value="' + habitacion.reserva.nombre + '">' +
+                '<input id="swal-input2" class="swal2-input" placeholder="Apellido" value="' + habitacion.reserva.apellido + '">' +
+                '<input id="swal-input3" class="swal2-input" placeholder="DNI" value="' + habitacion.reserva.dni + '">' +
+                '<input id="swal-input4" type="date" class="swal2-input" value="' + habitacion.reserva.fechaDesde + '">' +
+                '<input id="swal-input5" type="date" class="swal2-input" value="' + habitacion.reserva.fechaHasta + '">',
+              focusConfirm: false,
+              preConfirm: () => {
+                return {
+                  nombre: document.getElementById('swal-input1').value,
+                  apellido: document.getElementById('swal-input2').value,
+                  dni: document.getElementById('swal-input3').value,
+                  fechaDesde: document.getElementById('swal-input4').value,
+                  fechaHasta: document.getElementById('swal-input5').value
+                };
+              }
+            }).then(result => {
+              if (result.isConfirmed) {
+                const updatedData = result.value;
+                // Llamada PUT al endpoint para actualizar la reserva
+                fetch('/api/reservas/' + habitacion.reserva.idReserva, {
+                  method: 'PUT',
+                  headers: {
+                    "Content-Type": "application/json"
+                  },
+                  body: JSON.stringify(updatedData)
+                })
+                .then(response => {
+                  if (!response.ok) {
+                    return response.text().then(text => { throw new Error(text) });
+                  }
+                  return response.json();
+                })
+                .then(data => {
+                  Swal.fire({
+                    icon: 'success',
+                    title: '¡Actualizado!',
+                    text: 'La reserva se actualizó correctamente.'
+                  });
+                  // Recargar la tabla para reflejar los cambios
+                  cargarHabitacionesOcupadas();
+                })
+                .catch(error => {
+                  Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: error.message
+                  });
+                });
+              }
             });
           });
+  
           tdAcciones.appendChild(btnEditar);
           tr.appendChild(tdAcciones);
   
@@ -98,7 +156,7 @@ document.addEventListener("DOMContentLoaded", function () {
       });
   }
 
-  // Validación básica en el cliente para el formulario
+  // Función para validar las fechas del formulario
   function validarFechas(fechaDesde, fechaHasta) {
     if (fechaDesde >= fechaHasta) {
       Swal.fire({
@@ -163,7 +221,6 @@ document.addEventListener("DOMContentLoaded", function () {
         });
         reservationForm.reset();
         cargarHabitacionesLibres();
-        // Volvemos a cargar la tabla de ocupadas para reflejar la reserva ingresada
         cargarHabitacionesOcupadas();
       })
       .catch(error => {
