@@ -4,12 +4,14 @@
   <meta charset="UTF-8">
   <title>Reserva de Habitaciones</title>
   <link rel="stylesheet" href="css/styles.css">
+  <!-- SweetAlert2 CSS -->
   <link href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css" rel="stylesheet">
 </head>
 <body>
   <div class="container">
     <h1>Reserva de Habitaciones</h1>
     <form id="reservationForm">
+      <!-- CAMPOS DEL FORMULARIO (nombre, apellido, dni, fechas, habitación) -->
       <div class="form-group">
         <label for="nombre">Nombre:</label>
         <input type="text" id="nombre" name="nombre" required>
@@ -38,8 +40,29 @@
       </div>
       <button type="submit">Reservar</button>
     </form>
-    <div id="message"></div>
+
+    <!-- Sección para la tabla de habitaciones ocupadas -->
+    <section class="occupied-section">
+      <h2>Habitaciones Ocupadas</h2>
+      <table id="tablaOcupadas">
+        <thead>
+          <tr>
+            <th>Habitación</th>
+            <th>Precio</th>
+            <th>Huésped</th>
+            <th>Fecha Desde</th>
+            <th>Fecha Hasta</th>
+            <th>Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          <!-- Aquí se insertarán las filas mediante JavaScript -->
+        </tbody>
+      </table>
+    </section>
   </div>
+
+  <!-- SweetAlert2 JS -->
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
   <script src="js/script.js"></script>
 </body>

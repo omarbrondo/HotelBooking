@@ -2,6 +2,7 @@ package com.app.HotelBooking.model;
 
 import jakarta.persistence.*;
 import java.time.LocalDate;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 @Entity
 public class Reserva {
@@ -17,6 +18,7 @@ public class Reserva {
     private LocalDate fechaHasta;
 
     @OneToOne(mappedBy = "reserva")
+    @JsonIgnore
     private Habitacion habitacion;
 
     public Reserva() {}
