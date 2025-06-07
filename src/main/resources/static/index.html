@@ -11,7 +11,7 @@
   <div class="container">
     <h1>Reserva de Habitaciones</h1>
     <form id="reservationForm">
-      <!-- CAMPOS DEL FORMULARIO (nombre, apellido, dni, fechas, habitación) -->
+      <!-- Campos del formulario para dar de alta la reserva -->
       <div class="form-group">
         <label for="nombre">Nombre:</label>
         <input type="text" id="nombre" name="nombre" required>
@@ -40,9 +40,11 @@
       </div>
       <button type="submit">Reservar</button>
     </form>
+  </div>
 
-    <!-- Sección para la tabla de habitaciones ocupadas -->
-    <section class="occupied-section">
+  <!-- Sección independiente para la tabla de habitaciones ocupadas -->
+  <section class="occupied-section">
+    <div class="card">
       <h2>Habitaciones Ocupadas</h2>
       <table id="tablaOcupadas">
         <thead>
@@ -56,11 +58,11 @@
           </tr>
         </thead>
         <tbody>
-          <!-- Aquí se insertarán las filas mediante JavaScript -->
+          <!-- Las filas se insertarán dinámicamente desde JavaScript -->
         </tbody>
       </table>
-    </section>
-  </div>
+    </div>
+  </section>
 
   <!-- SweetAlert2 JS -->
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>

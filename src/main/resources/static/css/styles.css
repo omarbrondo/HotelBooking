@@ -1,48 +1,52 @@
+/* Estilos globales */
 body {
-  font-family: Arial, sans-serif;
-  background-color: #f6f6f6;
+  font-family: 'Arial', sans-serif;
+  background-color: #f0f2f5;
   margin: 0;
   padding: 0;
 }
 
+/* Contenedor del formulario (sección alta) */
 .container {
   width: 90%;
   max-width: 500px;
-  margin: 50px auto;
+  margin: 40px auto;
   background-color: #fff;
-  padding: 20px;
+  padding: 20px 30px;
   border-radius: 8px;
   box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
 }
 
-h1 {
+.container h1 {
   text-align: center;
   color: #333;
+  margin-bottom: 20px;
 }
 
-.form-group {
+/* Estilos para los campos del formulario */
+.container .form-group {
   margin-bottom: 15px;
 }
 
-label {
+.container label {
   display: block;
   font-weight: bold;
   margin-bottom: 5px;
 }
 
-input[type="text"],
-input[type="date"],
-select {
+.container input[type="text"],
+.container input[type="date"],
+.container select {
   width: 100%;
-  padding: 8px;
+  padding: 8px 10px;
   box-sizing: border-box;
   border: 1px solid #ccc;
   border-radius: 4px;
 }
 
-button[type="submit"] {
+.container button[type="submit"] {
   width: 100%;
-  padding: 10px;
+  padding: 12px;
   background-color: #4285f4;
   color: #fff;
   font-size: 16px;
@@ -51,6 +55,74 @@ button[type="submit"] {
   cursor: pointer;
 }
 
-button[type="submit"]:hover {
+.container button[type="submit"]:hover {
   background-color: #357ae8;
+}
+
+/* Sección para las habitaciones ocupadas */
+.occupied-section {
+  width: 90%;
+  max-width: 800px;
+  margin: 50px auto;
+  display: flex;
+  justify-content: center;
+}
+
+/* Card que contiene la tabla */
+.occupied-section .card {
+  background-color: #fff;
+  border-radius: 8px;
+  box-shadow: 0px 2px 12px rgba(0, 0, 0, 0.1);
+  padding: 20px;
+  width: 100%;
+}
+
+.occupied-section .card h2 {
+  text-align: center;
+  color: #333;
+  margin-bottom: 20px;
+}
+
+/* Estilos para la tabla */
+.occupied-section table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 0 auto;
+}
+
+.occupied-section table thead {
+  background-color: #4285f4;
+  color: #fff;
+}
+
+.occupied-section table thead th {
+  padding: 12px;
+  text-align: center;
+  font-size: 16px;
+}
+
+.occupied-section table tbody td {
+  padding: 12px;
+  text-align: center;
+  border-bottom: 1px solid #ddd;
+  font-size: 14px;
+}
+
+.occupied-section table tbody tr:hover {
+  background-color: #f9f9f9;
+}
+
+/* Botón Editar */
+.btn-editar {
+  padding: 6px 12px;
+  background-color: #ff9800;
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.btn-editar:hover {
+  background-color: #e68900;
 }
