@@ -1,7 +1,6 @@
 document.addEventListener("DOMContentLoaded", function () {
   const reservationForm = document.getElementById("reservationForm");
   const habitacionSelect = document.getElementById("habitacion");
-  const messageDiv = document.getElementById("message");
 
   // Función para cargar las habitaciones libres en el select
   function cargarHabitacionesLibres() {
@@ -10,7 +9,6 @@ document.addEventListener("DOMContentLoaded", function () {
       .then(data => {
         habitacionSelect.innerHTML = `<option value="">Seleccione una habitación</option>`;
         data.forEach(habitacion => {
-          // Puedes personalizar el texto mostrado, por ejemplo: nombre y precio
           const option = document.createElement("option");
           option.value = habitacion.idHabitacion;
           option.text = `${habitacion.nombreHabitacion} (Precio: $${habitacion.precio})`;
@@ -19,29 +17,52 @@ document.addEventListener("DOMContentLoaded", function () {
       })
       .catch(error => {
         console.error("Error al cargar habitaciones:", error);
-        messageDiv.textContent = "Error al cargar las habitaciones disponibles.";
+        Swal.fire({
+          icon: 'error',
+          title: 'Error',
+          text: 'Error al cargar las habitaciones disponibles.'
+        });
       });
   }
 
   // Llamamos a la función para cargar las habitaciones al inicio
   cargarHabitacionesLibres();
 
+  // Validación básica en el cliente antes de enviar el formulario
+  function validarFechas(fechaDesde, fechaHasta) {
+    if (fechaDesde >= fechaHasta) {
+      Swal.fire({
+        icon: 'warning',
+        title: 'Fechas inválidas',
+        text: 'La fecha "Desde" debe ser anterior a la fecha "Hasta".'
+      });
+      return false;
+    }
+    return true;
+  }
+
   // Manejo del envío del formulario
   reservationForm.addEventListener("submit", function (event) {
     event.preventDefault();
 
     // Recoger valores del formulario
-    const nombre = document.getElementById("nombre").value;
-    const apellido = document.getElementById("apellido").value;
-    const dni = document.getElementById("dni").value;
+    const nombre = document.getElementById("nombre").value.trim();
+    const apellido = document.getElementById("apellido").value.trim();
+    const dni = document.getElementById("dni").value.trim();
     const fechaDesde = document.getElementById("fechaDesde").value;
     const fechaHasta = document.getElementById("fechaHasta").value;
     const idHabitacion = habitacionSelect.value;
 
     if (!idHabitacion) {
-      messageDiv.textContent = "Seleccione una habitación disponible.";
+      Swal.fire({
+        icon: 'warning',
+        title: 'Atención',
+        text: 'Seleccione una habitación disponible.'
+      });
       return;
     }
+
+    if (!validarFechas(fechaDesde, fechaHasta)) return;
 
     // Estructurar el objeto de la reserva a enviar
     const reservaDTO = {
@@ -68,15 +89,20 @@ document.addEventListener("DOMContentLoaded", function () {
         return response.json();
       })
       .then(data => {
-        messageDiv.style.color = "green";
-        messageDiv.textContent = "Reserva realizada exitosamente.";
-        // Vaciamos el formulario y recargamos la lista de habitaciones disponibles
+        Swal.fire({
+          icon: 'success',
+          title: 'Éxito',
+          text: 'Reserva realizada exitosamente.'
+        });
         reservationForm.reset();
         cargarHabitacionesLibres();
       })
       .catch(error => {
-        messageDiv.style.color = "red";
-        messageDiv.textContent = "Error: " + error.message;
+        Swal.fire({
+          icon: 'error',
+          title: 'Error',
+          text: error.message
+        });
       });
   });
 });

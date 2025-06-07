@@ -11,6 +11,7 @@ body {
   margin: 50px auto;
   background-color: #fff;
   padding: 20px;
+  border-radius: 8px;
   box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
 }
 
@@ -35,6 +36,8 @@ select {
   width: 100%;
   padding: 8px;
   box-sizing: border-box;
+  border: 1px solid #ccc;
+  border-radius: 4px;
 }
 
 button[type="submit"] {
@@ -44,15 +47,10 @@ button[type="submit"] {
   color: #fff;
   font-size: 16px;
   border: none;
+  border-radius: 4px;
   cursor: pointer;
 }
 
 button[type="submit"]:hover {
   background-color: #357ae8;
-}
-
-#message {
-  margin-top: 20px;
-  text-align: center;
-  font-weight: bold;
 }
