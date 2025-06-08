@@ -1,0 +1,77 @@
+[33mcommit 20fd380b5457ab33fffc798fe8ebb438705ad751[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmain[m[33m, [m[1;31morigin/main[m[33m)[m
+Author: omar <omarbrondo@gmail.com>
+Date:   Sat Jun 7 23:46:58 2025 -0300
+
+    version con impresion de factura, cancelar checkout
+
+[33mcommit 601d175c6c9318a619725b6c96c563887568c0c7[m
+Author: omar <omarbrondo@gmail.com>
+Date:   Sat Jun 7 22:57:35 2025 -0300
+
+    hace checkout e imprime factura
+
+[33mcommit 9ced8d3a21b3ebb3e2bb244c699e725e36662bc3[m
+Author: omar <omarbrondo@gmail.com>
+Date:   Sat Jun 7 22:42:31 2025 -0300
+
+    agregada la funcionalidad de eliminar registros
+
+[33mcommit 328e0d6f08db581e1817473c18c9d031aee398e8[m
+Author: omar <omarbrondo@gmail.com>
+Date:   Sat Jun 7 22:25:07 2025 -0300
+
+    version estable
+
+[33mcommit bcaae28463897c34b221fa00b54f19024010718a[m
+Author: omar <omarbrondo@gmail.com>
+Date:   Sat Jun 7 22:14:08 2025 -0300
+
+    Agregado Bootstrap
+
+[33mcommit 4d50e5cfa2769688ea9d36d51e71aa22f0b893c8[m
+Author: omar <omarbrondo@gmail.com>
+Date:   Sat Jun 7 22:02:23 2025 -0300
+
+    muestra detalles de los productos
+
+[33mcommit 61414f503efbd54c0a3c5d4f3c00c291d1b709ca[m
+Author: omar <omarbrondo@gmail.com>
+Date:   Sat Jun 7 21:44:19 2025 -0300
+
+    funcionalidad de agregar productos estable
+
+[33mcommit 8a5d0936dd1a7a7ec0a7f1f2b675d80d82bcf96d[m
+Author: omar <omarbrondo@gmail.com>
+Date:   Sat Jun 7 21:29:04 2025 -0300
+
+    version con tabla de productos
+
+[33mcommit e1accc761e92955c2b73c3fdb8abbf878dffd401[m
+Author: omar <omarbrondo@gmail.com>
+Date:   Sat Jun 7 20:52:18 2025 -0300
+
+    tablas mejoradas esteticamente, ahora se pueden editar reservas
+
+[33mcommit de05deecf03039a8bb9119e7da71cb36a2fa2b4a[m
+Author: omar <omarbrondo@gmail.com>
+Date:   Sat Jun 7 20:28:47 2025 -0300
+
+    version estable con swagger y visualizacion de reservas en el front
+
+[33mcommit da8c485a75babab9674b7c251259ab3e53c2340d[m
+Author: omar <omarbrondo@gmail.com>
+Date:   Sat Jun 7 20:22:20 2025 -0300
+
+    primera version de visualizar reservas en front
+
+[33mcommit 02fcee3f51b848583fd9ddbc514e5bb289862dd3[m
+Author: omar <omarbrondo@gmail.com>
+Date:   Sat Jun 7 20:10:02 2025 -0300
+
+    agregado swiftalerts y swaggers
+
+[33mcommit b08e485ce1f1d678e4a7f299bcef25dfef56c777[m
+Author: omar <omarbrondo@gmail.com>
+Date:   Sat Jun 7 19:41:53 2025 -0300
+
+    primera version
