@@ -67,7 +67,7 @@ document.addEventListener("DOMContentLoaded", function () {
           // Columna: Acciones
           const tdAcciones = document.createElement("td");
 
-          // Botón "Editar" (Bootstrap: btn y btn-primary, por ejemplo)
+          // Botón "Editar" (Bootstrap: btn y btn-primary, btn-sm)
           const btnEditar = document.createElement("button");
           btnEditar.textContent = "Editar";
           btnEditar.classList.add("btn", "btn-primary", "btn-sm");
@@ -134,7 +134,7 @@ document.addEventListener("DOMContentLoaded", function () {
           });
           tdAcciones.appendChild(btnEditar);
 
-          // Botón "Agregar productos" (Bootstrap: btn y btn-success)
+          // Botón "Agregar productos" (Bootstrap: btn y btn-success, btn-sm)
           const btnAgregarProductos = document.createElement("button");
           btnAgregarProductos.textContent = "Agregar productos";
           btnAgregarProductos.classList.add("btn", "btn-success", "btn-sm");
@@ -148,7 +148,6 @@ document.addEventListener("DOMContentLoaded", function () {
               });
               return;
             }
-  
             fetch("/api/productos")
               .then(resp => resp.json())
               .then(productos => {
@@ -232,7 +231,7 @@ document.addEventListener("DOMContentLoaded", function () {
           });
           tdAcciones.appendChild(btnAgregarProductos);
 
-          // Botón "Detalle" (Bootstrap: btn y btn-warning)
+          // Botón "Detalle" (Bootstrap: btn y btn-warning, btn-sm)
           const btnDetalle = document.createElement("button");
           btnDetalle.textContent = "Detalle";
           btnDetalle.classList.add("btn", "btn-warning", "btn-sm");
@@ -291,6 +290,57 @@ document.addEventListener("DOMContentLoaded", function () {
               });
           });
           tdAcciones.appendChild(btnDetalle);
+
+          // Botón "Eliminar" (Bootstrap: btn y btn-danger, btn-sm)
+          const btnEliminar = document.createElement("button");
+          btnEliminar.textContent = "Eliminar";
+          btnEliminar.classList.add("btn", "btn-danger", "btn-sm");
+          btnEliminar.style.marginLeft = "5px";
+          btnEliminar.addEventListener("click", () => {
+            if (!habitacion.reserva) {
+              Swal.fire({
+                icon: 'info',
+                title: 'Sin reserva',
+                text: 'No hay reserva para eliminar.'
+              });
+              return;
+            }
+            Swal.fire({
+              title: '¿Estás seguro?',
+              text: "Se eliminará la reserva, sus consumos y la habitación quedará libre.",
+              icon: 'warning',
+              showCancelButton: true,
+              confirmButtonText: 'Sí, eliminar',
+              cancelButtonText: 'Cancelar'
+            }).then(result => {
+              if (result.isConfirmed) {
+                fetch(`/api/reservas/${habitacion.reserva.idReserva}`, {
+                  method: 'DELETE'
+                })
+                .then(response => {
+                  if (response.ok) {
+                    Swal.fire({
+                      icon: 'success',
+                      title: 'Eliminado',
+                      text: 'La reserva se eliminó correctamente.'
+                    });
+                    cargarHabitacionesOcupadas();
+                    cargarHabitacionesLibres();
+                  } else {
+                    return response.text().then(text => { throw new Error(text); });
+                  }
+                })
+                .catch(error => {
+                  Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: error.message
+                  });
+                });
+              }
+            });
+          });
+          tdAcciones.appendChild(btnEliminar);
 
           tr.appendChild(tdAcciones);
           tablaOcupadasBody.appendChild(tr);

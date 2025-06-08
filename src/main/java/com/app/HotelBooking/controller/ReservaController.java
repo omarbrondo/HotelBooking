@@ -2,7 +2,6 @@ package com.app.HotelBooking.controller;
 
 import com.app.HotelBooking.dto.DetalleConsumoDTO;
 import com.app.HotelBooking.dto.ReservaDTO;
-import com.app.HotelBooking.exception.ReservaException;
 import com.app.HotelBooking.model.DetalleConsumo;
 import com.app.HotelBooking.model.Habitacion;
 import com.app.HotelBooking.model.Producto;
@@ -47,12 +46,15 @@ public class ReservaController {
 
     // Endpoint para actualizar una reserva existente
     @PutMapping("/reservas/{id}")
-    public ResponseEntity<Reserva> actualizarReserva(@PathVariable Long id, @RequestBody Reserva reservaActualizada) {
+    public ResponseEntity<Reserva> actualizarReserva(@PathVariable Long id,
+            @RequestBody Reserva reservaActualizada) {
         Reserva reservaActual = reservaService.actualizarReserva(id, reservaActualizada);
         return ResponseEntity.ok(reservaActual);
     }
 
-     @GetMapping("/reservas/{id}")
+    // Endpoint para obtener el detalle de una reserva (incluye consumos, si
+    // existen)
+    @GetMapping("/reservas/{id}")
     public ResponseEntity<Reserva> obtenerDetalleReserva(@PathVariable Long id) {
         Reserva reserva = reservaService.obtenerReservaPorId(id);
         return ResponseEntity.ok(reserva);
@@ -77,18 +79,25 @@ public class ReservaController {
     @PostMapping("/reservas/{id}/consumos")
     public ResponseEntity<DetalleConsumo> agregarConsumo(@PathVariable Long id,
             @RequestBody DetalleConsumoDTO consumoDTO) {
-        // Buscamos la reserva por id (asegúrate de tener este método implementado en
-        // ReservaService)
+        // Buscamos la reserva por id (asegúrate que existe, de lo contrario se lanza
+        // excepción)
         Reserva reserva = reservaService.obtenerReservaPorId(id);
 
         // Buscamos el producto por su id
         Producto producto = productoRepository.findById(consumoDTO.getIdProducto())
                 .orElseThrow(() -> new RuntimeException("Producto no encontrado"));
 
-        // Creamos el detalle de consumo con la cantidad indicada
+        // Creamos el detalle de consumo asociado a la reserva con la cantidad indicada
         DetalleConsumo detalleConsumo = new DetalleConsumo(reserva, producto, consumoDTO.getCantidad());
         DetalleConsumo detalleGuardado = detalleConsumoRepository.save(detalleConsumo);
 
         return ResponseEntity.status(HttpStatus.CREATED).body(detalleGuardado);
     }
+
+    @DeleteMapping("/reservas/{id}")
+    public ResponseEntity<Void> eliminarReserva(@PathVariable Long id) {
+        reservaService.eliminarReserva(id);
+        return ResponseEntity.noContent().build();
+    }
+
 }
