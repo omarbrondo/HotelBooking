@@ -3,7 +3,7 @@ document.addEventListener("DOMContentLoaded", function () {
   const habitacionSelect = document.getElementById("habitacion");
   const tablaOcupadasBody = document.querySelector("#tablaOcupadas tbody");
 
-  // Función para cargar las habitaciones libres en el select del formulario
+  // Función para cargar las habitaciones libres en el select
   function cargarHabitacionesLibres() {
     fetch("/api/habitaciones/libres")
       .then(response => response.json())
@@ -32,7 +32,6 @@ document.addEventListener("DOMContentLoaded", function () {
       .then(response => response.json())
       .then(data => {
         tablaOcupadasBody.innerHTML = "";
-        // Recorrer cada habitación ocupada
         data.forEach(habitacion => {
           const tr = document.createElement("tr");
 
@@ -46,7 +45,7 @@ document.addEventListener("DOMContentLoaded", function () {
           tdPrecio.textContent = `$${habitacion.precio}`;
           tr.appendChild(tdPrecio);
 
-          // Columna: Huésped (si existe reserva asociada)
+          // Columna: Huésped
           const tdHuesped = document.createElement("td");
           if (habitacion.reserva) {
             tdHuesped.textContent = `${habitacion.reserva.nombre} ${habitacion.reserva.apellido}`;
@@ -68,10 +67,10 @@ document.addEventListener("DOMContentLoaded", function () {
           // Columna: Acciones
           const tdAcciones = document.createElement("td");
 
-          // Botón "Editar"
+          // Botón "Editar" (Bootstrap: btn y btn-primary, por ejemplo)
           const btnEditar = document.createElement("button");
           btnEditar.textContent = "Editar";
-          btnEditar.classList.add("btn-editar");
+          btnEditar.classList.add("btn", "btn-primary", "btn-sm");
           btnEditar.addEventListener("click", () => {
             if (!habitacion.reserva) {
               Swal.fire({
@@ -109,36 +108,36 @@ document.addEventListener("DOMContentLoaded", function () {
                   },
                   body: JSON.stringify(updatedData)
                 })
-                  .then(response => {
-                    if (!response.ok) {
-                      return response.text().then(text => { throw new Error(text); });
-                    }
-                    return response.json();
-                  })
-                  .then(data => {
-                    Swal.fire({
-                      icon: 'success',
-                      title: '¡Actualizado!',
-                      text: 'La reserva se actualizó correctamente.'
-                    });
-                    cargarHabitacionesOcupadas();
-                  })
-                  .catch(error => {
-                    Swal.fire({
-                      icon: 'error',
-                      title: 'Error',
-                      text: error.message
-                    });
+                .then(response => {
+                  if (!response.ok) {
+                    return response.text().then(text => { throw new Error(text); });
+                  }
+                  return response.json();
+                })
+                .then(data => {
+                  Swal.fire({
+                    icon: 'success',
+                    title: '¡Actualizado!',
+                    text: 'La reserva se actualizó correctamente.'
                   });
+                  cargarHabitacionesOcupadas();
+                })
+                .catch(error => {
+                  Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: error.message
+                  });
+                });
               }
             });
           });
           tdAcciones.appendChild(btnEditar);
 
-          // Botón "Agregar productos"
+          // Botón "Agregar productos" (Bootstrap: btn y btn-success)
           const btnAgregarProductos = document.createElement("button");
           btnAgregarProductos.textContent = "Agregar productos";
-          btnAgregarProductos.classList.add("btn-agregar-productos");
+          btnAgregarProductos.classList.add("btn", "btn-success", "btn-sm");
           btnAgregarProductos.style.marginLeft = "5px";
           btnAgregarProductos.addEventListener("click", () => {
             if (!habitacion.reserva) {
@@ -149,10 +148,11 @@ document.addEventListener("DOMContentLoaded", function () {
               });
               return;
             }
+  
             fetch("/api/productos")
               .then(resp => resp.json())
               .then(productos => {
-                let htmlProductos = '<table style="width:100%; text-align:center;">' +
+                let htmlProductos = '<table class="table table-striped" style="text-align:center;">' +
                   '<thead>' +
                     '<tr>' +
                       '<th>Producto</th>' +
@@ -170,7 +170,7 @@ document.addEventListener("DOMContentLoaded", function () {
                     '</tr>';
                 });
                 htmlProductos += '</tbody></table>';
-  
+    
                 Swal.fire({
                   title: 'Agregar Productos',
                   html: htmlProductos,
@@ -204,21 +204,21 @@ document.addEventListener("DOMContentLoaded", function () {
                         body: JSON.stringify(consumo)
                       })
                     ))
-                      .then(() => {
-                        Swal.fire({
-                          icon: 'success',
-                          title: 'Guardado',
-                          text: 'Productos agregados a la reserva'
-                        });
-                        cargarHabitacionesOcupadas();
-                      })
-                      .catch(error => {
-                        Swal.fire({
-                          icon: 'error',
-                          title: 'Error',
-                          text: error.message
-                        });
+                    .then(() => {
+                      Swal.fire({
+                        icon: 'success',
+                        title: 'Guardado',
+                        text: 'Productos agregados a la reserva'
                       });
+                      cargarHabitacionesOcupadas();
+                    })
+                    .catch(error => {
+                      Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: error.message
+                      });
+                    });
                   }
                 });
               })
@@ -232,10 +232,10 @@ document.addEventListener("DOMContentLoaded", function () {
           });
           tdAcciones.appendChild(btnAgregarProductos);
 
-          // Botón "Detalle" para ver información de la reserva
+          // Botón "Detalle" (Bootstrap: btn y btn-warning)
           const btnDetalle = document.createElement("button");
           btnDetalle.textContent = "Detalle";
-          btnDetalle.classList.add("btn-detalle");
+          btnDetalle.classList.add("btn", "btn-warning", "btn-sm");
           btnDetalle.style.marginLeft = "5px";
           btnDetalle.addEventListener("click", () => {
             if (!habitacion.reserva) {
@@ -246,20 +246,24 @@ document.addEventListener("DOMContentLoaded", function () {
               });
               return;
             }
-            // Usamos el ID de la reserva para obtener el detalle completo
             fetch(`/api/reservas/${habitacion.reserva.idReserva}`)
               .then(response => response.json())
               .then(detalle => {
-                // Construir una vista con los detalles: datos de huésped, habitación y consumos
                 let htmlDetalle = `<strong>Habitación:</strong> ${habitacion.nombreHabitacion} <br/>
                                    <strong>Precio de habitación:</strong> $${habitacion.precio} <br/><hr/>
                                    <strong>Huésped:</strong> ${detalle.nombre} ${detalle.apellido} <br/>
                                    <strong>DNI:</strong> ${detalle.dni}<br/>
                                    <strong>Fechas:</strong> ${detalle.fechaDesde} - ${detalle.fechaHasta} <br/><hr/>`;
-                // Suponiendo que el objeto 'detalle' incluye un arreglo "consumos" con los consumos realizados
                 if (detalle.consumos && detalle.consumos.length > 0) {
-                  htmlDetalle += `<strong>Consumos:</strong><br/><table style="width:100%; text-align:left;" border="1" cellspacing="0" cellpadding="5">
-                                  <thead><tr><th>Producto</th><th>Cantidad</th><th>Precio Unitario</th></tr></thead><tbody>`;
+                  htmlDetalle += `<strong>Consumos:</strong><br/><table class="table table-striped">
+                                  <thead>
+                                    <tr>
+                                      <th>Producto</th>
+                                      <th>Cantidad</th>
+                                      <th>Precio Unitario</th>
+                                    </tr>
+                                  </thead>
+                                  <tbody>`;
                   detalle.consumos.forEach(consumo => {
                     htmlDetalle += `<tr>
                                       <td>${consumo.producto.nombreProducto}</td>
@@ -271,7 +275,7 @@ document.addEventListener("DOMContentLoaded", function () {
                 } else {
                   htmlDetalle += `<strong>Consumos:</strong> Sin consumos registrados.`;
                 }
-  
+      
                 Swal.fire({
                   title: 'Detalle de Reserva',
                   html: htmlDetalle,
@@ -288,10 +292,7 @@ document.addEventListener("DOMContentLoaded", function () {
           });
           tdAcciones.appendChild(btnDetalle);
 
-          // Agregar la celda de acciones a la fila
           tr.appendChild(tdAcciones);
-
-          // Agregar la fila a la tabla
           tablaOcupadasBody.appendChild(tr);
         });
       })
@@ -321,14 +322,13 @@ document.addEventListener("DOMContentLoaded", function () {
   // Manejo del envío del formulario de reserva
   reservationForm.addEventListener("submit", function (event) {
     event.preventDefault();
-
     const nombre = document.getElementById("nombre").value.trim();
     const apellido = document.getElementById("apellido").value.trim();
     const dni = document.getElementById("dni").value.trim();
     const fechaDesde = document.getElementById("fechaDesde").value;
     const fechaHasta = document.getElementById("fechaHasta").value;
     const idHabitacion = habitacionSelect.value;
-
+    
     if (!idHabitacion) {
       Swal.fire({
         icon: 'warning',
@@ -337,9 +337,8 @@ document.addEventListener("DOMContentLoaded", function () {
       });
       return;
     }
-
     if (!validarFechas(fechaDesde, fechaHasta)) return;
-
+    
     const reservaDTO = {
       nombre: nombre,
       apellido: apellido,
@@ -348,7 +347,7 @@ document.addEventListener("DOMContentLoaded", function () {
       fechaHasta: fechaHasta,
       idHabitacion: Number(idHabitacion)
     };
-
+    
     fetch("/api/reservas", {
       method: "POST",
       headers: { "Content-Type": "application/json" },

@@ -1,116 +1,46 @@
-/* Estilos globales */
+/* ========== Global Styles ========== */
 body {
   font-family: 'Arial', sans-serif;
-  background-color: #f0f2f5;
+  background-color: #f8f9fa; /* Color de fondo claro, similar a Bootstrap */
   margin: 0;
   padding: 0;
 }
 
-/* Contenedor del formulario (sección alta) */
+/* ========== Contenedor Principal ========== */
+/* La clase container de Bootstrap ya gestiona el ancho, así que solo ajustamos los márgenes */
 .container {
-  width: 90%;
-  max-width: 500px;
-  margin: 40px auto;
-  background-color: #fff;
-  padding: 20px 30px;
-  border-radius: 8px;
-  box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+  margin-top: 30px;
 }
 
+/* Centramos el título principal */
 .container h1 {
   text-align: center;
-  color: #333;
-  margin-bottom: 20px;
 }
 
-/* Estilos para los campos del formulario */
-.container .form-group {
-  margin-bottom: 15px;
+/* ========== Formularios ========== */
+/* Bootstrap ya estiliza las form-control y form-label, pero aquí algunos ajustes mínimos */
+.form-group {
+  margin-bottom: 1rem;
 }
 
-.container label {
-  display: block;
-  font-weight: bold;
-  margin-bottom: 5px;
-}
-
-.container input[type="text"],
-.container input[type="date"],
-.container select {
-  width: 100%;
-  padding: 8px 10px;
-  box-sizing: border-box;
-  border: 1px solid #ccc;
-  border-radius: 4px;
-}
-
-.container button[type="submit"] {
-  width: 100%;
-  padding: 12px;
-  background-color: #4285f4;
-  color: #fff;
-  font-size: 16px;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-}
-
-.container button[type="submit"]:hover {
-  background-color: #357ae8;
-}
-
-/* Sección para las habitaciones ocupadas */
-.occupied-section {
-  width: 90%;
-  max-width: 800px;
-  margin: 50px auto;
-  display: flex;
-  justify-content: center;
-}
-
-/* Card que contiene la tabla */
+/* ========== Sección de Habitaciones Ocupadas ========== */
 .occupied-section .card {
-  background-color: #fff;
-  border-radius: 8px;
-  box-shadow: 0px 2px 12px rgba(0, 0, 0, 0.1);
-  padding: 20px;
-  width: 100%;
+  margin-top: 30px;
 }
 
+/* Centramos el título de la tarjeta */
 .occupied-section .card h2 {
   text-align: center;
-  color: #333;
-  margin-bottom: 20px;
 }
 
-/* Estilos para la tabla */
-.occupied-section table {
-  width: 100%;
-  border-collapse: collapse;
-  margin: 0 auto;
+/* La tabla utiliza las clases de Bootstrap (table y table-striped) para su diseño,
+   por lo que no es necesario añadir demasiados estilos personalizados.
+   Solo removemos márgenes extras si hubiere conflicto. */
+table {
+  margin-bottom: 0;
 }
 
-.occupied-section table thead {
-  background-color: #4285f4;
-  color: #fff;
-}
-
-.occupied-section table thead th {
-  padding: 12px;
-  text-align: center;
-  font-size: 16px;
-}
-
-.occupied-section table tbody td {
-  padding: 12px;
-  text-align: center;
-  border-bottom: 1px solid #ddd;
-  font-size: 14px;
-}
-
-.occupied-section table tbody tr:hover {
-  background-color: #f9f9f9;
-}
+/* ========== Botones Personalizados ========== */
 
 /* Botón Editar */
 .btn-editar {
@@ -121,22 +51,25 @@ body {
   border-radius: 4px;
   cursor: pointer;
   font-size: 14px;
+  margin: 2px;
 }
 
 .btn-editar:hover {
   background-color: #e68900;
 }
 
+/* Botón Agregar Productos */
 .btn-agregar-productos {
   background: linear-gradient(135deg, #34a853, #0f9d58);
   border: none;
   border-radius: 6px;
   color: #fff;
-  padding: 8px 16px;
+  padding: 6px 10px;
   font-size: 14px;
   cursor: pointer;
   transition: background 0.3s ease, transform 0.2s ease;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
+  margin: 2px;
 }
 
 .btn-agregar-productos:hover {
@@ -148,16 +81,18 @@ body {
   transform: scale(0.98);
 }
 
+/* Botón Detalle */
 .btn-detalle {
   background: linear-gradient(135deg, #ff7f50, #ff4500);
   border: none;
   border-radius: 5px;
   color: #fff;
-  padding: 8px 16px;
+  padding: 6px 10px;
   font-size: 14px;
   cursor: pointer;
   transition: background 0.3s ease, transform 0.2s ease;
   box-shadow: 0 3px 6px rgba(0, 0, 0, 0.16);
+  margin: 2px;
 }
 
 .btn-detalle:hover {
