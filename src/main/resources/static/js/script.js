@@ -36,17 +36,17 @@ document.addEventListener("DOMContentLoaded", function () {
         data.forEach(habitacion => {
           const tr = document.createElement("tr");
 
-          // Celda: Nombre de la habitación
+          // Columna: Nombre de la habitación
           const tdHabitacion = document.createElement("td");
           tdHabitacion.textContent = habitacion.nombreHabitacion;
           tr.appendChild(tdHabitacion);
 
-          // Celda: Precio
+          // Columna: Precio
           const tdPrecio = document.createElement("td");
           tdPrecio.textContent = `$${habitacion.precio}`;
           tr.appendChild(tdPrecio);
 
-          // Celda: Huésped (si existe reserva)
+          // Columna: Huésped (si existe reserva asociada)
           const tdHuesped = document.createElement("td");
           if (habitacion.reserva) {
             tdHuesped.textContent = `${habitacion.reserva.nombre} ${habitacion.reserva.apellido}`;
@@ -55,25 +55,24 @@ document.addEventListener("DOMContentLoaded", function () {
           }
           tr.appendChild(tdHuesped);
 
-          // Celda: Fecha Desde
+          // Columna: Fecha Desde
           const tdFechaDesde = document.createElement("td");
           tdFechaDesde.textContent = habitacion.reserva ? habitacion.reserva.fechaDesde : "";
           tr.appendChild(tdFechaDesde);
 
-          // Celda: Fecha Hasta
+          // Columna: Fecha Hasta
           const tdFechaHasta = document.createElement("td");
           tdFechaHasta.textContent = habitacion.reserva ? habitacion.reserva.fechaHasta : "";
           tr.appendChild(tdFechaHasta);
 
-          // Celda: Acciones (Botón Editar)
+          // Columna: Acciones
           const tdAcciones = document.createElement("td");
+
+          // Botón "Editar" (ya existente)
           const btnEditar = document.createElement("button");
           btnEditar.textContent = "Editar";
           btnEditar.classList.add("btn-editar");
-
-          // Asignar el listener al botón "Editar" dentro del contexto de la iteración
           btnEditar.addEventListener("click", () => {
-            // Verificar que la habitación tenga una reserva asociada para editar
             if (!habitacion.reserva) {
               Swal.fire({
                 icon: 'info',
@@ -82,8 +81,6 @@ document.addEventListener("DOMContentLoaded", function () {
               });
               return;
             }
-  
-            // Abrir un modal de SweetAlert2 con campos prellenados para editar la reserva
             Swal.fire({
               title: 'Editar Reserva',
               html:
@@ -105,7 +102,6 @@ document.addEventListener("DOMContentLoaded", function () {
             }).then(result => {
               if (result.isConfirmed) {
                 const updatedData = result.value;
-                // Llamada PUT al endpoint para actualizar la reserva
                 fetch('/api/reservas/' + habitacion.reserva.idReserva, {
                   method: 'PUT',
                   headers: {
@@ -115,7 +111,7 @@ document.addEventListener("DOMContentLoaded", function () {
                 })
                 .then(response => {
                   if (!response.ok) {
-                    return response.text().then(text => { throw new Error(text) });
+                    return response.text().then(text => { throw new Error(text); });
                   }
                   return response.json();
                 })
@@ -125,7 +121,6 @@ document.addEventListener("DOMContentLoaded", function () {
                     title: '¡Actualizado!',
                     text: 'La reserva se actualizó correctamente.'
                   });
-                  // Recargar la tabla para reflejar los cambios
                   cargarHabitacionesOcupadas();
                 })
                 .catch(error => {
@@ -138,10 +133,111 @@ document.addEventListener("DOMContentLoaded", function () {
               }
             });
           });
-  
           tdAcciones.appendChild(btnEditar);
+
+          // Botón "Agregar productos"
+          const btnAgregarProductos = document.createElement("button");
+          btnAgregarProductos.textContent = "Agregar productos";
+          btnAgregarProductos.classList.add("btn-agregar-productos");
+          btnAgregarProductos.style.marginLeft = "5px"; // espacio entre botones
+          btnAgregarProductos.addEventListener("click", () => {
+            // Verificamos que la habitación tenga una reserva asociada
+            if (!habitacion.reserva) {
+              Swal.fire({
+                icon: 'info',
+                title: 'Sin reserva',
+                text: 'No hay reserva asociada para agregar productos.'
+              });
+              return;
+            }
+
+            // Obtener la lista de productos del API
+            fetch("/api/productos")
+              .then(resp => resp.json())
+              .then(productos => {
+                let htmlProductos = '<table style="width:100%; text-align:center;">' +
+                  '<thead>' +
+                    '<tr>' +
+                      '<th>Producto</th>' +
+                      '<th>Precio</th>' +
+                      '<th>Cantidad</th>' +
+                    '</tr>' +
+                  '</thead>' +
+                  '<tbody>';
+                productos.forEach(prod => {
+                  htmlProductos +=
+                    '<tr>' +
+                      `<td>${prod.nombreProducto}</td>` +
+                      `<td>$${prod.precio}</td>` +
+                      `<td><input type="number" min="0" value="0" id="cantidad-${prod.idProducto}" style="width:50px;" /></td>` +
+                    '</tr>';
+                });
+                htmlProductos += '</tbody></table>';
+
+                // Mostrar modal para agregar productos
+                Swal.fire({
+                  title: 'Agregar Productos',
+                  html: htmlProductos,
+                  showCancelButton: true,
+                  confirmButtonText: 'Guardar',
+                  preConfirm: () => {
+                    const consumos = [];
+                    productos.forEach(prod => {
+                      const cantidad = document.getElementById(`cantidad-${prod.idProducto}`).value;
+                      const cant = parseInt(cantidad);
+                      if (cant > 0) {
+                        consumos.push({
+                          idProducto: prod.idProducto,
+                          cantidad: cant
+                        });
+                      }
+                    });
+                    if (consumos.length === 0) {
+                      Swal.showValidationMessage("Debes seleccionar al menos un producto con cantidad mayor a 0");
+                    }
+                    return consumos;
+                  }
+                }).then(result => {
+                  if (result.isConfirmed) {
+                    const consumos = result.value;
+                    const reservaId = habitacion.reserva.idReserva;
+                    // Enviar cada consumo al endpoint correspondiente
+                    Promise.all(consumos.map(consumo =>
+                      fetch(`/api/reservas/${reservaId}/consumos`, {
+                        method: 'POST',
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify(consumo)
+                      })
+                    ))
+                    .then(() => {
+                      Swal.fire({
+                        icon: 'success',
+                        title: 'Guardado',
+                        text: 'Productos agregados a la reserva'
+                      });
+                      cargarHabitacionesOcupadas();
+                    })
+                    .catch(error => {
+                      Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: error.message
+                      });
+                    });
+                  }
+                });
+              })
+              .catch(error => {
+                Swal.fire({
+                  icon: 'error',
+                  title: 'Error',
+                  text: 'No se pudo cargar los productos.'
+                });
+              });
+          });
+          tdAcciones.appendChild(btnAgregarProductos);
           tr.appendChild(tdAcciones);
-  
+
           // Agregar la fila a la tabla
           tablaOcupadasBody.appendChild(tr);
         });
@@ -209,7 +305,7 @@ document.addEventListener("DOMContentLoaded", function () {
     })
       .then(response => {
         if (!response.ok) {
-          return response.text().then(text => { throw new Error(text) });
+          return response.text().then(text => { throw new Error(text); });
         }
         return response.json();
       })
@@ -232,7 +328,7 @@ document.addEventListener("DOMContentLoaded", function () {
       });
   });
 
-  // Cargar las habitaciones libres y ocupadas al iniciar la página
+  // Inicializar: cargar habitaciones libres y ocupadas al cargar la página
   cargarHabitacionesLibres();
   cargarHabitacionesOcupadas();
 });
