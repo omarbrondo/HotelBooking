@@ -7,6 +7,8 @@ import com.app.HotelBooking.repository.HabitacionRepository;
 import com.app.HotelBooking.repository.ReservaRepository;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
 public class ReservaServiceImpl implements ReservaService {
 
@@ -16,6 +18,12 @@ public class ReservaServiceImpl implements ReservaService {
     public ReservaServiceImpl(ReservaRepository reservaRepository, HabitacionRepository habitacionRepository) {
         this.reservaRepository = reservaRepository;
         this.habitacionRepository = habitacionRepository;
+    }
+
+    @Override
+    public Reserva obtenerReservaPorId(Long id) {
+        return reservaRepository.findById(id)
+                .orElseThrow(() -> new ReservaException("Reserva no encontrada"));
     }
 
     @Override
@@ -29,7 +37,13 @@ public class ReservaServiceImpl implements ReservaService {
             throw new ReservaException("La habitación está ocupada");
         }
 
-        // Opcional: Validación de reservas solapadas (comentario de ejemplo)
+        // Opcional: Validación avanzada de reservas solapadas.
+        // Ejemplo (pseudocódigo):
+        // List<Reserva> reservasExistentes = reservaRepository.findByHabitacionAndFechaOverlap(
+        //     habitacion, reserva.getFechaDesde(), reserva.getFechaHasta());
+        // if (!reservasExistentes.isEmpty()) {
+        //     throw new ReservaException("El rango de fechas se solapa con una reserva existente");
+        // }
 
         // Asocia la reserva con la habitación y actualiza el estado
         habitacion.setReserva(reserva);
@@ -41,23 +55,21 @@ public class ReservaServiceImpl implements ReservaService {
 
         return reservaGuardada;
     }
-
-    // Nuevo método para actualizar la reserva
+    
     @Override
     public Reserva actualizarReserva(Long id, Reserva reservaActualizada) {
+        // Buscamos la reserva existente, de lo contrario se lanza una excepción
         Reserva reservaExistente = reservaRepository.findById(id)
                 .orElseThrow(() -> new ReservaException("Reserva no encontrada"));
-
-        // Actualiza los campos que se permiten modificar
+        
+        // Actualizamos los campos que se desean modificar
         reservaExistente.setNombre(reservaActualizada.getNombre());
         reservaExistente.setApellido(reservaActualizada.getApellido());
         reservaExistente.setDni(reservaActualizada.getDni());
         reservaExistente.setFechaDesde(reservaActualizada.getFechaDesde());
         reservaExistente.setFechaHasta(reservaActualizada.getFechaHasta());
-
-        // Si en el futuro deseas permitir actualizar otros campos o relaciones,
-        // puedes hacerlo aquí.
-
+        
+        // Guardamos la reserva actualizada en el repositorio
         return reservaRepository.save(reservaExistente);
     }
 }
