@@ -52,6 +52,12 @@ public class ReservaController {
         return ResponseEntity.ok(reservaActual);
     }
 
+     @GetMapping("/reservas/{id}")
+    public ResponseEntity<Reserva> obtenerDetalleReserva(@PathVariable Long id) {
+        Reserva reserva = reservaService.obtenerReservaPorId(id);
+        return ResponseEntity.ok(reserva);
+    }
+
     // Endpoint para registrar una nueva reserva
     @PostMapping("/reservas")
     public ResponseEntity<Reserva> crearReserva(@RequestBody ReservaDTO reservaDTO) {

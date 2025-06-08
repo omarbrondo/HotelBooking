@@ -68,7 +68,7 @@ document.addEventListener("DOMContentLoaded", function () {
           // Columna: Acciones
           const tdAcciones = document.createElement("td");
 
-          // Botón "Editar" (ya existente)
+          // Botón "Editar"
           const btnEditar = document.createElement("button");
           btnEditar.textContent = "Editar";
           btnEditar.classList.add("btn-editar");
@@ -109,27 +109,27 @@ document.addEventListener("DOMContentLoaded", function () {
                   },
                   body: JSON.stringify(updatedData)
                 })
-                .then(response => {
-                  if (!response.ok) {
-                    return response.text().then(text => { throw new Error(text); });
-                  }
-                  return response.json();
-                })
-                .then(data => {
-                  Swal.fire({
-                    icon: 'success',
-                    title: '¡Actualizado!',
-                    text: 'La reserva se actualizó correctamente.'
+                  .then(response => {
+                    if (!response.ok) {
+                      return response.text().then(text => { throw new Error(text); });
+                    }
+                    return response.json();
+                  })
+                  .then(data => {
+                    Swal.fire({
+                      icon: 'success',
+                      title: '¡Actualizado!',
+                      text: 'La reserva se actualizó correctamente.'
+                    });
+                    cargarHabitacionesOcupadas();
+                  })
+                  .catch(error => {
+                    Swal.fire({
+                      icon: 'error',
+                      title: 'Error',
+                      text: error.message
+                    });
                   });
-                  cargarHabitacionesOcupadas();
-                })
-                .catch(error => {
-                  Swal.fire({
-                    icon: 'error',
-                    title: 'Error',
-                    text: error.message
-                  });
-                });
               }
             });
           });
@@ -139,9 +139,8 @@ document.addEventListener("DOMContentLoaded", function () {
           const btnAgregarProductos = document.createElement("button");
           btnAgregarProductos.textContent = "Agregar productos";
           btnAgregarProductos.classList.add("btn-agregar-productos");
-          btnAgregarProductos.style.marginLeft = "5px"; // espacio entre botones
+          btnAgregarProductos.style.marginLeft = "5px";
           btnAgregarProductos.addEventListener("click", () => {
-            // Verificamos que la habitación tenga una reserva asociada
             if (!habitacion.reserva) {
               Swal.fire({
                 icon: 'info',
@@ -150,8 +149,6 @@ document.addEventListener("DOMContentLoaded", function () {
               });
               return;
             }
-
-            // Obtener la lista de productos del API
             fetch("/api/productos")
               .then(resp => resp.json())
               .then(productos => {
@@ -173,8 +170,7 @@ document.addEventListener("DOMContentLoaded", function () {
                     '</tr>';
                 });
                 htmlProductos += '</tbody></table>';
-
-                // Mostrar modal para agregar productos
+  
                 Swal.fire({
                   title: 'Agregar Productos',
                   html: htmlProductos,
@@ -201,7 +197,6 @@ document.addEventListener("DOMContentLoaded", function () {
                   if (result.isConfirmed) {
                     const consumos = result.value;
                     const reservaId = habitacion.reserva.idReserva;
-                    // Enviar cada consumo al endpoint correspondiente
                     Promise.all(consumos.map(consumo =>
                       fetch(`/api/reservas/${reservaId}/consumos`, {
                         method: 'POST',
@@ -209,21 +204,21 @@ document.addEventListener("DOMContentLoaded", function () {
                         body: JSON.stringify(consumo)
                       })
                     ))
-                    .then(() => {
-                      Swal.fire({
-                        icon: 'success',
-                        title: 'Guardado',
-                        text: 'Productos agregados a la reserva'
+                      .then(() => {
+                        Swal.fire({
+                          icon: 'success',
+                          title: 'Guardado',
+                          text: 'Productos agregados a la reserva'
+                        });
+                        cargarHabitacionesOcupadas();
+                      })
+                      .catch(error => {
+                        Swal.fire({
+                          icon: 'error',
+                          title: 'Error',
+                          text: error.message
+                        });
                       });
-                      cargarHabitacionesOcupadas();
-                    })
-                    .catch(error => {
-                      Swal.fire({
-                        icon: 'error',
-                        title: 'Error',
-                        text: error.message
-                      });
-                    });
                   }
                 });
               })
@@ -236,6 +231,64 @@ document.addEventListener("DOMContentLoaded", function () {
               });
           });
           tdAcciones.appendChild(btnAgregarProductos);
+
+          // Botón "Detalle" para ver información de la reserva
+          const btnDetalle = document.createElement("button");
+          btnDetalle.textContent = "Detalle";
+          btnDetalle.classList.add("btn-detalle");
+          btnDetalle.style.marginLeft = "5px";
+          btnDetalle.addEventListener("click", () => {
+            if (!habitacion.reserva) {
+              Swal.fire({
+                icon: 'info',
+                title: 'Sin reserva',
+                text: 'No hay datos de reserva para mostrar.'
+              });
+              return;
+            }
+            // Usamos el ID de la reserva para obtener el detalle completo
+            fetch(`/api/reservas/${habitacion.reserva.idReserva}`)
+              .then(response => response.json())
+              .then(detalle => {
+                // Construir una vista con los detalles: datos de huésped, habitación y consumos
+                let htmlDetalle = `<strong>Habitación:</strong> ${habitacion.nombreHabitacion} <br/>
+                                   <strong>Precio de habitación:</strong> $${habitacion.precio} <br/><hr/>
+                                   <strong>Huésped:</strong> ${detalle.nombre} ${detalle.apellido} <br/>
+                                   <strong>DNI:</strong> ${detalle.dni}<br/>
+                                   <strong>Fechas:</strong> ${detalle.fechaDesde} - ${detalle.fechaHasta} <br/><hr/>`;
+                // Suponiendo que el objeto 'detalle' incluye un arreglo "consumos" con los consumos realizados
+                if (detalle.consumos && detalle.consumos.length > 0) {
+                  htmlDetalle += `<strong>Consumos:</strong><br/><table style="width:100%; text-align:left;" border="1" cellspacing="0" cellpadding="5">
+                                  <thead><tr><th>Producto</th><th>Cantidad</th><th>Precio Unitario</th></tr></thead><tbody>`;
+                  detalle.consumos.forEach(consumo => {
+                    htmlDetalle += `<tr>
+                                      <td>${consumo.producto.nombreProducto}</td>
+                                      <td>${consumo.cantidad}</td>
+                                      <td>$${consumo.producto.precio}</td>
+                                    </tr>`;
+                  });
+                  htmlDetalle += `</tbody></table>`;
+                } else {
+                  htmlDetalle += `<strong>Consumos:</strong> Sin consumos registrados.`;
+                }
+  
+                Swal.fire({
+                  title: 'Detalle de Reserva',
+                  html: htmlDetalle,
+                  width: '600px'
+                });
+              })
+              .catch(error => {
+                Swal.fire({
+                  icon: 'error',
+                  title: 'Error',
+                  text: 'No se pudo cargar el detalle de la reserva.'
+                });
+              });
+          });
+          tdAcciones.appendChild(btnDetalle);
+
+          // Agregar la celda de acciones a la fila
           tr.appendChild(tdAcciones);
 
           // Agregar la fila a la tabla
@@ -298,9 +351,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
     fetch("/api/reservas", {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json"
-      },
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify(reservaDTO)
     })
       .then(response => {

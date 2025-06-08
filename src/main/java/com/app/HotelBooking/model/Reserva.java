@@ -2,7 +2,10 @@ package com.app.HotelBooking.model;
 
 import jakarta.persistence.*;
 import java.time.LocalDate;
+import java.util.List;
+
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 
 @Entity
 public class Reserva {
@@ -21,6 +24,10 @@ public class Reserva {
     @JsonIgnore
     private Habitacion habitacion;
 
+    @OneToMany(mappedBy = "reserva", fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+    @JsonManagedReference  // Se incluyen los detalles de consumo al serializar la reserva
+    private List<DetalleConsumo> consumos;
+
     public Reserva() {}
 
     public Reserva(String nombre, String apellido, String dni, LocalDate fechaDesde, LocalDate fechaHasta) {
@@ -31,7 +38,6 @@ public class Reserva {
         this.fechaHasta = fechaHasta;
     }
 
-    // Getters y Setters
     public Long getIdReserva() {
         return idReserva;
     }
@@ -86,5 +92,13 @@ public class Reserva {
 
     public void setHabitacion(Habitacion habitacion) {
         this.habitacion = habitacion;
+    }
+
+    public List<DetalleConsumo> getConsumos() {
+        return consumos;
+    }
+
+    public void setConsumos(List<DetalleConsumo> consumos) {
+        this.consumos = consumos;
     }
 }

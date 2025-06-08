@@ -1,6 +1,7 @@
 package com.app.HotelBooking.model;
 
 import jakarta.persistence.*;
+import com.fasterxml.jackson.annotation.JsonBackReference;
 
 @Entity
 public class DetalleConsumo {
@@ -12,6 +13,7 @@ public class DetalleConsumo {
     // Relación muchos a uno con Reserva
     @ManyToOne
     @JoinColumn(name = "reserva_id")
+    @JsonBackReference  // Evita ciclo en la serialización, ya que la lista de consumos se gestiona en Reserva
     private Reserva reserva;
     
     // Relación muchos a uno con Producto
