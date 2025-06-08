@@ -56,18 +56,18 @@ label {
 }
 
 /* ========== Contenedor Principal ========== */
-/* La clase container de Bootstrap ya gestiona el ancho, así que solo ajustamos los márgenes */
+
 .container {
   margin-top: 30px;
 }
 
-/* Centramos el título principal */
+
 .container h1 {
   text-align: center;
 }
 
 /* ========== Formularios ========== */
-/* Bootstrap ya estiliza las form-control y form-label, pero aquí algunos ajustes mínimos */
+
 .form-group {
   margin-bottom: 1rem;
 }
@@ -77,14 +77,12 @@ label {
   margin-top: 30px;
 }
 
-/* Centramos el título de la tarjeta */
+
 .occupied-section .card h2 {
   text-align: center;
 }
 
-/* La tabla utiliza las clases de Bootstrap (table y table-striped) para su diseño,
-   por lo que no es necesario añadir demasiados estilos personalizados.
-   Solo removemos márgenes extras si hubiere conflicto. */
+
 table {
   margin-bottom: 0;
 }
