@@ -67,7 +67,7 @@ document.addEventListener("DOMContentLoaded", function () {
           // Columna: Acciones
           const tdAcciones = document.createElement("td");
 
-          // Botón "Editar" (Bootstrap: btn y btn-primary, btn-sm)
+          // Botón "Editar" (Bootstrap: btn, btn-primary, btn-sm)
           const btnEditar = document.createElement("button");
           btnEditar.textContent = "Editar";
           btnEditar.classList.add("btn", "btn-primary", "btn-sm");
@@ -83,11 +83,11 @@ document.addEventListener("DOMContentLoaded", function () {
             Swal.fire({
               title: 'Editar Reserva',
               html:
-                '<input id="swal-input1" class="swal2-input" placeholder="Nombre" value="' + habitacion.reserva.nombre + '">' +
-                '<input id="swal-input2" class="swal2-input" placeholder="Apellido" value="' + habitacion.reserva.apellido + '">' +
-                '<input id="swal-input3" class="swal2-input" placeholder="DNI" value="' + habitacion.reserva.dni + '">' +
-                '<input id="swal-input4" type="date" class="swal2-input" value="' + habitacion.reserva.fechaDesde + '">' +
-                '<input id="swal-input5" type="date" class="swal2-input" value="' + habitacion.reserva.fechaHasta + '">',
+                `<input id="swal-input1" class="swal2-input" placeholder="Nombre" value="${habitacion.reserva.nombre}">` +
+                `<input id="swal-input2" class="swal2-input" placeholder="Apellido" value="${habitacion.reserva.apellido}">` +
+                `<input id="swal-input3" class="swal2-input" placeholder="DNI" value="${habitacion.reserva.dni}">` +
+                `<input id="swal-input4" type="date" class="swal2-input" value="${habitacion.reserva.fechaDesde}">` +
+                `<input id="swal-input5" type="date" class="swal2-input" value="${habitacion.reserva.fechaHasta}">`,
               focusConfirm: false,
               preConfirm: () => {
                 return {
@@ -101,40 +101,38 @@ document.addEventListener("DOMContentLoaded", function () {
             }).then(result => {
               if (result.isConfirmed) {
                 const updatedData = result.value;
-                fetch('/api/reservas/' + habitacion.reserva.idReserva, {
+                fetch(`/api/reservas/${habitacion.reserva.idReserva}`, {
                   method: 'PUT',
-                  headers: {
-                    "Content-Type": "application/json"
-                  },
+                  headers: { "Content-Type": "application/json" },
                   body: JSON.stringify(updatedData)
                 })
-                .then(response => {
-                  if (!response.ok) {
-                    return response.text().then(text => { throw new Error(text); });
-                  }
-                  return response.json();
-                })
-                .then(data => {
-                  Swal.fire({
-                    icon: 'success',
-                    title: '¡Actualizado!',
-                    text: 'La reserva se actualizó correctamente.'
+                  .then(response => {
+                    if (!response.ok) {
+                      return response.text().then(text => { throw new Error(text); });
+                    }
+                    return response.json();
+                  })
+                  .then(data => {
+                    Swal.fire({
+                      icon: 'success',
+                      title: '¡Actualizado!',
+                      text: 'La reserva se actualizó correctamente.'
+                    });
+                    cargarHabitacionesOcupadas();
+                  })
+                  .catch(error => {
+                    Swal.fire({
+                      icon: 'error',
+                      title: 'Error',
+                      text: error.message
+                    });
                   });
-                  cargarHabitacionesOcupadas();
-                })
-                .catch(error => {
-                  Swal.fire({
-                    icon: 'error',
-                    title: 'Error',
-                    text: error.message
-                  });
-                });
               }
             });
           });
           tdAcciones.appendChild(btnEditar);
 
-          // Botón "Agregar productos" (Bootstrap: btn y btn-success, btn-sm)
+          // Botón "Agregar productos" (Bootstrap: btn, btn-success, btn-sm)
           const btnAgregarProductos = document.createElement("button");
           btnAgregarProductos.textContent = "Agregar productos";
           btnAgregarProductos.classList.add("btn", "btn-success", "btn-sm");
@@ -151,24 +149,23 @@ document.addEventListener("DOMContentLoaded", function () {
             fetch("/api/productos")
               .then(resp => resp.json())
               .then(productos => {
-                let htmlProductos = '<table class="table table-striped" style="text-align:center;">' +
-                  '<thead>' +
-                    '<tr>' +
-                      '<th>Producto</th>' +
-                      '<th>Precio</th>' +
-                      '<th>Cantidad</th>' +
-                    '</tr>' +
-                  '</thead>' +
-                  '<tbody>';
+                let htmlProductos = `<table class="table table-striped" style="text-align:center;">
+                  <thead>
+                    <tr>
+                      <th>Producto</th>
+                      <th>Precio</th>
+                      <th>Cantidad</th>
+                    </tr>
+                  </thead>
+                  <tbody>`;
                 productos.forEach(prod => {
-                  htmlProductos +=
-                    '<tr>' +
-                      `<td>${prod.nombreProducto}</td>` +
-                      `<td>$${prod.precio}</td>` +
-                      `<td><input type="number" min="0" value="0" id="cantidad-${prod.idProducto}" style="width:50px;" /></td>` +
-                    '</tr>';
+                  htmlProductos += `<tr>
+                      <td>${prod.nombreProducto}</td>
+                      <td>$${prod.precio}</td>
+                      <td><input type="number" min="0" value="0" id="cantidad-${prod.idProducto}" style="width:50px;" /></td>
+                    </tr>`;
                 });
-                htmlProductos += '</tbody></table>';
+                htmlProductos += `</tbody></table>`;
     
                 Swal.fire({
                   title: 'Agregar Productos',
@@ -203,21 +200,21 @@ document.addEventListener("DOMContentLoaded", function () {
                         body: JSON.stringify(consumo)
                       })
                     ))
-                    .then(() => {
-                      Swal.fire({
-                        icon: 'success',
-                        title: 'Guardado',
-                        text: 'Productos agregados a la reserva'
+                      .then(() => {
+                        Swal.fire({
+                          icon: 'success',
+                          title: 'Guardado',
+                          text: 'Productos agregados a la reserva'
+                        });
+                        cargarHabitacionesOcupadas();
+                      })
+                      .catch(error => {
+                        Swal.fire({
+                          icon: 'error',
+                          title: 'Error',
+                          text: error.message
+                        });
                       });
-                      cargarHabitacionesOcupadas();
-                    })
-                    .catch(error => {
-                      Swal.fire({
-                        icon: 'error',
-                        title: 'Error',
-                        text: error.message
-                      });
-                    });
                   }
                 });
               })
@@ -231,7 +228,7 @@ document.addEventListener("DOMContentLoaded", function () {
           });
           tdAcciones.appendChild(btnAgregarProductos);
 
-          // Botón "Detalle" (Bootstrap: btn y btn-warning, btn-sm)
+          // Botón "Detalle" (Bootstrap: btn, btn-warning, btn-sm)
           const btnDetalle = document.createElement("button");
           btnDetalle.textContent = "Detalle";
           btnDetalle.classList.add("btn", "btn-warning", "btn-sm");
@@ -249,20 +246,20 @@ document.addEventListener("DOMContentLoaded", function () {
               .then(response => response.json())
               .then(detalle => {
                 let htmlDetalle = `<strong>Habitación:</strong> ${habitacion.nombreHabitacion} <br/>
-                                   <strong>Precio de habitación:</strong> $${habitacion.precio} <br/><hr/>
-                                   <strong>Huésped:</strong> ${detalle.nombre} ${detalle.apellido} <br/>
-                                   <strong>DNI:</strong> ${detalle.dni}<br/>
-                                   <strong>Fechas:</strong> ${detalle.fechaDesde} - ${detalle.fechaHasta} <br/><hr/>`;
+                                    <strong>Precio de habitación:</strong> $${habitacion.precio} <br/><hr/>
+                                    <strong>Huésped:</strong> ${detalle.nombre} ${detalle.apellido} <br/>
+                                    <strong>DNI:</strong> ${detalle.dni}<br/>
+                                    <strong>Fechas:</strong> ${detalle.fechaDesde} - ${detalle.fechaHasta} <br/><hr/>`;
                 if (detalle.consumos && detalle.consumos.length > 0) {
                   htmlDetalle += `<strong>Consumos:</strong><br/><table class="table table-striped">
-                                  <thead>
-                                    <tr>
-                                      <th>Producto</th>
-                                      <th>Cantidad</th>
-                                      <th>Precio Unitario</th>
-                                    </tr>
-                                  </thead>
-                                  <tbody>`;
+                                    <thead>
+                                      <tr>
+                                        <th>Producto</th>
+                                        <th>Cantidad</th>
+                                        <th>Precio Unitario</th>
+                                      </tr>
+                                    </thead>
+                                    <tbody>`;
                   detalle.consumos.forEach(consumo => {
                     htmlDetalle += `<tr>
                                       <td>${consumo.producto.nombreProducto}</td>
@@ -291,7 +288,7 @@ document.addEventListener("DOMContentLoaded", function () {
           });
           tdAcciones.appendChild(btnDetalle);
 
-          // Botón "Eliminar" (Bootstrap: btn y btn-danger, btn-sm)
+          // Botón "Eliminar" (Bootstrap: btn, btn-danger, btn-sm)
           const btnEliminar = document.createElement("button");
           btnEliminar.textContent = "Eliminar";
           btnEliminar.classList.add("btn", "btn-danger", "btn-sm");
@@ -317,31 +314,168 @@ document.addEventListener("DOMContentLoaded", function () {
                 fetch(`/api/reservas/${habitacion.reserva.idReserva}`, {
                   method: 'DELETE'
                 })
-                .then(response => {
-                  if (response.ok) {
+                  .then(response => {
+                    if (response.ok) {
+                      Swal.fire({
+                        icon: 'success',
+                        title: 'Eliminado',
+                        text: 'La reserva se eliminó correctamente.'
+                      });
+                      cargarHabitacionesOcupadas();
+                      cargarHabitacionesLibres();
+                    } else {
+                      return response.text().then(text => { throw new Error(text); });
+                    }
+                  })
+                  .catch(error => {
                     Swal.fire({
-                      icon: 'success',
-                      title: 'Eliminado',
-                      text: 'La reserva se eliminó correctamente.'
+                      icon: 'error',
+                      title: 'Error',
+                      text: error.message
                     });
-                    cargarHabitacionesOcupadas();
-                    cargarHabitacionesLibres();
-                  } else {
-                    return response.text().then(text => { throw new Error(text); });
-                  }
-                })
-                .catch(error => {
-                  Swal.fire({
-                    icon: 'error',
-                    title: 'Error',
-                    text: error.message
                   });
-                });
               }
             });
           });
           tdAcciones.appendChild(btnEliminar);
 
+          // Botón "Checkout" (Bootstrap: btn, btn-info, btn-sm)
+          const btnCheckout = document.createElement("button");
+          btnCheckout.textContent = "Checkout";
+          btnCheckout.classList.add("btn", "btn-info", "btn-sm");
+          btnCheckout.style.marginLeft = "5px";
+          btnCheckout.addEventListener("click", () => {
+            if (!habitacion.reserva) {
+              Swal.fire({
+                icon: 'info',
+                title: 'Sin reserva',
+                text: 'No hay reserva para realizar el checkout.'
+              });
+              return;
+            }
+
+            // Se obtiene el detalle actualizado de la reserva
+            fetch(`/api/reservas/${habitacion.reserva.idReserva}`)
+              .then(response => response.json())
+              .then(reservaDetalle => {
+                // Calcular cantidad de días (suponiendo que las fechas sean ISO string "YYYY-MM-DD")
+                const fechaDesde = new Date(reservaDetalle.fechaDesde);
+                const fechaHasta = new Date(reservaDetalle.fechaHasta);
+                const diffTime = Math.abs(fechaHasta - fechaDesde);
+                const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+                // Calcular total por habitacion
+                const totalHabitacion = habitacion.precio * diffDays;
+
+                // Armar detalles de consumos
+                let totalConsumos = 0;
+                let detallesConsumosHTML = "";
+                if (reservaDetalle.consumos && reservaDetalle.consumos.length > 0) {
+                  reservaDetalle.consumos.forEach(consumo => {
+                    const subtotal = consumo.producto.precio * consumo.cantidad;
+                    totalConsumos += subtotal;
+                    detallesConsumosHTML += `<tr>
+                      <td>${consumo.producto.nombreProducto}</td>
+                      <td>${consumo.cantidad}</td>
+                      <td>$${consumo.producto.precio.toFixed(2)}</td>
+                      <td>$${subtotal.toFixed(2)}</td>
+                    </tr>`;
+                  });
+                }
+
+                const totalFinal = totalHabitacion + totalConsumos;
+
+                // Armar HTML de la factura
+const htmlFactura = `
+  <div class="container">
+    <h3 class="text-center mb-3">Factura</h3>
+    <div class="mb-3">
+      <strong>Cliente:</strong> ${reservaDetalle.nombre} ${reservaDetalle.apellido}<br/>
+      <strong>DNI:</strong> ${reservaDetalle.dni}<br/>
+      <strong>Habitación:</strong> ${habitacion.nombreHabitacion} ($${habitacion.precio.toFixed(2)} x día)<br/>
+      <strong>Fechas:</strong> ${reservaDetalle.fechaDesde} - ${reservaDetalle.fechaHasta} (${diffDays} días)<br/>
+      <strong>Total Habitación:</strong> $${totalHabitacion.toFixed(2)}
+    </div>
+    <hr/>
+    <h5>Detalle de consumos:</h5>
+    <table class="table table-bordered">
+      <thead>
+        <tr>
+          <th>Producto</th>
+          <th>Cantidad</th>
+          <th>Precio Unitario</th>
+          <th>Subtotal</th>
+        </tr>
+      </thead>
+      <tbody>
+        ${detallesConsumosHTML || '<tr><td colspan="4" class="text-center">Sin consumos</td></tr>'}
+      </tbody>
+    </table>
+    <hr/>
+    <h5 class="text-end">Total consumos: $${totalConsumos.toFixed(2)}</h5>
+    <h4 class="text-end">TOTAL: $${totalFinal.toFixed(2)}</h4>
+    <div class="text-center mt-4">
+      <button id="btnImprimirFactura" class="btn btn-success">Imprimir Factura</button>
+      <button id="btnConfirmarCheckout" class="btn btn-danger ms-2">Confirmar Checkout</button>
+      <button id="btnCancelarCheckout" class="btn btn-secondary ms-2">Cancelar Checkout</button>
+    </div>
+  </div>
+`;
+
+
+                Swal.fire({
+                  title: 'Factura de Checkout',
+                  html: htmlFactura,
+                  width: '800px',
+                  showConfirmButton: false
+                });
+
+                // Evento para imprimir la factura
+                document.getElementById("btnImprimirFactura").addEventListener("click", () => {
+                  window.print();
+                });
+document.getElementById("btnCancelarCheckout").addEventListener("click", () => {
+  Swal.close();
+});
+
+                // Evento para confirmar checkout y eliminar la reserva
+                document.getElementById("btnConfirmarCheckout").addEventListener("click", () => {
+                  fetch(`/api/reservas/${habitacion.reserva.idReserva}`, {
+                    method: 'DELETE'
+                  })
+                    .then(response => {
+                      if (response.ok) {
+                        Swal.fire({
+                          icon: 'success',
+                          title: 'Checkout finalizado',
+                          text: 'La factura se generó y la reserva se eliminó correctamente.'
+                        });
+                        cargarHabitacionesOcupadas();
+                        cargarHabitacionesLibres();
+                      } else {
+                        return response.text().then(text => { throw new Error(text); });
+                      }
+                    })
+                    .catch(error => {
+                      Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: error.message
+                      });
+                    });
+                });
+              })
+              .catch(error => {
+                Swal.fire({
+                  icon: 'error',
+                  title: 'Error',
+                  text: 'No se pudo generar la factura de checkout.'
+                });
+              });
+          });
+          tdAcciones.appendChild(btnCheckout);
+
+          // Agrega la celda de acciones a la fila
           tr.appendChild(tdAcciones);
           tablaOcupadasBody.appendChild(tr);
         });
