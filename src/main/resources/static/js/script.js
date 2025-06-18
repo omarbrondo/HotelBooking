@@ -13,6 +13,11 @@ document.addEventListener("DOMContentLoaded", async () => {
 });
 
 async function pedirLogin() {
+  const BACKDROP = `
+    rgba(255,255,255,0.9)
+    url('/img/patron-tematico-viaje-varias-ilustraciones-sobre-fondo-vectorial-repeticion-tema_1030164-4.avif')
+    repeat
+  `;
   while (true) {
     const { value: cred } = await Swal.fire({
       title: "Iniciar Sesión",
@@ -26,8 +31,10 @@ async function pedirLogin() {
         if (!nombre || !pass)
           Swal.showValidationMessage("Completa usuario y contraseña");
         return { nombreUsuario: nombre, password: pass };
-      }
-    });
+      },
+ backdrop: BACKDROP
+
+});
 
     // Si cerró el modal, recargo la página
     if (!cred) {
@@ -48,8 +55,18 @@ async function pedirLogin() {
       console.log("Login OK:", await res.json());
       return;
     }
-    catch (err) {
-      await Swal.fire("Error de autenticación", err.message, "error");
+        catch (err) {
+      await Swal.fire({
+        icon: 'error',
+        title: 'Error de autenticación',
+        text: err.message,
+        backdrop: `
+          rgba(255,255,255,0.9)
+          url('/img/patron-tematico-viaje-varias-ilustraciones-sobre-fondo-vectorial-repeticion-tema_1030164-4.avif')
+          repeat
+        `
+      });
+      // el bucle repite el login tras cerrar este modal
     }
   }
 }
