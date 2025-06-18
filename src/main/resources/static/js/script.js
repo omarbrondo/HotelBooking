@@ -1,7 +1,65 @@
-document.addEventListener("DOMContentLoaded", function () {
+document.addEventListener("DOMContentLoaded", async () => {
+  
+  
+   // 1) Pedir credenciales con un modal de SweetAlert2
+  await pedirLogin();
+
+  // 2) Una vez logueado, inicializar la app de reservas
+  inicializarApp();
+  
+  
+  
+  
+});
+
+async function pedirLogin() {
+  while (true) {
+    const { value: cred } = await Swal.fire({
+      title: "Iniciar Sesión",
+      html:
+        `<input id="swal-username" class="swal2-input" placeholder="Usuario">` +
+        `<input id="swal-password" type="password" class="swal2-input" placeholder="Clave">`,
+      focusConfirm: false,
+      preConfirm: () => {
+        const nombre = document.getElementById("swal-username").value.trim();
+        const pass   = document.getElementById("swal-password").value.trim();
+        if (!nombre || !pass)
+          Swal.showValidationMessage("Completa usuario y contraseña");
+        return { nombreUsuario: nombre, password: pass };
+      }
+    });
+
+    // Si cerró el modal, recargo la página
+    if (!cred) {
+      location.reload();
+      return;
+    }
+
+    try {
+      const res = await fetch("/usuario/login", {
+        method:  "POST",
+        headers: { "Content-Type": "application/json" },
+        body:    JSON.stringify(cred)
+      });
+      if (!res.ok) {
+        const msg = await res.text();
+        throw new Error(msg || "Credenciales inválidas");
+      }
+      console.log("Login OK:", await res.json());
+      return;
+    }
+    catch (err) {
+      await Swal.fire("Error de autenticación", err.message, "error");
+    }
+  }
+}
+
+
+function inicializarApp(){
   const reservationForm = document.getElementById("reservationForm");
   const habitacionSelect = document.getElementById("habitacion");
   const tablaOcupadasBody = document.querySelector("#tablaOcupadas tbody");
+
 
   // Función para cargar las habitaciones libres en el select
   function cargarHabitacionesLibres() {
@@ -565,4 +623,4 @@ document.getElementById("btnCancelarCheckout").addEventListener("click", () => {
   // Inicializar: cargar habitaciones libres y ocupadas al cargar la página
   cargarHabitacionesLibres();
   cargarHabitacionesOcupadas();
-});
+}
