@@ -8,5 +8,6 @@ import java.util.List;
 
 @Repository
 public interface HabitacionRepository extends JpaRepository<Habitacion, Long> {
+    // Método derivado para filtrar por estado
     List<Habitacion> findByEstado(String estado);
 }

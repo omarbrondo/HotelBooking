@@ -1,12 +1,10 @@
 package com.app.HotelBooking.controller;
 
 import com.app.HotelBooking.model.Habitacion;
-import com.app.HotelBooking.repository.HabitacionRepository;
+import com.app.HotelBooking.service.HabitacionService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -14,16 +12,24 @@ import java.util.List;
 @RequestMapping("/api/habitaciones")
 public class HabitacionController {
 
-    private final HabitacionRepository habitacionRepository;
+    private final HabitacionService habitacionService;
 
     @Autowired
-    public HabitacionController(HabitacionRepository habitacionRepository) {
-        this.habitacionRepository = habitacionRepository;
+    public HabitacionController(HabitacionService habitacionService) {
+        this.habitacionService = habitacionService;
     }
 
+    // GET /api/habitaciones/libres
+    @GetMapping("/libres")
+    public ResponseEntity<List<Habitacion>> getHabitacionesLibres() {
+        List<Habitacion> libres = habitacionService.obtenerHabitacionesLibres();
+        return ResponseEntity.ok(libres);
+    }
+
+    // GET /api/habitaciones/ocupadas
     @GetMapping("/ocupadas")
     public ResponseEntity<List<Habitacion>> getHabitacionesOcupadas() {
-        List<Habitacion> ocupadas = habitacionRepository.findByEstado("ocupado");
+        List<Habitacion> ocupadas = habitacionService.obtenerHabitacionesOcupadas();
         return ResponseEntity.ok(ocupadas);
     }
 }

@@ -540,31 +540,36 @@ document.getElementById("btnCancelarCheckout").addEventListener("click", () => {
 });
 
                 // Evento para confirmar checkout y eliminar la reserva
-                document.getElementById("btnConfirmarCheckout").addEventListener("click", () => {
-                  fetch(`/api/reservas/${habitacion.reserva.idReserva}`, {
-                    method: 'DELETE'
-                  })
-                    .then(response => {
-                      if (response.ok) {
-                        Swal.fire({
-                          icon: 'success',
-                          title: 'Checkout finalizado',
-                          text: 'La factura se generó y la reserva se eliminó correctamente.'
-                        });
-                        cargarHabitacionesOcupadas();
-                        cargarHabitacionesLibres();
-                      } else {
-                        return response.text().then(text => { throw new Error(text); });
-                      }
-                    })
-                    .catch(error => {
-                      Swal.fire({
-                        icon: 'error',
-                        title: 'Error',
-                        text: error.message
-                      });
-                    });
-                });
+                // en lugar de DELETE /api/reservas...
+document.getElementById("btnConfirmarCheckout")
+  .addEventListener("click", () => {
+    fetch(`/api/facturas/${habitacion.reserva.idReserva}`, {
+      method: 'POST'
+    })
+    .then(r => {
+      if (!r.ok) return r.text().then(t => { throw new Error(t) });
+      return r.json();
+    })
+    .then(factura => {
+      Swal.fire({
+        icon: 'success',
+        title: 'Checkout finalizado',
+        html: `
+          <p>Factura #${factura.id}</p>
+          <p>Total habitación: $${factura.totalHabitacion}</p>
+          <p>Total consumos: $${factura.totalConsumos}</p>
+          <h4>Total: $${factura.totalFinal}</h4>
+        `
+      });
+      // recarga UI
+      cargarHabitacionesOcupadas();
+      cargarHabitacionesLibres();
+    })
+    .catch(err => {
+      Swal.fire('Error', err.message, 'error');
+    });
+});
+
               })
               .catch(error => {
                 Swal.fire({

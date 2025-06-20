@@ -5,4 +5,5 @@ import java.util.List;
 
 public interface HabitacionService {
     List<Habitacion> obtenerHabitacionesLibres();
+    List<Habitacion> obtenerHabitacionesOcupadas();
 }
