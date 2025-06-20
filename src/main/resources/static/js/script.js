@@ -12,44 +12,39 @@ document.addEventListener("DOMContentLoaded", async () => {
   inicializarApp();
 
   // 1) Función para pintar la tabla de facturas
-async function cargarFacturas() {
-  try {
-    const resp = await fetch("/api/facturas");
-    const facturas = await resp.json();
-    const cont = document.getElementById("facturasContainer");
-    let html = `
-      <table class="table table-striped">
-        <thead>
+
+  // función para cargar facturas
+  async function cargarFacturas() {
+    try {
+      const resp     = await fetch("/api/facturas");
+      const facturas = await resp.json();
+      let html = `
+        <table class="table table-striped">
+          <thead>
+            <tr>
+              <th>#</th><th>Fecha</th><th>Reserva ID</th>
+              <th>Total Habitación</th><th>Total Consumos</th><th>Total Final</th>
+            </tr>
+          </thead>
+          <tbody>`;
+      facturas.forEach(f => {
+        html += `
           <tr>
-            <th>#</th>
-            <th>Fecha</th>
-            <th>Reserva ID</th>
-            <th>Total Habitación</th>
-            <th>Total Consumos</th>
-            <th>Total Final</th>
-          </tr>
-        </thead>
-        <tbody>
-    `;
-    facturas.forEach(f => {
-      html += `
-        <tr>
-          <td>${f.id}</td>
-          <td>${new Date(f.fechaFactura).toLocaleString()}</td>
-          <td>${f.reservaId}</td>
-          <td>$${f.totalHabitacion.toFixed(2)}</td>
-          <td>$${f.totalConsumos.toFixed(2)}</td>
-          <td><strong>$${f.totalFinal.toFixed(2)}</strong></td>
-        </tr>
-      `;
-    });
-    html += `</tbody></table>`;
-    cont.innerHTML = html;
-  } catch (e) {
-    console.error("Error al cargar facturas:", e);
-    Swal.fire("Error", "No se pudieron cargar las facturas", "error");
+            <td>${f.id}</td>
+            <td>${new Date(f.fechaFactura).toLocaleString()}</td>
+            <td>${f.reservaId}</td>
+            <td>$${f.totalHabitacion.toFixed(2)}</td>
+            <td>$${f.totalConsumos.toFixed(2)}</td>
+            <td><strong>$${f.totalFinal.toFixed(2)}</strong></td>
+          </tr>`;
+      });
+      html += `</tbody></table>`;
+      facturasContainer.innerHTML = html;
+    } catch (e) {
+      console.error("Error al cargar facturas:", e);
+      Swal.fire("Error", "No se pudieron cargar las facturas", "error");
+    }
   }
-}
 
 
   document.getElementById("optProductos")
@@ -68,18 +63,18 @@ async function cargarFacturas() {
     });
 
  // 2) Listener para el botón "Facturas" en el menú
+ // listener para pestaña Facturas
   document.getElementById("optFacturas")
     .addEventListener("click", e => {
       e.preventDefault();
       setActive("optFacturas");
 
-      // oculto las secciones que no quiero ver:
+      // **oculto el form de reservas y ocupadas**
       reservationForm.hidden   = true;
       occupiedSection.hidden   = true;
-      facturasContainer.hidden = false;
 
-      // finalmente cargo las facturas
-      console.log("click en Facturas");  // <-- pon esto para verificar
+      // **muestro solo facturas**
+      facturasContainer.hidden = false;
       cargarFacturas();
     });
 
