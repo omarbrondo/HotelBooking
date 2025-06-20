@@ -1,10 +1,16 @@
 document.addEventListener("DOMContentLoaded", async () => {
 
-    const reservationForm   = document.getElementById("reservationForm");
-  const occupiedSection   = document.querySelector(".occupied-section");
+  const reservationForm = document.getElementById("reservationForm");
+  const occupiedSection = document.querySelector(".occupied-section");
   const facturasContainer = document.getElementById("facturasContainer");
 
-
+document.querySelectorAll('.btn-imprimir').forEach(btn => {
+  btn.addEventListener('click', () => {
+    const id = btn.dataset.id;
+    const factura = facturas.find(f => f.id == id);
+    window.descargarPdf(factura);
+  });
+});
 
   // 1) Pedir credenciales con un modal de SweetAlert2
   await pedirLogin();
@@ -17,35 +23,65 @@ document.addEventListener("DOMContentLoaded", async () => {
   // función para cargar facturas
   async function cargarFacturas() {
     try {
-      const resp     = await fetch("/api/facturas");
+      const resp = await fetch("/api/facturas");
       const facturas = await resp.json();
+      const cont = document.getElementById("facturasContainer");
+
+      // 1) Armo la tabla (agregué columna “Acción”)
       let html = `
-        <table class="table table-striped">
-          <thead>
-            <tr>
-              <th>#</th><th>Fecha</th><th>Reserva ID</th>
-              <th>Total Habitación</th><th>Total Consumos</th><th>Total Final</th>
-            </tr>
-          </thead>
-          <tbody>`;
+      <table class="table table-striped">
+        <thead>
+          <tr>
+            <th>#</th><th>Fecha</th><th>Reserva ID</th>
+            <th>Total Habitación</th><th>Total Consumos</th><th>Total Final</th>
+            <th>Acción</th>
+          </tr>
+        </thead>
+        <tbody>
+    `;
       facturas.forEach(f => {
         html += `
-          <tr>
-            <td>${f.id}</td>
-            <td>${new Date(f.fechaFactura).toLocaleString()}</td>
-            <td>${f.reservaId}</td>
-            <td>$${f.totalHabitacion.toFixed(2)}</td>
-            <td>$${f.totalConsumos.toFixed(2)}</td>
-            <td><strong>$${f.totalFinal.toFixed(2)}</strong></td>
-          </tr>`;
+        <tr>
+          <td>${f.id}</td>
+          <td>${new Date(f.fechaFactura).toLocaleString()}</td>
+          <td>${f.reservaId}</td>
+          <td>$${f.totalHabitacion.toFixed(2)}</td>
+          <td>$${f.totalConsumos.toFixed(2)}</td>
+          <td><strong>$${f.totalFinal.toFixed(2)}</strong></td>
+          <td>
+            <button 
+              class="btn btn-outline-primary btn-sm btn-imprimir" 
+              data-id="${f.id}">
+              <i class="fa fa-print"></i>
+            </button>
+          </td>
+        </tr>
+      `;
       });
       html += `</tbody></table>`;
-      facturasContainer.innerHTML = html;
+      cont.innerHTML = html;
+
+      // 2) Recorro los botones y les pongo el handler
+      cont.querySelectorAll(".btn-imprimir")
+        .forEach(btn => {
+          btn.addEventListener("click", () => {
+            const id = btn.dataset.id;
+            // busco en el array la factura correspondiente
+            const factura = facturas.find(x => x.id == id);
+            if (!factura) {
+              return Swal.fire("Error", "No se encontró la factura", "error");
+            }
+            // llamo a tu función que genera y descarga el PDF
+            descargarPdf(factura);
+          });
+        });
+
     } catch (e) {
       console.error("Error al cargar facturas:", e);
       Swal.fire("Error", "No se pudieron cargar las facturas", "error");
     }
   }
+
 
 
   document.getElementById("optProductos")
@@ -63,16 +99,16 @@ document.addEventListener("DOMContentLoaded", async () => {
       console.log("Mostrar Usuarios");
     });
 
- // 2) Listener para el botón "Facturas" en el menú
- // listener para pestaña Facturas
+  // 2) Listener para el botón "Facturas" en el menú
+  // listener para pestaña Facturas
   document.getElementById("optFacturas")
     .addEventListener("click", e => {
       e.preventDefault();
       setActive("optFacturas");
 
       // **oculto el form de reservas y ocupadas**
-      reservationForm.hidden   = true;
-      occupiedSection.hidden   = true;
+      reservationForm.hidden = true;
+      occupiedSection.hidden = true;
 
       // **muestro solo facturas**
       facturasContainer.hidden = false;
@@ -85,9 +121,102 @@ document.addEventListener("DOMContentLoaded", async () => {
 
 function setActive(id) {
   document.querySelectorAll(".nav-link")
-          .forEach(a => a.classList.remove("active"));
+    .forEach(a => a.classList.remove("active"));
   document.getElementById(id).classList.add("active");
 }
+
+
+ /**
+   * Carga una imagen desde una URL y la convierte a DataURL (Base64).
+   * @param {string} url – Ruta pública de tu logo (p.ej. '/img/logo.png').
+   * @returns {Promise<string>} – Una promise que resuelve con el dataURL.
+   */
+  function loadImageAsDataURL(url) {
+    return fetch(url)
+      .then(res => res.blob())
+      .then(blob => new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onloadend = () => resolve(reader.result);
+        reader.onerror = reject;
+        reader.readAsDataURL(blob);
+      }));
+  }
+
+window.descargarPdf = async function (factura) {
+
+   // 1) Generamos el DataURL del logo en tiempo real
+      const logoDataUrl = await loadImageAsDataURL('/img/hotel-logo-silhouette-hotel-icon-vector.jpg');
+
+      // 2) Creamos el PDF
+      const doc = new window.jspdf.jsPDF({ unit: 'pt', format: 'a4' });
+      const W = doc.internal.pageSize.getWidth();
+      const H = doc.internal.pageSize.getHeight();
+      const margin = 40;
+      const startY = 100;
+      const lh = 18;
+
+      // 3) Header con logo y datos
+      doc.addImage(logoDataUrl, 'PNG', margin, 20, 80, 40);
+      doc.setFont('helvetica', 'bold').setFontSize(18);
+      doc.text('Hotel Acme', margin + 90, 40);
+      doc.setFont('helvetica', 'normal').setFontSize(12);
+      doc.text(`Factura #${factura.id}`, W - margin, 30, { align: 'right' });
+      doc.text(`Fecha: ${new Date(factura.fechaFactura)
+        .toLocaleString()}`, W - margin, 48, { align: 'right' });
+      doc.text(`Reserva ID: ${factura.reservaId}`, W - margin, 66, { align: 'right' });
+
+      // 4) Tabla de detalle con autoTable
+      const head = [['Producto', 'Cantidad', 'P.U.', 'Subtotal']];
+      const body = factura.detalles.map(d => [
+        d.producto.nombreProducto,
+        d.cantidad,
+        `$${d.precioUnitario.toFixed(2)}`,
+        `$${d.subtotal.toFixed(2)}`
+      ]);
+
+      doc.autoTable({
+        startY,
+        margin: { left: margin, right: margin },
+        head,
+        body,
+        styles: {
+          font: 'helvetica',
+          fontSize: 10,
+          lineColor: [220, 220, 220],
+          lineWidth: 0.5
+        },
+        headStyles: {
+          fillColor: [52, 73, 94],
+          textColor: 255,
+          halign: 'center'
+        },
+        alternateRowStyles: {
+          fillColor: [245, 245, 245]
+        },
+        didDrawPage: (data) => {
+          // Pie de página
+          const pageNum = doc.internal.getNumberOfPages();
+          doc.setFontSize(10).setTextColor(150)
+            .text(`Página ${pageNum}`, W / 2, H - margin / 2, { align: 'center' });
+        }
+      });
+
+      // 5) Totales abajo de la tabla
+      const finalY = doc.lastAutoTable.finalY + lh;
+      doc.setFont('helvetica', 'bold').setFontSize(12);
+      doc.text(`Total Habitación: $${factura.totalHabitacion.toFixed(2)}`,
+        margin, finalY);
+      doc.text(`Total Consumos:   $${factura.totalConsumos.toFixed(2)}`,
+        margin, finalY + lh);
+      doc.setFontSize(14);
+      doc.text(`TOTAL: $${factura.totalFinal.toFixed(2)}`,
+        W - margin, finalY + lh * 2, { align: 'right' });
+
+      // 6) Descargar
+      doc.save(`Factura_${factura.id}.pdf`);
+    // Función pro que ya incluye tu logo dinámico
+
+  };
 
 
 async function pedirLogin() {
@@ -725,100 +854,7 @@ function inicializarApp() {
 
 
 
-/**
- * Carga una imagen desde una URL y la convierte a DataURL (Base64).
- * @param {string} url – Ruta pública de tu logo (p.ej. '/img/logo.png').
- * @returns {Promise<string>} – Una promise que resuelve con el dataURL.
- */
-function loadImageAsDataURL(url) {
-  return fetch(url)
-    .then(res => res.blob())
-    .then(blob => new Promise((resolve, reject) => {
-      const reader = new FileReader();
-      reader.onloadend = () => resolve(reader.result);
-      reader.onerror   = reject;
-      reader.readAsDataURL(blob);
-    }));
-}
-
-// Función pro que ya incluye tu logo dinámico
-async function descargarPdf(factura) {
-  // 1) Generamos el DataURL del logo en tiempo real
-  const logoDataUrl = await loadImageAsDataURL('/img/hotel-logo-silhouette-hotel-icon-vector.jpg');
-
-  // 2) Creamos el PDF
-  const doc    = new window.jspdf.jsPDF({ unit:'pt', format:'a4' });
-  const W      = doc.internal.pageSize.getWidth();
-  const H      = doc.internal.pageSize.getHeight();
-  const margin = 40;
-  const startY = 100;
-  const lh     = 18;
-
-  // 3) Header con logo y datos
-  doc.addImage(logoDataUrl, 'PNG', margin, 20, 80, 40);
-  doc.setFont('helvetica','bold').setFontSize(18);
-  doc.text('Hotel Acme', margin+90, 40);
-  doc.setFont('helvetica','normal').setFontSize(12);
-  doc.text(`Factura #${factura.id}`,       W-margin, 30, { align:'right' });
-  doc.text(`Fecha: ${new Date(factura.fechaFactura)
-                   .toLocaleString()}`,    W-margin, 48, { align:'right' });
-  doc.text(`Reserva ID: ${factura.reservaId}`, W-margin, 66, { align:'right' });
-
-  // 4) Tabla de detalle con autoTable
-  const head = [['Producto','Cantidad','P.U.','Subtotal']];
-  const body = factura.detalles.map(d => [
-    d.producto.nombreProducto,
-    d.cantidad,
-    `$${d.precioUnitario.toFixed(2)}`,
-    `$${d.subtotal.toFixed(2)}`
-  ]);
-
-  doc.autoTable({
-    startY,
-    margin: { left: margin, right: margin },
-    head,
-    body,
-    styles: {
-      font: 'helvetica',
-      fontSize: 10,
-      lineColor: [220,220,220],
-      lineWidth: 0.5
-    },
-    headStyles: {
-      fillColor: [52,73,94],
-      textColor: 255,
-      halign: 'center'
-    },
-    alternateRowStyles: {
-      fillColor: [245,245,245]
-    },
-    didDrawPage: (data) => {
-      // Pie de página
-      const pageNum = doc.internal.getNumberOfPages();
-      doc.setFontSize(10).setTextColor(150)
-         .text(`Página ${pageNum}`, W/2, H - margin/2, { align:'center' });
-    }
-  });
-
-  // 5) Totales abajo de la tabla
-  const finalY = doc.lastAutoTable.finalY + lh;
-  doc.setFont('helvetica','bold').setFontSize(12);
-  doc.text(`Total Habitación: $${factura.totalHabitacion.toFixed(2)}`,
-           margin, finalY);
-  doc.text(`Total Consumos:   $${factura.totalConsumos.toFixed(2)}`,
-           margin, finalY + lh);
-  doc.setFontSize(14);
-  doc.text(`TOTAL: $${factura.totalFinal.toFixed(2)}`,
-           W - margin, finalY + lh*2, { align:'right' });
-
-  // 6) Descargar
-  doc.save(`Factura_${factura.id}.pdf`);
-}
-
-
-
-
-
+ 
 
   // Inicializar: cargar habitaciones libres y ocupadas al cargar la página
   cargarHabitacionesLibres();
