@@ -723,18 +723,48 @@ function inicializarApp() {
       });
   });
 
-// Función para generar y disparar descarga del PDF
-// quita: const { jsPDF } = window.jspdf;
 
-function descargarPdf(factura) {
-  // Crea el doc usando el UMD:
-  const doc = new window.jspdf.jsPDF({ unit:'pt', format:'a4' });
 
-  // … tu código de cabecera …
-  doc.setFontSize(14);
-  doc.text(`Factura #${factura.id}`, 40, 40);
+/**
+ * Carga una imagen desde una URL y la convierte a DataURL (Base64).
+ * @param {string} url – Ruta pública de tu logo (p.ej. '/img/logo.png').
+ * @returns {Promise<string>} – Una promise que resuelve con el dataURL.
+ */
+function loadImageAsDataURL(url) {
+  return fetch(url)
+    .then(res => res.blob())
+    .then(blob => new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onloadend = () => resolve(reader.result);
+      reader.onerror   = reject;
+      reader.readAsDataURL(blob);
+    }));
+}
 
-  // … tabla autoTable …
+// Función pro que ya incluye tu logo dinámico
+async function descargarPdf(factura) {
+  // 1) Generamos el DataURL del logo en tiempo real
+  const logoDataUrl = await loadImageAsDataURL('/img/hotel-logo-silhouette-hotel-icon-vector.jpg');
+
+  // 2) Creamos el PDF
+  const doc    = new window.jspdf.jsPDF({ unit:'pt', format:'a4' });
+  const W      = doc.internal.pageSize.getWidth();
+  const H      = doc.internal.pageSize.getHeight();
+  const margin = 40;
+  const startY = 100;
+  const lh     = 18;
+
+  // 3) Header con logo y datos
+  doc.addImage(logoDataUrl, 'PNG', margin, 20, 80, 40);
+  doc.setFont('helvetica','bold').setFontSize(18);
+  doc.text('Hotel Acme', margin+90, 40);
+  doc.setFont('helvetica','normal').setFontSize(12);
+  doc.text(`Factura #${factura.id}`,       W-margin, 30, { align:'right' });
+  doc.text(`Fecha: ${new Date(factura.fechaFactura)
+                   .toLocaleString()}`,    W-margin, 48, { align:'right' });
+  doc.text(`Reserva ID: ${factura.reservaId}`, W-margin, 66, { align:'right' });
+
+  // 4) Tabla de detalle con autoTable
   const head = [['Producto','Cantidad','P.U.','Subtotal']];
   const body = factura.detalles.map(d => [
     d.producto.nombreProducto,
@@ -742,18 +772,50 @@ function descargarPdf(factura) {
     `$${d.precioUnitario.toFixed(2)}`,
     `$${d.subtotal.toFixed(2)}`
   ]);
-  doc.autoTable({ startY: 100, head, body });
 
-  // … totales …
-  const y = doc.lastAutoTable.finalY + 20;
-  doc.text(`Total Habitación: $${factura.totalHabitacion.toFixed(2)}`, 40, y);
-  doc.text(`Total Consumos:   $${factura.totalConsumos.toFixed(2)}`, 40, y+20);
+  doc.autoTable({
+    startY,
+    margin: { left: margin, right: margin },
+    head,
+    body,
+    styles: {
+      font: 'helvetica',
+      fontSize: 10,
+      lineColor: [220,220,220],
+      lineWidth: 0.5
+    },
+    headStyles: {
+      fillColor: [52,73,94],
+      textColor: 255,
+      halign: 'center'
+    },
+    alternateRowStyles: {
+      fillColor: [245,245,245]
+    },
+    didDrawPage: (data) => {
+      // Pie de página
+      const pageNum = doc.internal.getNumberOfPages();
+      doc.setFontSize(10).setTextColor(150)
+         .text(`Página ${pageNum}`, W/2, H - margin/2, { align:'center' });
+    }
+  });
+
+  // 5) Totales abajo de la tabla
+  const finalY = doc.lastAutoTable.finalY + lh;
+  doc.setFont('helvetica','bold').setFontSize(12);
+  doc.text(`Total Habitación: $${factura.totalHabitacion.toFixed(2)}`,
+           margin, finalY);
+  doc.text(`Total Consumos:   $${factura.totalConsumos.toFixed(2)}`,
+           margin, finalY + lh);
   doc.setFontSize(14);
-  doc.text(`TOTAL: $${factura.totalFinal.toFixed(2)}`, 40, y+50);
+  doc.text(`TOTAL: $${factura.totalFinal.toFixed(2)}`,
+           W - margin, finalY + lh*2, { align:'right' });
 
-  // descarga
-  doc.save(`factura_${factura.id}.pdf`);
+  // 6) Descargar
+  doc.save(`Factura_${factura.id}.pdf`);
 }
+
+
 
 
 
