@@ -7,7 +7,33 @@ document.addEventListener("DOMContentLoaded", async () => {
   // 2) Una vez logueado, inicializar la app de reservas
   inicializarApp();
   
-  
+   document.getElementById("optProductos")
+          .addEventListener("click", e => {
+    e.preventDefault();
+    // marca activo
+    setActive("optProductos");
+    console.log("Mostrar Productos");
+  });
+
+  document.getElementById("optUsuarios")
+          .addEventListener("click", e => {
+    e.preventDefault();
+    setActive("optUsuarios");
+    console.log("Mostrar Usuarios");
+  });
+
+  document.getElementById("optFacturas")
+          .addEventListener("click", e => {
+    e.preventDefault();
+    setActive("optFacturas");
+    console.log("Mostrar Facturas");
+  });
+
+  function setActive(id) {
+    // limpia los anteriores
+    document.querySelectorAll(".nav-link").forEach(a => a.classList.remove("active"));
+    document.getElementById(id).classList.add("active");
+  }
   
   
 });

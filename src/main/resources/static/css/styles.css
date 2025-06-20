@@ -151,3 +151,30 @@ table {
 .btn-detalle:active {
   transform: scale(0.95);
 }
+/* Asegura que no tape el header */
+.form-container {
+  position: relative;
+  z-index: 1;
+}
+
+/* Opcional: resaltar link activo */
+.nav-link.active {
+  font-weight: bold;
+  color: #0d6efd !important;
+}
+/* Transición suave para todos los nav-links */
+.navbar-nav .nav-link {
+  transition: background-color 0.2s, color 0.2s;
+}
+
+/* Color de fondo y texto al pasar el ratón */
+.navbar-nav .nav-link:hover {
+  background-color: #0d6efd; /* azul Bootstrap */
+  color: #fff;
+}
+
+/* Además, opcionalmente redondear esquinas */
+.navbar-nav .nav-link {
+  border-radius: 4px;
+  padding: 0.5rem 1rem;
+}
