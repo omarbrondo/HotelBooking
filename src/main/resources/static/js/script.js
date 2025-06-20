@@ -1,42 +1,98 @@
 document.addEventListener("DOMContentLoaded", async () => {
-  
-  
-   // 1) Pedir credenciales con un modal de SweetAlert2
+
+    const reservationForm   = document.getElementById("reservationForm");
+  const occupiedSection   = document.querySelector(".occupied-section");
+  const facturasContainer = document.getElementById("facturasContainer");
+
+
+  // 1) Pedir credenciales con un modal de SweetAlert2
   await pedirLogin();
 
   // 2) Una vez logueado, inicializar la app de reservas
   inicializarApp();
-  
-   document.getElementById("optProductos")
-          .addEventListener("click", e => {
-    e.preventDefault();
-    // marca activo
-    setActive("optProductos");
-    console.log("Mostrar Productos");
-  });
+
+  // 1) Función para pintar la tabla de facturas
+async function cargarFacturas() {
+  try {
+    const resp = await fetch("/api/facturas");
+    const facturas = await resp.json();
+    const cont = document.getElementById("facturasContainer");
+    let html = `
+      <table class="table table-striped">
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Fecha</th>
+            <th>Reserva ID</th>
+            <th>Total Habitación</th>
+            <th>Total Consumos</th>
+            <th>Total Final</th>
+          </tr>
+        </thead>
+        <tbody>
+    `;
+    facturas.forEach(f => {
+      html += `
+        <tr>
+          <td>${f.id}</td>
+          <td>${new Date(f.fechaFactura).toLocaleString()}</td>
+          <td>${f.reservaId}</td>
+          <td>$${f.totalHabitacion.toFixed(2)}</td>
+          <td>$${f.totalConsumos.toFixed(2)}</td>
+          <td><strong>$${f.totalFinal.toFixed(2)}</strong></td>
+        </tr>
+      `;
+    });
+    html += `</tbody></table>`;
+    cont.innerHTML = html;
+  } catch (e) {
+    console.error("Error al cargar facturas:", e);
+    Swal.fire("Error", "No se pudieron cargar las facturas", "error");
+  }
+}
+
+
+  document.getElementById("optProductos")
+    .addEventListener("click", e => {
+      e.preventDefault();
+      // marca activo
+      setActive("optProductos");
+      console.log("Mostrar Productos");
+    });
 
   document.getElementById("optUsuarios")
-          .addEventListener("click", e => {
-    e.preventDefault();
-    setActive("optUsuarios");
-    console.log("Mostrar Usuarios");
-  });
+    .addEventListener("click", e => {
+      e.preventDefault();
+      setActive("optUsuarios");
+      console.log("Mostrar Usuarios");
+    });
 
+ // 2) Listener para el botón "Facturas" en el menú
   document.getElementById("optFacturas")
-          .addEventListener("click", e => {
-    e.preventDefault();
-    setActive("optFacturas");
-    console.log("Mostrar Facturas");
-  });
+    .addEventListener("click", e => {
+      e.preventDefault();
+      setActive("optFacturas");
 
-  function setActive(id) {
-    // limpia los anteriores
-    document.querySelectorAll(".nav-link").forEach(a => a.classList.remove("active"));
-    document.getElementById(id).classList.add("active");
-  }
-  
-  
+      // oculto las secciones que no quiero ver:
+      reservationForm.hidden   = true;
+      occupiedSection.hidden   = true;
+      facturasContainer.hidden = false;
+
+      // finalmente cargo las facturas
+      console.log("click en Facturas");  // <-- pon esto para verificar
+      cargarFacturas();
+    });
+
+  // 3) Asegúrate de que, al inicio, la sección facturas esté oculta
+  facturasContainer.hidden = true;
 });
+
+function setActive(id) {
+  document.querySelectorAll(".nav-link")
+          .forEach(a => a.classList.remove("active"));
+  document.getElementById(id).classList.add("active");
+}
+
 
 async function pedirLogin() {
   const BACKDROP = `
@@ -53,14 +109,14 @@ async function pedirLogin() {
       focusConfirm: false,
       preConfirm: () => {
         const nombre = document.getElementById("swal-username").value.trim();
-        const pass   = document.getElementById("swal-password").value.trim();
+        const pass = document.getElementById("swal-password").value.trim();
         if (!nombre || !pass)
           Swal.showValidationMessage("Completa usuario y contraseña");
         return { nombreUsuario: nombre, password: pass };
       },
- backdrop: BACKDROP
+      backdrop: BACKDROP
 
-});
+    });
 
     // Si cerró el modal, recargo la página
     if (!cred) {
@@ -70,9 +126,9 @@ async function pedirLogin() {
 
     try {
       const res = await fetch("/usuario/login", {
-        method:  "POST",
+        method: "POST",
         headers: { "Content-Type": "application/json" },
-        body:    JSON.stringify(cred)
+        body: JSON.stringify(cred)
       });
       if (!res.ok) {
         const msg = await res.text();
@@ -81,7 +137,7 @@ async function pedirLogin() {
       console.log("Login OK:", await res.json());
       return;
     }
-        catch (err) {
+    catch (err) {
       await Swal.fire({
         icon: 'error',
         title: 'Error de autenticación',
@@ -98,7 +154,7 @@ async function pedirLogin() {
 }
 
 
-function inicializarApp(){
+function inicializarApp() {
   const reservationForm = document.getElementById("reservationForm");
   const habitacionSelect = document.getElementById("habitacion");
   const tablaOcupadasBody = document.querySelector("#tablaOcupadas tbody");
@@ -267,7 +323,7 @@ function inicializarApp(){
                     </tr>`;
                 });
                 htmlProductos += `</tbody></table>`;
-    
+
                 Swal.fire({
                   title: 'Agregar Productos',
                   html: htmlProductos,
@@ -372,7 +428,7 @@ function inicializarApp(){
                 } else {
                   htmlDetalle += `<strong>Consumos:</strong> Sin consumos registrados.`;
                 }
-      
+
                 Swal.fire({
                   title: 'Detalle de Reserva',
                   html: htmlDetalle,
@@ -487,7 +543,7 @@ function inicializarApp(){
                 const totalFinal = totalHabitacion + totalConsumos;
 
                 // Armar HTML de la factura
-const htmlFactura = `
+                const htmlFactura = `
   <div class="container">
     <h3 class="text-center mb-3">Factura</h3>
     <div class="mb-3">
@@ -535,40 +591,40 @@ const htmlFactura = `
                 document.getElementById("btnImprimirFactura").addEventListener("click", () => {
                   window.print();
                 });
-document.getElementById("btnCancelarCheckout").addEventListener("click", () => {
-  Swal.close();
-});
+                document.getElementById("btnCancelarCheckout").addEventListener("click", () => {
+                  Swal.close();
+                });
 
                 // Evento para confirmar checkout y eliminar la reserva
                 // en lugar de DELETE /api/reservas...
-document.getElementById("btnConfirmarCheckout")
-  .addEventListener("click", () => {
-    fetch(`/api/facturas/${habitacion.reserva.idReserva}`, {
-      method: 'POST'
-    })
-    .then(r => {
-      if (!r.ok) return r.text().then(t => { throw new Error(t) });
-      return r.json();
-    })
-    .then(factura => {
-      Swal.fire({
-        icon: 'success',
-        title: 'Checkout finalizado',
-        html: `
+                document.getElementById("btnConfirmarCheckout")
+                  .addEventListener("click", () => {
+                    fetch(`/api/facturas/${habitacion.reserva.idReserva}`, {
+                      method: 'POST'
+                    })
+                      .then(r => {
+                        if (!r.ok) return r.text().then(t => { throw new Error(t) });
+                        return r.json();
+                      })
+                      .then(factura => {
+                        Swal.fire({
+                          icon: 'success',
+                          title: 'Checkout finalizado',
+                          html: `
           <p>Factura #${factura.id}</p>
           <p>Total habitación: $${factura.totalHabitacion}</p>
           <p>Total consumos: $${factura.totalConsumos}</p>
           <h4>Total: $${factura.totalFinal}</h4>
         `
-      });
-      // recarga UI
-      cargarHabitacionesOcupadas();
-      cargarHabitacionesLibres();
-    })
-    .catch(err => {
-      Swal.fire('Error', err.message, 'error');
-    });
-});
+                        });
+                        // recarga UI
+                        cargarHabitacionesOcupadas();
+                        cargarHabitacionesLibres();
+                      })
+                      .catch(err => {
+                        Swal.fire('Error', err.message, 'error');
+                      });
+                  });
 
               })
               .catch(error => {
@@ -618,7 +674,7 @@ document.getElementById("btnConfirmarCheckout")
     const fechaDesde = document.getElementById("fechaDesde").value;
     const fechaHasta = document.getElementById("fechaHasta").value;
     const idHabitacion = habitacionSelect.value;
-    
+
     if (!idHabitacion) {
       Swal.fire({
         icon: 'warning',
@@ -628,7 +684,7 @@ document.getElementById("btnConfirmarCheckout")
       return;
     }
     if (!validarFechas(fechaDesde, fechaHasta)) return;
-    
+
     const reservaDTO = {
       nombre: nombre,
       apellido: apellido,
@@ -637,7 +693,7 @@ document.getElementById("btnConfirmarCheckout")
       fechaHasta: fechaHasta,
       idHabitacion: Number(idHabitacion)
     };
-    
+
     fetch("/api/reservas", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -668,7 +724,13 @@ document.getElementById("btnConfirmarCheckout")
       });
   });
 
+
+
+
+
   // Inicializar: cargar habitaciones libres y ocupadas al cargar la página
   cargarHabitacionesLibres();
   cargarHabitacionesOcupadas();
 }
+
+// 1) Función para pintar la tabla de facturas
