@@ -15,6 +15,8 @@ import com.app.HotelBooking.model.Reserva;
 import com.app.HotelBooking.repository.FacturaRepository;
 import com.app.HotelBooking.repository.ReservaRepository;
 
+import java.util.List;
+
 @Service
 public class FacturaService {
 
@@ -23,7 +25,9 @@ public class FacturaService {
 
     @Autowired
     private FacturaRepository facturaRepo;
-
+    public List<Factura> listarTodas() {
+        return facturaRepo.findAll();
+    }
     /**
      * Persiste una nueva factura solo si no existía ya una para esta reserva.
      * Almacena únicamente el ID de la reserva (reservaId) evitando el mapeo directo.
