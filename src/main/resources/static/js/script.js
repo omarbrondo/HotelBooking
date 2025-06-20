@@ -5,6 +5,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   const facturasContainer = document.getElementById("facturasContainer");
 
 
+
   // 1) Pedir credenciales con un modal de SweetAlert2
   await pedirLogin();
 
@@ -602,6 +603,9 @@ function inicializarApp() {
                         return r.json();
                       })
                       .then(factura => {
+
+                        descargarPdf(factura);
+
                         Swal.fire({
                           icon: 'success',
                           title: 'Checkout finalizado',
@@ -719,6 +723,37 @@ function inicializarApp() {
       });
   });
 
+// Función para generar y disparar descarga del PDF
+// quita: const { jsPDF } = window.jspdf;
+
+function descargarPdf(factura) {
+  // Crea el doc usando el UMD:
+  const doc = new window.jspdf.jsPDF({ unit:'pt', format:'a4' });
+
+  // … tu código de cabecera …
+  doc.setFontSize(14);
+  doc.text(`Factura #${factura.id}`, 40, 40);
+
+  // … tabla autoTable …
+  const head = [['Producto','Cantidad','P.U.','Subtotal']];
+  const body = factura.detalles.map(d => [
+    d.producto.nombreProducto,
+    d.cantidad,
+    `$${d.precioUnitario.toFixed(2)}`,
+    `$${d.subtotal.toFixed(2)}`
+  ]);
+  doc.autoTable({ startY: 100, head, body });
+
+  // … totales …
+  const y = doc.lastAutoTable.finalY + 20;
+  doc.text(`Total Habitación: $${factura.totalHabitacion.toFixed(2)}`, 40, y);
+  doc.text(`Total Consumos:   $${factura.totalConsumos.toFixed(2)}`, 40, y+20);
+  doc.setFontSize(14);
+  doc.text(`TOTAL: $${factura.totalFinal.toFixed(2)}`, 40, y+50);
+
+  // descarga
+  doc.save(`factura_${factura.id}.pdf`);
+}
 
 
 
@@ -728,4 +763,3 @@ function inicializarApp() {
   cargarHabitacionesOcupadas();
 }
 
-// 1) Función para pintar la tabla de facturas
