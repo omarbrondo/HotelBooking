@@ -1,3 +1,20 @@
+function authedFetch(url, opts = {}) {
+  const token = localStorage.getItem("token");
+  const headers = {
+    ...opts.headers,
+    "Content-Type": opts.headers?.["Content-Type"] || "application/json"
+  };
+  if (token) headers["Authorization"] = `Bearer ${token}`;
+  return fetch(url, { ...opts, headers });
+}
+
+
+
+
+
+
+
+
 document.addEventListener("DOMContentLoaded", async () => {
   const reservationForm = document.getElementById("reservationForm");
   const occupiedSection = document.querySelector(".occupied-section");
@@ -17,6 +34,25 @@ document.addEventListener("DOMContentLoaded", async () => {
   const inpUsuarioNombre = document.getElementById("usuarioNombre");
   const inpUsuarioPass = document.getElementById("usuarioPass");
   const inpUsuarioRol = document.getElementById("usuarioRol");
+  const token = localStorage.getItem("token");
+
+
+   if (!token) {
+    await pedirLogin();
+  }     
+  ajustarPorRol();
+  inicializarApp(); 
+
+
+
+
+document.getElementById("btnLogout")
+  .addEventListener("click", () => {
+    localStorage.clear();
+    location.reload();
+  });
+
+
 
   document.querySelectorAll(".btn-imprimir").forEach((btn) => {
     btn.addEventListener("click", () => {
@@ -26,14 +62,6 @@ document.addEventListener("DOMContentLoaded", async () => {
     });
   });
 
-  // 1) Pedir credenciales con un modal de SweetAlert2
-  await pedirLogin();
-
-
-  ajustarPorRol();
-
-  // 2) Una vez logueado, inicializar la app de reservas
-  inicializarApp();
 
 
 // 2. Función utilitaria para ocultar todas las secciones
@@ -58,7 +86,7 @@ function hideAllSections() {
 
   async function cargarFacturas() {
     try {
-      const resp = await fetch("/api/facturas");
+      const resp = await authedFetch("/api/facturas");
       const facturas = await resp.json();
       const cont = document.getElementById("facturasContainer");
 
@@ -124,7 +152,7 @@ function hideAllSections() {
   /*---------------------------------------------------------- */
   async function cargarProductos() {
     try {
-      const resp = await fetch("/api/productos");
+      const resp = await authedFetch("/api/productos");
       const prods = await resp.json();
       tablaProductsBody.innerHTML = "";
 
@@ -199,7 +227,7 @@ optProductos.addEventListener("click", e => {
   // 3) Cargar listado de usuarios (sin password)
   async function cargarUsuarios() {
     try {
-      const res = await fetch("/usuario/dto");
+      const res = await authedFetch("/usuario/dto");
       const list = await res.json(); // List<UsuarioDTO>
       tablaUsuariosBody.innerHTML = "";
       list.forEach((u) => {
@@ -231,7 +259,7 @@ optProductos.addEventListener("click", e => {
   // 4) Editar usuario: trae password
   async function onClickEditarUsuario(e) {
     const id = e.target.dataset.id;
-    const res = await fetch(`/usuario/${id}`);
+    const res = await authedFetch(`/usuario/${id}`);
     if (!res.ok) return Swal.fire("Error", "Usuario no existe", "error");
     const u = await res.json(); // Usuario completo
     inpUsuarioId.value = u.idUsuario;
@@ -249,7 +277,7 @@ optProductos.addEventListener("click", e => {
       showCancelButton: true,
     }).then(async (ans) => {
       if (!ans.isConfirmed) return;
-      await fetch(`/usuario/${id}`, { method: "DELETE" });
+      await authedFetch(`/usuario/${id}`, { method: "DELETE" });
       await cargarUsuarios();
       Swal.fire("OK", "Usuario eliminado", "success");
     });
@@ -268,7 +296,7 @@ optProductos.addEventListener("click", e => {
     const method = id ? "PUT" : "POST";
 
     try {
-      const res = await fetch(url, {
+      const res = await authedFetch(url, {
         method,
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
@@ -295,7 +323,7 @@ optProductos.addEventListener("click", e => {
     const method = id ? "PUT" : "POST";
 
     try {
-      const res = await fetch(url, {
+      const res = await authedFetch(url, {
         method,
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(body),
@@ -313,7 +341,7 @@ optProductos.addEventListener("click", e => {
   // 4) Click en “Editar”
   async function onClickEditar(e) {
     const id = e.target.dataset.id;
-    const res = await fetch(`/api/productos/${id}`);
+    const res = await authedFetch(`/api/productos/${id}`);
     const p = await res.json();
     inpProdId.value = p.idProducto;
     inpProdNombre.value = p.nombreProducto;
@@ -329,7 +357,7 @@ optProductos.addEventListener("click", e => {
       showCancelButton: true,
     }).then(async (ans) => {
       if (!ans.isConfirmed) return;
-      await fetch(`/api/productos/${id}`, { method: "DELETE" });
+      await authedFetch(`/api/productos/${id}`, { method: "DELETE" });
       await cargarProductos();
       Swal.fire("OK", "Producto eliminado", "success");
     });
@@ -363,7 +391,7 @@ optProductos.addEventListener("click", e => {
 
 async function cargarProductos() {
   try {
-    const resp = await fetch("/api/productos");
+    const resp = await authedFetch("/api/productos");
     const prods = await resp.json();
     tablaProductsBody.innerHTML = "";
 
@@ -414,7 +442,7 @@ function setActive(id) {
  * @returns {Promise<string>} – Una promise que resuelve con el dataURL.
  */
 function loadImageAsDataURL(url) {
-  return fetch(url)
+  return authedFetch(url)
     .then((res) => res.blob())
     .then(
       (blob) =>
@@ -521,6 +549,11 @@ window.descargarPdf = async function (factura) {
   // Función pro que ya incluye tu logo dinámico
 };
 
+
+
+
+
+
 async function pedirLogin() {
 
 
@@ -531,6 +564,7 @@ async function pedirLogin() {
     url('/img/patron-tematico-viaje-varias-ilustraciones-sobre-fondo-vectorial-repeticion-tema_1030164-4.avif')
     repeat
   `;
+
   while (true) {
     const { value: cred } = await Swal.fire({
       title: "Iniciar Sesión",
@@ -540,7 +574,7 @@ async function pedirLogin() {
       focusConfirm: false,
       preConfirm: () => {
         const nombre = document.getElementById("swal-username").value.trim();
-        const pass = document.getElementById("swal-password").value.trim();
+        const pass   = document.getElementById("swal-password").value.trim();
         if (!nombre || !pass)
           Swal.showValidationMessage("Completa usuario y contraseña");
         return { nombreUsuario: nombre, password: pass };
@@ -548,48 +582,42 @@ async function pedirLogin() {
       backdrop: BACKDROP,
     });
 
-    // Si cerró el modal, recargo la página
     if (!cred) {
       location.reload();
       return;
     }
 
     try {
-const res = await fetch("/usuario/login", {
-  method: "POST",
-  headers: { "Content-Type": "application/json" },
-  body: JSON.stringify(cred)
-});
-if (!res.ok) {
-  // leo el texto sólo en el branch de error
-  const msg = await res.text();
-  throw new Error(msg || "Credenciales inválidas");
-}
+      // 1) LOGIN SIN authedFetch
+      const res = await fetch("/usuario/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(cred)
+      });
+      if (!res.ok) {
+        const msg = await res.text();
+        throw new Error(msg || "Usuario/clave incorrectos");
+      }
 
-// leo el JSON UNA SOLA VEZ y lo guardo
-const userDto = await res.json();
-console.log("Login OK:", userDto);
+      // 2) UNA SOLA lectura del body
+      const { token, idUsuario, rol } = await res.json();
+      console.log("Login OK:", { token, idUsuario, rol });
 
+      // 3) Guarda token y rol
+      localStorage.setItem("token", token);
+      window.currentUserRole = rol;
+      console.log("ROL LOGUEADO:", rol);
 
-// almaceno el rol para ajustar la UI luego
-window.currentUserRole = userDto.rol;
-
-console.log("ROL LOGUEADO:", window.currentUserRole);
-// llamo a ajustarPorRol antes de inicializar app
-ajustarPorRol();
-
-return;
+      // 4) Ajusta UI y regresa
+      ajustarPorRol();
+      return;
 
     } catch (err) {
       await Swal.fire({
         icon: "error",
         title: "Error de autenticación",
         text: err.message,
-        backdrop: `
-          rgba(255,255,255,0.9)
-          url('/img/patron-tematico-viaje-varias-ilustraciones-sobre-fondo-vectorial-repeticion-tema_1030164-4.avif')
-          repeat
-        `,
+        backdrop: BACKDROP,
       });
       // el bucle repite el login tras cerrar este modal
     }
@@ -629,7 +657,7 @@ function inicializarApp() {
 
   // Función para cargar las habitaciones libres en el select
   function cargarHabitacionesLibres() {
-    fetch("/api/habitaciones/libres")
+    authedFetch("/api/habitaciones/libres")
       .then((response) => response.json())
       .then((data) => {
         habitacionSelect.innerHTML = `<option value="">Seleccione una habitación</option>`;
@@ -652,7 +680,7 @@ function inicializarApp() {
 
   // Función para cargar las habitaciones ocupadas y construir la tabla
   function cargarHabitacionesOcupadas() {
-    fetch("/api/habitaciones/ocupadas")
+    authedFetch("/api/habitaciones/ocupadas")
       .then((response) => response.json())
       .then((data) => {
         tablaOcupadasBody.innerHTML = "";
@@ -729,7 +757,7 @@ function inicializarApp() {
             }).then((result) => {
               if (result.isConfirmed) {
                 const updatedData = result.value;
-                fetch(`/api/reservas/${habitacion.reserva.idReserva}`, {
+                authedFetch(`/api/reservas/${habitacion.reserva.idReserva}`, {
                   method: "PUT",
                   headers: { "Content-Type": "application/json" },
                   body: JSON.stringify(updatedData),
@@ -776,7 +804,7 @@ function inicializarApp() {
               });
               return;
             }
-            fetch("/api/productos")
+            authedFetch("/api/productos")
               .then((resp) => resp.json())
               .then((productos) => {
                 let htmlProductos = `<table class="table table-striped" style="text-align:center;">
@@ -829,7 +857,7 @@ function inicializarApp() {
                     const reservaId = habitacion.reserva.idReserva;
                     Promise.all(
                       consumos.map((consumo) =>
-                        fetch(`/api/reservas/${reservaId}/consumos`, {
+                        authedFetch(`/api/reservas/${reservaId}/consumos`, {
                           method: "POST",
                           headers: { "Content-Type": "application/json" },
                           body: JSON.stringify(consumo),
@@ -878,7 +906,7 @@ function inicializarApp() {
               });
               return;
             }
-            fetch(`/api/reservas/${habitacion.reserva.idReserva}`)
+            authedFetch(`/api/reservas/${habitacion.reserva.idReserva}`)
               .then((response) => response.json())
               .then((detalle) => {
                 let htmlDetalle = `<strong>Habitación:</strong> ${habitacion.nombreHabitacion} <br/>
@@ -964,7 +992,7 @@ btnEliminar.addEventListener("click", () => {
     cancelButtonText: "Cancelar"
   }).then(result => {
     if (!result.isConfirmed) return;
-    fetch(`/api/reservas/${habitacion.reserva.idReserva}`, {
+    authedFetch(`/api/reservas/${habitacion.reserva.idReserva}`, {
       method: "DELETE"
     })
     .then(response => {
@@ -1003,7 +1031,7 @@ tdAcciones.appendChild(btnEliminar);
             }
 
             // Se obtiene el detalle actualizado de la reserva
-            fetch(`/api/reservas/${habitacion.reserva.idReserva}`)
+            authedFetch(`/api/reservas/${habitacion.reserva.idReserva}`)
               .then((response) => response.json())
               .then((reservaDetalle) => {
                 // Calcular cantidad de días (suponiendo que las fechas sean ISO string "YYYY-MM-DD")
@@ -1075,7 +1103,6 @@ tdAcciones.appendChild(btnEliminar);
     <h5 class="text-end">Total consumos: $${totalConsumos.toFixed(2)}</h5>
     <h4 class="text-end">TOTAL: $${totalFinal.toFixed(2)}</h4>
     <div class="text-center mt-4">
-      <button id="btnImprimirFactura" class="btn btn-success">Imprimir Factura</button>
       <button id="btnConfirmarCheckout" class="btn btn-danger ms-2">Confirmar Checkout</button>
       <button id="btnCancelarCheckout" class="btn btn-secondary ms-2">Cancelar Checkout</button>
     </div>
@@ -1088,13 +1115,6 @@ tdAcciones.appendChild(btnEliminar);
                   width: "800px",
                   showConfirmButton: false,
                 });
-
-                // Evento para imprimir la factura
-                document
-                  .getElementById("btnImprimirFactura")
-                  .addEventListener("click", () => {
-                    window.print();
-                  });
                 document
                   .getElementById("btnCancelarCheckout")
                   .addEventListener("click", () => {
@@ -1106,7 +1126,7 @@ tdAcciones.appendChild(btnEliminar);
                 document
                   .getElementById("btnConfirmarCheckout")
                   .addEventListener("click", () => {
-                    fetch(`/api/facturas/${habitacion.reserva.idReserva}`, {
+                    authedFetch(`/api/facturas/${habitacion.reserva.idReserva}`, {
                       method: "POST",
                     })
                       .then((r) => {
@@ -1205,7 +1225,7 @@ tdAcciones.appendChild(btnEliminar);
       idHabitacion: Number(idHabitacion),
     };
 
-    fetch("/api/reservas", {
+    authedFetch("/api/reservas", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(reservaDTO),

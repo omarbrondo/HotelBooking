@@ -1,6 +1,7 @@
 package com.app.HotelBooking.controller;
 
 import java.util.List;
+import java.util.Map;                   // ←
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,6 +11,7 @@ import org.springframework.web.bind.annotation.*;
 import com.app.HotelBooking.dto.UsuarioDTO;
 import com.app.HotelBooking.model.Usuario;
 import com.app.HotelBooking.service.UsuarioService;
+import com.app.HotelBooking.util.JwtUtil;  // ←
 
 @CrossOrigin(origins = "*")
 @RestController
@@ -18,6 +20,9 @@ public class UsuarioController {
 
     @Autowired
     private UsuarioService service;
+
+    @Autowired                             // ← inyecta el JwtUtil
+    private JwtUtil jwtUtil;
 
     // 1) Listar todos
     @GetMapping
@@ -75,20 +80,17 @@ public class UsuarioController {
 
     // 7) Login (ya lo tenés)
     @PostMapping("/login")
-    public ResponseEntity<UsuarioDTO> login(@RequestBody Usuario cred) {
-        Optional<Usuario> opt = service.login(
-            cred.getNombreUsuario(),
-            cred.getPassword()
-        );
-        if (opt.isEmpty()) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
-        }
-        Usuario u = opt.get();
-        UsuarioDTO dto = new UsuarioDTO(
-          u.getIdUsuario(), 
-          u.getNombreUsuario(), 
-          u.getRol()
-        );
-        return ResponseEntity.ok(dto);
-    }
+public ResponseEntity<Map<String,String>> login(@RequestBody Usuario cred) {
+  Optional<Usuario> opt = service.login(cred.getNombreUsuario(), cred.getPassword());
+  if (opt.isEmpty()) return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+  Usuario u = opt.get();
+  String token = jwtUtil.generarToken(u.getNombreUsuario(), u.getRol());
+  Map<String,String> body = Map.of(
+    "token", token,
+    "idUsuario", u.getIdUsuario().toString(),
+    "rol", u.getRol()
+  );
+  return ResponseEntity.ok(body);
+}
+
 }
