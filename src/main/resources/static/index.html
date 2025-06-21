@@ -3,6 +3,8 @@
 
 <head>
   <meta charset="UTF-8">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
   <title>Reserva de Habitaciones</title>
 
   <!-- toastify -->
@@ -30,7 +32,12 @@
       <li class="nav-item"><a class="nav-link" href="#" id="optProductos">Productos</a></li>
       <li class="nav-item"><a class="nav-link" href="#" id="optUsuarios">Usuarios</a></li>
       <li class="nav-item"><a class="nav-link" href="#" id="optFacturas">Facturas</a></li>
+      <li class="nav-item"><a class="nav-link" href="#" id="optDashboard">Dashboard</a></li>
     </ul>
+
+
+
+
 
     <!-- 2) Logo centrado ABSOLUTO -->
     <a class="navbar-brand position-absolute start-50 translate-middle-x" href="#">
@@ -58,6 +65,16 @@
 
   <!-- Contenedor general con recuadro gris para el contenido -->
   <div class="container mt-5 form-container">
+
+
+
+
+
+
+
+
+
+
     <!-- Contenedor blanco para encabezados -->
     <div class="header-container mb-4">
       <h1 class="d-flex justify-content-between align-items-center">
@@ -66,7 +83,31 @@
         <i class="fa-solid fa-suitcase"></i>
       </h1>
     </div>
-
+<!-- Dashboard -->
+<section id="dashboardSection" hidden>
+  <div class="container mt-4">
+    <h2>Dashboard Estadísticas</h2>
+    <div class="row">
+      <div class="col-md-6">
+         <canvas id="chartProductos"></canvas>
+      </div>
+      <div class="col-md-6">
+         <canvas id="chartHabitaciones"></canvas>
+      </div>
+      <div class="col-md-6 mt-4">
+         <canvas id="chartFechas"></canvas>
+      </div>
+      <div class="col-md-6 mt-4">
+        <div class="card text-white bg-primary">
+          <div class="card-body">
+            <h5 class="card-title">Ingreso Total</h5>
+            <p id="ingresoTotal" class="card-text display-4"></p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
     <!-- tabla de facturas -->
     <div id="facturasContainer" class="mt-4" hidden></div>
 

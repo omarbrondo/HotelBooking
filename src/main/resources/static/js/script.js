@@ -37,7 +37,14 @@ document.addEventListener("DOMContentLoaded", async () => {
   inicializarApp(); 
 
 
-
+// 1) Listener para Dashboard
+document.getElementById("optDashboard").addEventListener("click", e => {
+  e.preventDefault();
+  setActive("optDashboard");        // marca el menú activo
+  hideAllSections();                // oculta todo
+  document.getElementById("dashboardSection").hidden = false;  // muestra dashboard
+  renderDashboard();                // carga y dibuja los charts
+});
 
 document.getElementById("btnLogout")
   .addEventListener("click", () => {
@@ -64,13 +71,74 @@ function hideAllSections() {
   productosContainer.hidden = true;
   usuariosContainer.hidden  = true;
   facturasContainer.hidden  = true;
+  document.getElementById("dashboardSection").hidden = true;
 }
 
 
+// 2) Función principal
+async function renderDashboard() {
+  try {
+    const res = await authedFetch("/api/dashboard");
+    if (!res.ok) throw new Error(await res.text());
+    const data = await res.json();
 
+    // a) Productos
+    new Chart(
+      document.getElementById("chartProductos"),
+      {
+        type: 'bar',
+        data: {
+          labels: data.topProductos.map(x => x.key),
+          datasets: [{
+            label: 'Unidades Consumidas',
+            data: data.topProductos.map(x => x.count),
+            backgroundColor: 'rgba(75, 192, 192, 0.6)'
+          }]
+        }
+      }
+    );
 
+    // b) Habitaciones
+    new Chart(
+      document.getElementById("chartHabitaciones"),
+      {
+        type: 'pie',
+        data: {
+          labels: data.topHabitaciones.map(x => x.key),
+          datasets: [{
+            data: data.topHabitaciones.map(x => x.count),
+            backgroundColor: ['#ff6384','#36a2eb','#ffcd56','#4bc0c0','#9966ff']
+          }]
+        }
+      }
+    );
 
+    // c) Fechas
+    new Chart(
+      document.getElementById("chartFechas"),
+      {
+        type: 'line',
+        data: {
+          labels: data.topFechas.map(x => x.key),
+          datasets: [{
+            label: 'Reservas por Fecha',
+            data: data.topFechas.map(x => x.count),
+            borderColor: 'rgba(153, 102, 255, 0.8)',
+            fill: false
+          }]
+        }
+      }
+    );
 
+    // d) Ingreso Total
+    document.getElementById("ingresoTotal")
+      .textContent = `$${Number(data.ingresoTotal).toFixed(2)}`;
+
+  } catch (err) {
+    console.error("Error al cargar dashboard:", err);
+    Swal.fire("Error", err.message, "error");
+  }
+}
 
 
   /*---------------------------------------------------------- */
