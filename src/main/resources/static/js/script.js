@@ -143,43 +143,82 @@ function hideAllSections() {
   /*---------------------------------------------------------- */
   // 2) función para cargar productos
   /*---------------------------------------------------------- */
-  async function cargarProductos() {
-  try {
-    const resp = await authedFetch("/api/productos");
-    // 1) Controlar si el status no es 2xx
-    if (!resp.ok) {
-      // leo el cuerpo como texto (será “Ocurrió un error…”) y lanzo
-      const msg = await resp.text();
-      throw new Error(msg);
-    }
-
-    // 2) Ahora sí parseo JSON porque sé que fue 200
+async function cargarProductos() {
+   try {
+    const resp = await authedFetch("/api/productos/all");
+    if (!resp.ok) throw new Error(await resp.text());
     const prods = await resp.json();
-    tablaProductsBody.innerHTML = "";
 
-    prods.forEach((p) => {
+    // 2) Vacio el tbody
+    const tbody = document.querySelector("#tablaProductos tbody");
+    tbody.innerHTML = "";
+
+    // 3) Por cada producto, creo una fila con switch y botón editar
+    prods.forEach(p => {
       const tr = document.createElement("tr");
       tr.innerHTML = `
         <td>${p.idProducto}</td>
         <td>${p.nombreProducto}</td>
         <td>$${p.precio.toFixed(2)}</td>
         <td>
-          <button class="btn btn-sm btn-warning btn-edit" data-id="${p.idProducto}">Editar</button>
-          <button class="btn btn-sm btn-danger btn-del"  data-id="${p.idProducto}">Borrar</button>
+          <div class="form-check form-switch">
+            <input
+              class="form-check-input toggle-activo"
+              type="checkbox"
+              id="switch-${p.idProducto}"
+              data-id="${p.idProducto}"
+              ${p.activo ? "checked" : ""}
+            />
+            <label
+              class="form-check-label"
+              for="switch-${p.idProducto}"
+            >${p.activo ? "Activo" : "Inactivo"}</label>
+          </div>
+        </td>
+        <td>
+          <button class="btn btn-sm btn-warning btn-edit" data-id="${p.idProducto}">
+            Editar
+          </button>
         </td>`;
-      tablaProductsBody.appendChild(tr);
+      tbody.appendChild(tr);
     });
 
+
+    // 4) Listeners editar
     document.querySelectorAll(".btn-edit")
-            .forEach(b => b.addEventListener("click", onClickEditar));
-    document.querySelectorAll(".btn-del")
-            .forEach(b => b.addEventListener("click", onClickBorrar));
+      .forEach(b => b.addEventListener("click", onClickEditar));
+
+    // 5) Listeners switch
+    document.querySelectorAll(".toggle-activo")
+      .forEach(cb => cb.addEventListener("change", async e => {
+        const id = e.target.dataset.id;
+        try {
+          if (e.target.checked) {
+            // Reactivar
+            const r = await authedFetch(`/api/productos/${id}/restaurar`, { method: "PATCH" });
+            if (!r.ok) throw new Error(await r.text());
+            Swal.fire("Activado", "Producto reactivado", "success");
+          } else {
+            // Dar de baja
+            const r = await authedFetch(`/api/productos/${id}`, { method: "DELETE" });
+            if (!r.ok) throw new Error(await r.text());
+            Swal.fire("Desactivado", "Producto dado de baja", "success");
+          }
+          // Opcional: refrescar la grilla
+          await cargarProductos();
+        } catch (err) {
+          Swal.fire("Error", err.message, "error");
+          // Revertir posición del switch en caso de error
+          e.target.checked = !e.target.checked;
+        }
+      }));
 
   } catch (err) {
     console.error("Error al cargar productos:", err);
     Swal.fire("Error", err.message, "error");
   }
 }
+
 
 
   // 3. Listener para “Reservas”
@@ -380,45 +419,8 @@ optProductos.addEventListener("click", e => {
   facturasContainer.hidden = true;
 });
 
-async function cargarProductos() {
-  try {
-    const resp = await authedFetch("/api/productos");
-    const prods = await resp.json();
-    tablaProductsBody.innerHTML = "";
 
-    prods.forEach((p) => {
-      const tr = document.createElement("tr");
-      tr.innerHTML = `
-        <td>${p.idProducto}</td>
-        <td>${p.nombreProducto}</td>
-        <td>$${p.precio.toFixed(2)}</td>
-        <td>
-          <button class="btn btn-sm btn-warning btn-edit" data-id="${
-            p.idProducto
-          }">
-            Editar
-          </button>
-          <button class="btn btn-sm btn-danger btn-del" data-id="${
-            p.idProducto
-          }">
-            Borrar
-          </button>
-        </td>`;
-      tablaProductsBody.appendChild(tr);
-    });
 
-    // listeners de edición y borrado
-    document
-      .querySelectorAll(".btn-edit")
-      .forEach((b) => b.addEventListener("click", onClickEditar));
-    document
-      .querySelectorAll(".btn-del")
-      .forEach((b) => b.addEventListener("click", onClickBorrar));
-  } catch (err) {
-    console.error(err);
-    Swal.fire("Error", "No se pudieron cargar productos", "error");
-  }
-}
 
 function setActive(id) {
   document

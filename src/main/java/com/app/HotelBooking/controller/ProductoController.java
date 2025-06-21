@@ -1,87 +1,88 @@
 package com.app.HotelBooking.controller;
 
-import com.app.HotelBooking.model.Producto;
-import com.app.HotelBooking.service.ProductoService;
+import java.util.List;
+import jakarta.persistence.EntityNotFoundException;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import jakarta.persistence.*;
-import java.util.List;
-import java.util.Optional;
+import com.app.HotelBooking.model.Producto;
+import com.app.HotelBooking.service.ProductoService;
 
 @RestController
 @RequestMapping("/api/productos")
 public class ProductoController {
 
-  private final ProductoService productoService;
+    private final ProductoService service;
 
-  @Autowired
-  public ProductoController(ProductoService productoService) {
-    this.productoService = productoService;
-  }
-
-  // LISTAR solo los activos
-  @GetMapping
-  public ResponseEntity<List<Producto>> listar() {
-    List<Producto> activos = productoService.listarActivos();
-    return ResponseEntity.ok(activos);
-  }
-
-  // OBTENER uno por ID (solo si está activo)
-  @GetMapping("/{id}")
-  public ResponseEntity<Producto> obtener(@PathVariable Long id) {
-    Optional<Producto> opt = productoService
-      .listarActivos()
-      .stream()
-      .filter(p -> p.getIdProducto().equals(id))
-      .findFirst();
-
-    return opt
-      .map(ResponseEntity::ok)
-      .orElse(ResponseEntity.notFound().build());
-  }
-
-  // CREAR uno nuevo (activo por defecto)
-  @PostMapping
-  public ResponseEntity<Producto> crear(@RequestBody Producto nuevo) {
-    Producto guardado = productoService.crear(nuevo);
-    return ResponseEntity.ok(guardado);
-  }
-
-  // ACTUALIZAR existente (solo activo)
-  @PutMapping("/{id}")
-  public ResponseEntity<Producto> actualizar(
-    @PathVariable Long id,
-    @RequestBody Producto datos
-  ) {
-    try {
-      Producto actualizado = productoService.actualizar(id, datos);
-      return ResponseEntity.ok(actualizado);
-    } catch (EntityNotFoundException ex) {
-      return ResponseEntity.notFound().build();
+    @Autowired
+    public ProductoController(ProductoService service) {
+        this.service = service;
     }
-  }
 
-  // BORRAR lógicamente (activo = false)
-  @DeleteMapping("/{id}")
-  public ResponseEntity<Void> borrar(@PathVariable Long id) {
-    try {
-      productoService.eliminarLogico(id);
-      return ResponseEntity.noContent().build();
-    } catch (EntityNotFoundException ex) {
-      return ResponseEntity.notFound().build();
+    // 1.1) Listar activos
+    @GetMapping
+    public ResponseEntity<List<Producto>> listarActivos() {
+        return ResponseEntity.ok(service.listarActivos());
     }
-  }
 
-  // (Opcional) ENDPOINT para restaurar un producto
-  @PatchMapping("/{id}/restaurar")
-  public ResponseEntity<Void> restaurar(@PathVariable Long id) {
-    try {
-      productoService.restaurar(id);
-      return ResponseEntity.noContent().build();
-    } catch (EntityNotFoundException ex) {
-      return ResponseEntity.notFound().build();
+    // 1.2) Listar todos (activos e inactivos)
+    @GetMapping("/all")
+    public ResponseEntity<List<Producto>> listarTodos() {
+        return ResponseEntity.ok(service.listarTodos());
     }
-  }
+
+    // ===> NUEVO: Obtener uno por ID <===
+    @GetMapping("/{id}")
+    public ResponseEntity<Producto> obtenerPorId(@PathVariable Long id) {
+        try {
+            Producto p = service.findById(id);
+            return ResponseEntity.ok(p);
+        } catch (EntityNotFoundException ex) {
+            return ResponseEntity.notFound().build();
+        }
+    }
+
+    // 1.4) Crear
+    @PostMapping
+    public ResponseEntity<Producto> crear(@RequestBody Producto nuevo) {
+        return ResponseEntity.ok(service.crear(nuevo));
+    }
+
+    // 1.5) Actualizar
+    @PutMapping("/{id}")
+    public ResponseEntity<Producto> actualizar(
+        @PathVariable Long id,
+        @RequestBody Producto datos
+    ) {
+        try {
+            Producto updated = service.actualizar(id, datos);
+            return ResponseEntity.ok(updated);
+        } catch (EntityNotFoundException ex) {
+            return ResponseEntity.notFound().build();
+        }
+    }
+
+    // 1.6) Baja lógica
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> bajaLogica(@PathVariable Long id) {
+        try {
+            service.eliminarLogico(id);
+            return ResponseEntity.noContent().build();
+        } catch (EntityNotFoundException ex) {
+            return ResponseEntity.notFound().build();
+        }
+    }
+
+    // 1.7) Restaurar
+    @PatchMapping("/{id}/restaurar")
+    public ResponseEntity<Void> restaurar(@PathVariable Long id) {
+        try {
+            service.restaurar(id);
+            return ResponseEntity.noContent().build();
+        } catch (EntityNotFoundException ex) {
+            return ResponseEntity.notFound().build();
+        }
+    }
 }
