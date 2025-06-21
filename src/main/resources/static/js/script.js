@@ -1,34 +1,30 @@
 document.addEventListener("DOMContentLoaded", async () => {
-
   const reservationForm = document.getElementById("reservationForm");
   const occupiedSection = document.querySelector(".occupied-section");
   const facturasContainer = document.getElementById("facturasContainer");
-const optProductos       = document.getElementById("optProductos");
-const productosContainer = document.getElementById("productosContainer");
-const formProducto       = document.getElementById("productoForm");
-const tablaProductsBody  = document.querySelector("#tablaProductos tbody");
-const inpProdId          = document.getElementById("prodId");
-const inpProdNombre      = document.getElementById("prodNombre");
-const inpProdPrecio      = document.getElementById("prodPrecio");
-const optUsuarios       = document.getElementById("optUsuarios");
-const usuariosContainer = document.getElementById("usuariosContainer");
-const usuarioForm       = document.getElementById("usuarioForm");
-const tablaUsuariosBody = document.querySelector("#tablaUsuarios tbody");
-const inpUsuarioId      = document.getElementById("usuarioId");
-const inpUsuarioNombre  = document.getElementById("usuarioNombre");
-const inpUsuarioPass    = document.getElementById("usuarioPass");
-const inpUsuarioRol     = document.getElementById("usuarioRol");
+  const optProductos = document.getElementById("optProductos");
+  const productosContainer = document.getElementById("productosContainer");
+  const formProducto = document.getElementById("productoForm");
+  const tablaProductsBody = document.querySelector("#tablaProductos tbody");
+  const inpProdId = document.getElementById("prodId");
+  const inpProdNombre = document.getElementById("prodNombre");
+  const inpProdPrecio = document.getElementById("prodPrecio");
+  const optUsuarios = document.getElementById("optUsuarios");
+  const usuariosContainer = document.getElementById("usuariosContainer");
+  const usuarioForm = document.getElementById("usuarioForm");
+  const tablaUsuariosBody = document.querySelector("#tablaUsuarios tbody");
+  const inpUsuarioId = document.getElementById("usuarioId");
+  const inpUsuarioNombre = document.getElementById("usuarioNombre");
+  const inpUsuarioPass = document.getElementById("usuarioPass");
+  const inpUsuarioRol = document.getElementById("usuarioRol");
 
-
-
-
-document.querySelectorAll('.btn-imprimir').forEach(btn => {
-  btn.addEventListener('click', () => {
-    const id = btn.dataset.id;
-    const factura = facturas.find(f => f.id == id);
-    window.descargarPdf(factura);
+  document.querySelectorAll(".btn-imprimir").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      const id = btn.dataset.id;
+      const factura = facturas.find((f) => f.id == id);
+      window.descargarPdf(factura);
+    });
   });
-});
 
   // 1) Pedir credenciales con un modal de SweetAlert2
   await pedirLogin();
@@ -37,6 +33,14 @@ document.querySelectorAll('.btn-imprimir').forEach(btn => {
   inicializarApp();
 
 
+// 2. Función utilitaria para ocultar todas las secciones
+function hideAllSections() {
+  reservationForm.hidden    = true;
+  occupiedSection.hidden    = true;
+  productosContainer.hidden = true;
+  usuariosContainer.hidden  = true;
+  facturasContainer.hidden  = true;
+}
 
 
 
@@ -44,10 +48,10 @@ document.querySelectorAll('.btn-imprimir').forEach(btn => {
 
 
 
-/*---------------------------------------------------------- */
+
+  /*---------------------------------------------------------- */
   // 1) función para cargar facturas
-/*---------------------------------------------------------- */
-
+  /*---------------------------------------------------------- */
 
   async function cargarFacturas() {
     try {
@@ -67,7 +71,7 @@ document.querySelectorAll('.btn-imprimir').forEach(btn => {
         </thead>
         <tbody>
     `;
-      facturas.forEach(f => {
+      facturas.forEach((f) => {
         html += `
         <tr>
           <td>${f.id}</td>
@@ -90,122 +94,114 @@ document.querySelectorAll('.btn-imprimir').forEach(btn => {
       cont.innerHTML = html;
 
       // 2) Recorro los botones y les pongo el handler
-      cont.querySelectorAll(".btn-imprimir")
-        .forEach(btn => {
-          btn.addEventListener("click", () => {
-            const id = btn.dataset.id;
-            // busco en el array la factura correspondiente
-            const factura = facturas.find(x => x.id == id);
-            if (!factura) {
-              return Swal.fire("Error", "No se encontró la factura", "error");
-            }
-            // llamo a tu función que genera y descarga el PDF
-            descargarPdf(factura);
-          });
+      cont.querySelectorAll(".btn-imprimir").forEach((btn) => {
+        btn.addEventListener("click", () => {
+          const id = btn.dataset.id;
+          // busco en el array la factura correspondiente
+          const factura = facturas.find((x) => x.id == id);
+          if (!factura) {
+            return Swal.fire("Error", "No se encontró la factura", "error");
+          }
+          // llamo a tu función que genera y descarga el PDF
+          descargarPdf(factura);
         });
-
+      });
     } catch (e) {
       console.error("Error al cargar facturas:", e);
       Swal.fire("Error", "No se pudieron cargar las facturas", "error");
     }
   }
 
-/*---------------------------------------------------------- */
+  /*---------------------------------------------------------- */
   // FIN de función para cargar facturas
-/*---------------------------------------------------------- */
+  /*---------------------------------------------------------- */
 
-
-/*---------------------------------------------------------- */
+  /*---------------------------------------------------------- */
   // 2) función para cargar productos
-/*---------------------------------------------------------- */
-async function cargarProductos() {
-  try {
-    const resp = await fetch("/api/productos");
-    const prods = await resp.json();
-    tablaProductsBody.innerHTML = "";
+  /*---------------------------------------------------------- */
+  async function cargarProductos() {
+    try {
+      const resp = await fetch("/api/productos");
+      const prods = await resp.json();
+      tablaProductsBody.innerHTML = "";
 
-    prods.forEach(p => {
-      const tr = document.createElement("tr");
-      tr.innerHTML = `
+      prods.forEach((p) => {
+        const tr = document.createElement("tr");
+        tr.innerHTML = `
         <td>${p.idProducto}</td>
         <td>${p.nombreProducto}</td>
         <td>$${p.precio.toFixed(2)}</td>
         <td>
-          <button class="btn btn-sm btn-warning btn-edit" data-id="${p.idProducto}">
+          <button class="btn btn-sm btn-warning btn-edit" data-id="${
+            p.idProducto
+          }">
             Editar
           </button>
-          <button class="btn btn-sm btn-danger btn-del" data-id="${p.idProducto}">
+          <button class="btn btn-sm btn-danger btn-del" data-id="${
+            p.idProducto
+          }">
             Borrar
           </button>
         </td>
       `;
-      tablaProductsBody.appendChild(tr);
-    });
+        tablaProductsBody.appendChild(tr);
+      });
 
-    document.querySelectorAll(".btn-edit")
-      .forEach(b => b.addEventListener("click", onClickEditar));
-    document.querySelectorAll(".btn-del")
-      .forEach(b => b.addEventListener("click", onClickBorrar));
-  } catch (err) {
-    console.error(err);
-    Swal.fire("Error", "No se pudieron cargar productos", "error");
+      document
+        .querySelectorAll(".btn-edit")
+        .forEach((b) => b.addEventListener("click", onClickEditar));
+      document
+        .querySelectorAll(".btn-del")
+        .forEach((b) => b.addEventListener("click", onClickBorrar));
+    } catch (err) {
+      console.error(err);
+      Swal.fire("Error", "No se pudieron cargar productos", "error");
+    }
   }
-}
 
-/*---------------------------------------------------------- */
+
+  // 3. Listener para “Reservas”
+optReservas.addEventListener("click", e => {
+  e.preventDefault();
+  setActive("optReservas");
+
+  hideAllSections();
+  // mostramos solo las secciones de reservas
+  reservationForm.hidden   = false;
+  occupiedSection.hidden   = false;
+});
+
+  /*---------------------------------------------------------- */
   // FIN de función para cargar productos
-/*---------------------------------------------------------- */
+  /*---------------------------------------------------------- */
 
-
-
-
-
-
-
-
-
-
-
-// 1) Mostrar sección Productos en una reserva
+  // 1) Mostrar sección Productos en una reserva
+// 4. (Opcional) refactor de los otros listeners:
 optProductos.addEventListener("click", e => {
   e.preventDefault();
   setActive("optProductos");
-
-  // oculto otras secciones
-  reservationForm.hidden   = true;
-  occupiedSection.hidden   = true;
-  facturasContainer.hidden = true;
-
-  // muestro CRUD de productos
+  hideAllSections();
   productosContainer.hidden = false;
   cargarProductos();
 });
 
-
-optUsuarios.addEventListener("click", e => {
+  optUsuarios.addEventListener("click", e => {
   e.preventDefault();
   setActive("optUsuarios");
-
-  // ocultar todas las demás secciones
-  reservationForm.hidden   = true;
-  occupiedSection.hidden   = true;
-  facturasContainer.hidden = true;
-  productosContainer.hidden= true;
-
-  // mostrar Usuarios y cargar datos
+  hideAllSections();
   usuariosContainer.hidden = false;
   cargarUsuarios();
 });
 
-// 3) Cargar listado de usuarios (sin password)
-async function cargarUsuarios() {
-  try {
-    const res  = await fetch("/usuario/dto");
-    const list = await res.json(); // List<UsuarioDTO>
-    tablaUsuariosBody.innerHTML = "";
-    list.forEach(u => {
-      const tr = document.createElement("tr");
-      tr.innerHTML = `
+  // 3) Cargar listado de usuarios (sin password)
+  async function cargarUsuarios() {
+    try {
+      const res = await fetch("/usuario/dto");
+      const list = await res.json(); // List<UsuarioDTO>
+      tablaUsuariosBody.innerHTML = "";
+      list.forEach((u) => {
+        const tr = document.createElement("tr");
+        tr.innerHTML = `
         <td>${u.idUsuario}</td>
         <td>${u.nombreUsuario}</td>
         <td>${u.rol}</td>
@@ -213,176 +209,176 @@ async function cargarUsuarios() {
           <button class="btn btn-sm btn-warning btn-edit-usr" data-id="${u.idUsuario}">Editar</button>
           <button class="btn btn-sm btn-danger btn-del-usr"  data-id="${u.idUsuario}">Borrar</button>
         </td>`;
-      tablaUsuariosBody.appendChild(tr);
-    });
+        tablaUsuariosBody.appendChild(tr);
+      });
 
-    // enganchar eventos
-    tablaUsuariosBody.querySelectorAll(".btn-edit-usr")
-      .forEach(b => b.addEventListener("click", onClickEditarUsuario));
-    tablaUsuariosBody.querySelectorAll(".btn-del-usr")
-      .forEach(b => b.addEventListener("click", onClickBorrarUsuario));
-  } catch (err) {
-    console.error(err);
-    Swal.fire("Error","No se pudieron cargar usuarios","error");
+      // enganchar eventos
+      tablaUsuariosBody
+        .querySelectorAll(".btn-edit-usr")
+        .forEach((b) => b.addEventListener("click", onClickEditarUsuario));
+      tablaUsuariosBody
+        .querySelectorAll(".btn-del-usr")
+        .forEach((b) => b.addEventListener("click", onClickBorrarUsuario));
+    } catch (err) {
+      console.error(err);
+      Swal.fire("Error", "No se pudieron cargar usuarios", "error");
+    }
   }
-}
 
-// 4) Editar usuario: trae password
-async function onClickEditarUsuario(e) {
-  const id = e.target.dataset.id;
-  const res= await fetch(`/usuario/${id}`);
-  if (!res.ok) return Swal.fire("Error","Usuario no existe","error");
-  const u = await res.json(); // Usuario completo
-  inpUsuarioId.value     = u.idUsuario;
-  inpUsuarioNombre.value = u.nombreUsuario;
-  inpUsuarioPass.value   = u.password;
-  inpUsuarioRol.value    = u.rol;
-}
+  // 4) Editar usuario: trae password
+  async function onClickEditarUsuario(e) {
+    const id = e.target.dataset.id;
+    const res = await fetch(`/usuario/${id}`);
+    if (!res.ok) return Swal.fire("Error", "Usuario no existe", "error");
+    const u = await res.json(); // Usuario completo
+    inpUsuarioId.value = u.idUsuario;
+    inpUsuarioNombre.value = u.nombreUsuario;
+    inpUsuarioPass.value = u.password;
+    inpUsuarioRol.value = u.rol;
+  }
 
-// 5) Borrar usuario
-function onClickBorrarUsuario(e) {
-  const id = e.target.dataset.id;
-  Swal.fire({
-    title: '¿Confirmar borrado?',
-    icon: 'warning',
-    showCancelButton: true
-  }).then(async ans => {
-    if (!ans.isConfirmed) return;
-    await fetch(`/usuario/${id}`, { method: 'DELETE' });
-    await cargarUsuarios();
-    Swal.fire("OK","Usuario eliminado","success");
+  // 5) Borrar usuario
+  function onClickBorrarUsuario(e) {
+    const id = e.target.dataset.id;
+    Swal.fire({
+      title: "¿Confirmar borrado?",
+      icon: "warning",
+      showCancelButton: true,
+    }).then(async (ans) => {
+      if (!ans.isConfirmed) return;
+      await fetch(`/usuario/${id}`, { method: "DELETE" });
+      await cargarUsuarios();
+      Swal.fire("OK", "Usuario eliminado", "success");
+    });
+  }
+
+  // 6) Alta / Edición en el form
+  usuarioForm.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const id = inpUsuarioId.value;
+    const payload = {
+      nombreUsuario: inpUsuarioNombre.value.trim(),
+      password: inpUsuarioPass.value,
+      rol: inpUsuarioRol.value,
+    };
+    const url = id ? `/usuario/${id}` : `/usuario`;
+    const method = id ? "PUT" : "POST";
+
+    try {
+      const res = await fetch(url, {
+        method,
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+      if (!res.ok) throw new Error(await res.text());
+      await cargarUsuarios();
+      usuarioForm.reset();
+      inpUsuarioId.value = "";
+      Swal.fire("OK", "Usuario guardado", "success");
+    } catch (err) {
+      Swal.fire("Error", err.message, "error");
+    }
   });
-}
 
-// 6) Alta / Edición en el form
-usuarioForm.addEventListener("submit", async e => {
-  e.preventDefault();
-  const id = inpUsuarioId.value;
-  const payload = {
-    nombreUsuario: inpUsuarioNombre.value.trim(),
-    password:      inpUsuarioPass.value,
-    rol:           inpUsuarioRol.value
-  };
-  const url    = id ? `/usuario/${id}` : `/usuario`;
-  const method = id ? "PUT" : "POST";
+  // 3) Alta / edición de producto
+  formProducto.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const id = inpProdId.value;
+    const body = {
+      nombreProducto: inpProdNombre.value.trim(),
+      precio: +inpProdPrecio.value,
+    };
+    const url = id ? `/api/productos/${id}` : `/api/productos`;
+    const method = id ? "PUT" : "POST";
 
-  try {
-    const res = await fetch(url, {
-      method,
-      headers: { "Content-Type":"application/json" },
-      body: JSON.stringify(payload)
-    });
-    if (!res.ok) throw new Error(await res.text());
-    await cargarUsuarios();
-    usuarioForm.reset();
-    inpUsuarioId.value = "";
-    Swal.fire("OK","Usuario guardado","success");
-  } catch (err) {
-    Swal.fire("Error", err.message, "error");
-  }
-});
-
-
-
-// 3) Alta / edición de producto
-formProducto.addEventListener("submit", async e => {
-  e.preventDefault();
-  const id    = inpProdId.value;
-  const body  = {
-    nombreProducto: inpProdNombre.value.trim(),
-    precio: +inpProdPrecio.value
-  };
-  const url   = id ? `/api/productos/${id}` : `/api/productos`;
-  const method= id ? 'PUT' : 'POST';
-
-  try {
-    const res = await fetch(url, {
-      method,
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(body)
-    });
-    if (!res.ok) throw new Error(await res.text());
-    await cargarProductos();
-    formProducto.reset();
-    inpProdId.value = "";
-    Swal.fire("OK","Producto guardado","success");
-  } catch (e) {
-    Swal.fire("Error", e.message, "error");
-  }
-});
-
-// 4) Click en “Editar”
-async function onClickEditar(e) {
-  const id = e.target.dataset.id;
-  const res= await fetch(`/api/productos/${id}`);
-  const p  = await res.json();
-  inpProdId.value     = p.idProducto;
-  inpProdNombre.value = p.nombreProducto;
-  inpProdPrecio.value = p.precio;
-}
-
-// 5) Click en “Borrar”
-function onClickBorrar(e) {
-  const id = e.target.dataset.id;
-  Swal.fire({
-    title: '¿Confirmar borrado?',
-    icon: 'warning',
-    showCancelButton: true
-  }).then(async ans => {
-    if (!ans.isConfirmed) return;
-    await fetch(`/api/productos/${id}`, { method:'DELETE' });
-    await cargarProductos();
-    Swal.fire("OK","Producto eliminado","success");
+    try {
+      const res = await fetch(url, {
+        method,
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(body),
+      });
+      if (!res.ok) throw new Error(await res.text());
+      await cargarProductos();
+      formProducto.reset();
+      inpProdId.value = "";
+      Swal.fire("OK", "Producto guardado", "success");
+    } catch (e) {
+      Swal.fire("Error", e.message, "error");
+    }
   });
-}
 
+  // 4) Click en “Editar”
+  async function onClickEditar(e) {
+    const id = e.target.dataset.id;
+    const res = await fetch(`/api/productos/${id}`);
+    const p = await res.json();
+    inpProdId.value = p.idProducto;
+    inpProdNombre.value = p.nombreProducto;
+    inpProdPrecio.value = p.precio;
+  }
 
-  document.getElementById("optUsuarios")
-    .addEventListener("click", e => {
-      e.preventDefault();
-      setActive("optUsuarios");
-      console.log("Mostrar Usuarios");
+  // 5) Click en “Borrar”
+  function onClickBorrar(e) {
+    const id = e.target.dataset.id;
+    Swal.fire({
+      title: "¿Confirmar borrado?",
+      icon: "warning",
+      showCancelButton: true,
+    }).then(async (ans) => {
+      if (!ans.isConfirmed) return;
+      await fetch(`/api/productos/${id}`, { method: "DELETE" });
+      await cargarProductos();
+      Swal.fire("OK", "Producto eliminado", "success");
     });
+  }
+
+  document.getElementById("optUsuarios").addEventListener("click", (e) => {
+    e.preventDefault();
+    setActive("optUsuarios");
+    console.log("Mostrar Usuarios");
+  });
 
   // 2) Listener para el botón "Facturas" en el menú
   // listener para pestaña Facturas
-  document.getElementById("optFacturas")
-    .addEventListener("click", e => {
-      e.preventDefault();
-      setActive("optFacturas");
+  document.getElementById("optFacturas").addEventListener("click", (e) => {
+    e.preventDefault();
+    setActive("optFacturas");
 
-      // **oculto el form de reservas y ocupadas**
-      reservationForm.hidden = true;
-      occupiedSection.hidden = true;
-      productosContainer.hidden = true;
+    // **oculto el form de reservas y ocupadas**
+    reservationForm.hidden = true;
+    occupiedSection.hidden = true;
+    productosContainer.hidden = true;
 
-      // **muestro solo facturas**
-      facturasContainer.hidden = false;
-      cargarFacturas();
-    });
+    // **muestro solo facturas**
+    facturasContainer.hidden = false;
+    cargarFacturas();
+  });
 
   // 3) Asegúrate de que, al inicio, la sección facturas esté oculta
   facturasContainer.hidden = true;
 });
 
-
 async function cargarProductos() {
   try {
     const resp = await fetch("/api/productos");
     const prods = await resp.json();
-    tablaProductsBody.innerHTML = ""; 
+    tablaProductsBody.innerHTML = "";
 
-    prods.forEach(p => {
+    prods.forEach((p) => {
       const tr = document.createElement("tr");
       tr.innerHTML = `
         <td>${p.idProducto}</td>
         <td>${p.nombreProducto}</td>
         <td>$${p.precio.toFixed(2)}</td>
         <td>
-          <button class="btn btn-sm btn-warning btn-edit" data-id="${p.idProducto}">
+          <button class="btn btn-sm btn-warning btn-edit" data-id="${
+            p.idProducto
+          }">
             Editar
           </button>
-          <button class="btn btn-sm btn-danger btn-del" data-id="${p.idProducto}">
+          <button class="btn btn-sm btn-danger btn-del" data-id="${
+            p.idProducto
+          }">
             Borrar
           </button>
         </td>`;
@@ -390,118 +386,137 @@ async function cargarProductos() {
     });
 
     // listeners de edición y borrado
-    document.querySelectorAll(".btn-edit")
-      .forEach(b => b.addEventListener("click", onClickEditar));
-    document.querySelectorAll(".btn-del")
-      .forEach(b => b.addEventListener("click", onClickBorrar));
+    document
+      .querySelectorAll(".btn-edit")
+      .forEach((b) => b.addEventListener("click", onClickEditar));
+    document
+      .querySelectorAll(".btn-del")
+      .forEach((b) => b.addEventListener("click", onClickBorrar));
   } catch (err) {
     console.error(err);
     Swal.fire("Error", "No se pudieron cargar productos", "error");
   }
 }
 
-
-
-
 function setActive(id) {
-  document.querySelectorAll(".nav-link")
-    .forEach(a => a.classList.remove("active"));
+  document
+    .querySelectorAll(".nav-link")
+    .forEach((a) => a.classList.remove("active"));
   document.getElementById(id).classList.add("active");
 }
 
-
- /**
-   * Carga una imagen desde una URL y la convierte a DataURL (Base64).
-   * @param {string} url – Ruta pública de tu logo (p.ej. '/img/logo.png').
-   * @returns {Promise<string>} – Una promise que resuelve con el dataURL.
-   */
-  function loadImageAsDataURL(url) {
-    return fetch(url)
-      .then(res => res.blob())
-      .then(blob => new Promise((resolve, reject) => {
-        const reader = new FileReader();
-        reader.onloadend = () => resolve(reader.result);
-        reader.onerror = reject;
-        reader.readAsDataURL(blob);
-      }));
-  }
+/**
+ * Carga una imagen desde una URL y la convierte a DataURL (Base64).
+ * @param {string} url – Ruta pública de tu logo (p.ej. '/img/logo.png').
+ * @returns {Promise<string>} – Una promise que resuelve con el dataURL.
+ */
+function loadImageAsDataURL(url) {
+  return fetch(url)
+    .then((res) => res.blob())
+    .then(
+      (blob) =>
+        new Promise((resolve, reject) => {
+          const reader = new FileReader();
+          reader.onloadend = () => resolve(reader.result);
+          reader.onerror = reject;
+          reader.readAsDataURL(blob);
+        })
+    );
+}
 
 window.descargarPdf = async function (factura) {
+  // 1) Generamos el DataURL del logo en tiempo real
+  const logoDataUrl = await loadImageAsDataURL(
+    "/img/hotel-logo-silhouette-hotel-icon-vector.jpg"
+  );
 
-   // 1) Generamos el DataURL del logo en tiempo real
-      const logoDataUrl = await loadImageAsDataURL('/img/hotel-logo-silhouette-hotel-icon-vector.jpg');
+  // 2) Creamos el PDF
+  const doc = new window.jspdf.jsPDF({ unit: "pt", format: "a4" });
+  const W = doc.internal.pageSize.getWidth();
+  const H = doc.internal.pageSize.getHeight();
+  const margin = 40;
+  const startY = 100;
+  const lh = 18;
 
-      // 2) Creamos el PDF
-      const doc = new window.jspdf.jsPDF({ unit: 'pt', format: 'a4' });
-      const W = doc.internal.pageSize.getWidth();
-      const H = doc.internal.pageSize.getHeight();
-      const margin = 40;
-      const startY = 100;
-      const lh = 18;
+  // 3) Header con logo y datos
+  doc.addImage(logoDataUrl, "PNG", margin, 20, 80, 40);
+  doc.setFont("helvetica", "bold").setFontSize(18);
+  doc.text("Hotel Acme", margin + 90, 40);
+  doc.setFont("helvetica", "normal").setFontSize(12);
+  doc.text(`Factura #${factura.id}`, W - margin, 30, { align: "right" });
+  doc.text(
+    `Fecha: ${new Date(factura.fechaFactura).toLocaleString()}`,
+    W - margin,
+    48,
+    { align: "right" }
+  );
+  doc.text(`Reserva ID: ${factura.reservaId}`, W - margin, 66, {
+    align: "right",
+  });
 
-      // 3) Header con logo y datos
-      doc.addImage(logoDataUrl, 'PNG', margin, 20, 80, 40);
-      doc.setFont('helvetica', 'bold').setFontSize(18);
-      doc.text('Hotel Acme', margin + 90, 40);
-      doc.setFont('helvetica', 'normal').setFontSize(12);
-      doc.text(`Factura #${factura.id}`, W - margin, 30, { align: 'right' });
-      doc.text(`Fecha: ${new Date(factura.fechaFactura)
-        .toLocaleString()}`, W - margin, 48, { align: 'right' });
-      doc.text(`Reserva ID: ${factura.reservaId}`, W - margin, 66, { align: 'right' });
+  // 4) Tabla de detalle con autoTable
+  const head = [["Producto", "Cantidad", "P.U.", "Subtotal"]];
+  const body = factura.detalles.map((d) => [
+    d.producto.nombreProducto,
+    d.cantidad,
+    `$${d.precioUnitario.toFixed(2)}`,
+    `$${d.subtotal.toFixed(2)}`,
+  ]);
 
-      // 4) Tabla de detalle con autoTable
-      const head = [['Producto', 'Cantidad', 'P.U.', 'Subtotal']];
-      const body = factura.detalles.map(d => [
-        d.producto.nombreProducto,
-        d.cantidad,
-        `$${d.precioUnitario.toFixed(2)}`,
-        `$${d.subtotal.toFixed(2)}`
-      ]);
+  doc.autoTable({
+    startY,
+    margin: { left: margin, right: margin },
+    head,
+    body,
+    styles: {
+      font: "helvetica",
+      fontSize: 10,
+      lineColor: [220, 220, 220],
+      lineWidth: 0.5,
+    },
+    headStyles: {
+      fillColor: [52, 73, 94],
+      textColor: 255,
+      halign: "center",
+    },
+    alternateRowStyles: {
+      fillColor: [245, 245, 245],
+    },
+    didDrawPage: (data) => {
+      // Pie de página
+      const pageNum = doc.internal.getNumberOfPages();
+      doc
+        .setFontSize(10)
+        .setTextColor(150)
+        .text(`Página ${pageNum}`, W / 2, H - margin / 2, { align: "center" });
+    },
+  });
 
-      doc.autoTable({
-        startY,
-        margin: { left: margin, right: margin },
-        head,
-        body,
-        styles: {
-          font: 'helvetica',
-          fontSize: 10,
-          lineColor: [220, 220, 220],
-          lineWidth: 0.5
-        },
-        headStyles: {
-          fillColor: [52, 73, 94],
-          textColor: 255,
-          halign: 'center'
-        },
-        alternateRowStyles: {
-          fillColor: [245, 245, 245]
-        },
-        didDrawPage: (data) => {
-          // Pie de página
-          const pageNum = doc.internal.getNumberOfPages();
-          doc.setFontSize(10).setTextColor(150)
-            .text(`Página ${pageNum}`, W / 2, H - margin / 2, { align: 'center' });
-        }
-      });
+  // 5) Totales abajo de la tabla
+  const finalY = doc.lastAutoTable.finalY + lh;
+  doc.setFont("helvetica", "bold").setFontSize(12);
+  doc.text(
+    `Total Habitación: $${factura.totalHabitacion.toFixed(2)}`,
+    margin,
+    finalY
+  );
+  doc.text(
+    `Total Consumos:   $${factura.totalConsumos.toFixed(2)}`,
+    margin,
+    finalY + lh
+  );
+  doc.setFontSize(14);
+  doc.text(
+    `TOTAL: $${factura.totalFinal.toFixed(2)}`,
+    W - margin,
+    finalY + lh * 2,
+    { align: "right" }
+  );
 
-      // 5) Totales abajo de la tabla
-      const finalY = doc.lastAutoTable.finalY + lh;
-      doc.setFont('helvetica', 'bold').setFontSize(12);
-      doc.text(`Total Habitación: $${factura.totalHabitacion.toFixed(2)}`,
-        margin, finalY);
-      doc.text(`Total Consumos:   $${factura.totalConsumos.toFixed(2)}`,
-        margin, finalY + lh);
-      doc.setFontSize(14);
-      doc.text(`TOTAL: $${factura.totalFinal.toFixed(2)}`,
-        W - margin, finalY + lh * 2, { align: 'right' });
-
-      // 6) Descargar
-      doc.save(`Factura_${factura.id}.pdf`);
-    // Función pro que ya incluye tu logo dinámico
-
-  };
-
+  // 6) Descargar
+  doc.save(`Factura_${factura.id}.pdf`);
+  // Función pro que ya incluye tu logo dinámico
+};
 
 async function pedirLogin() {
   const BACKDROP = `
@@ -523,8 +538,7 @@ async function pedirLogin() {
           Swal.showValidationMessage("Completa usuario y contraseña");
         return { nombreUsuario: nombre, password: pass };
       },
-      backdrop: BACKDROP
-
+      backdrop: BACKDROP,
     });
 
     // Si cerró el modal, recargo la página
@@ -537,7 +551,7 @@ async function pedirLogin() {
       const res = await fetch("/usuario/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(cred)
+        body: JSON.stringify(cred),
       });
       if (!res.ok) {
         const msg = await res.text();
@@ -545,49 +559,46 @@ async function pedirLogin() {
       }
       console.log("Login OK:", await res.json());
       return;
-    }
-    catch (err) {
+    } catch (err) {
       await Swal.fire({
-        icon: 'error',
-        title: 'Error de autenticación',
+        icon: "error",
+        title: "Error de autenticación",
         text: err.message,
         backdrop: `
           rgba(255,255,255,0.9)
           url('/img/patron-tematico-viaje-varias-ilustraciones-sobre-fondo-vectorial-repeticion-tema_1030164-4.avif')
           repeat
-        `
+        `,
       });
       // el bucle repite el login tras cerrar este modal
     }
   }
 }
 
-
 function inicializarApp() {
   const reservationForm = document.getElementById("reservationForm");
   const habitacionSelect = document.getElementById("habitacion");
   const tablaOcupadasBody = document.querySelector("#tablaOcupadas tbody");
 
-
   // Función para cargar las habitaciones libres en el select
   function cargarHabitacionesLibres() {
     fetch("/api/habitaciones/libres")
-      .then(response => response.json())
-      .then(data => {
+      .then((response) => response.json())
+      .then((data) => {
         habitacionSelect.innerHTML = `<option value="">Seleccione una habitación</option>`;
-        data.forEach(habitacion => {
+        data.forEach((habitacion) => {
           const option = document.createElement("option");
           option.value = habitacion.idHabitacion;
           option.text = `${habitacion.nombreHabitacion} (Precio: $${habitacion.precio})`;
           habitacionSelect.appendChild(option);
         });
       })
-      .catch(error => {
+      .catch((error) => {
         console.error("Error al cargar habitaciones:", error);
         Swal.fire({
-          icon: 'error',
-          title: 'Error',
-          text: 'Error al cargar las habitaciones disponibles.'
+          icon: "error",
+          title: "Error",
+          text: "Error al cargar las habitaciones disponibles.",
         });
       });
   }
@@ -595,10 +606,10 @@ function inicializarApp() {
   // Función para cargar las habitaciones ocupadas y construir la tabla
   function cargarHabitacionesOcupadas() {
     fetch("/api/habitaciones/ocupadas")
-      .then(response => response.json())
-      .then(data => {
+      .then((response) => response.json())
+      .then((data) => {
         tablaOcupadasBody.innerHTML = "";
-        data.forEach(habitacion => {
+        data.forEach((habitacion) => {
           const tr = document.createElement("tr");
 
           // Columna: Nombre de la habitación
@@ -622,12 +633,16 @@ function inicializarApp() {
 
           // Columna: Fecha Desde
           const tdFechaDesde = document.createElement("td");
-          tdFechaDesde.textContent = habitacion.reserva ? habitacion.reserva.fechaDesde : "";
+          tdFechaDesde.textContent = habitacion.reserva
+            ? habitacion.reserva.fechaDesde
+            : "";
           tr.appendChild(tdFechaDesde);
 
           // Columna: Fecha Hasta
           const tdFechaHasta = document.createElement("td");
-          tdFechaHasta.textContent = habitacion.reserva ? habitacion.reserva.fechaHasta : "";
+          tdFechaHasta.textContent = habitacion.reserva
+            ? habitacion.reserva.fechaHasta
+            : "";
           tr.appendChild(tdFechaHasta);
 
           // Columna: Acciones
@@ -640,14 +655,14 @@ function inicializarApp() {
           btnEditar.addEventListener("click", () => {
             if (!habitacion.reserva) {
               Swal.fire({
-                icon: 'info',
-                title: 'Sin reserva',
-                text: 'No hay datos para editar en esta habitación.'
+                icon: "info",
+                title: "Sin reserva",
+                text: "No hay datos para editar en esta habitación.",
               });
               return;
             }
             Swal.fire({
-              title: 'Editar Reserva',
+              title: "Editar Reserva",
               html:
                 `<input id="swal-input1" class="swal2-input" placeholder="Nombre" value="${habitacion.reserva.nombre}">` +
                 `<input id="swal-input2" class="swal2-input" placeholder="Apellido" value="${habitacion.reserva.apellido}">` +
@@ -657,40 +672,42 @@ function inicializarApp() {
               focusConfirm: false,
               preConfirm: () => {
                 return {
-                  nombre: document.getElementById('swal-input1').value,
-                  apellido: document.getElementById('swal-input2').value,
-                  dni: document.getElementById('swal-input3').value,
-                  fechaDesde: document.getElementById('swal-input4').value,
-                  fechaHasta: document.getElementById('swal-input5').value
+                  nombre: document.getElementById("swal-input1").value,
+                  apellido: document.getElementById("swal-input2").value,
+                  dni: document.getElementById("swal-input3").value,
+                  fechaDesde: document.getElementById("swal-input4").value,
+                  fechaHasta: document.getElementById("swal-input5").value,
                 };
-              }
-            }).then(result => {
+              },
+            }).then((result) => {
               if (result.isConfirmed) {
                 const updatedData = result.value;
                 fetch(`/api/reservas/${habitacion.reserva.idReserva}`, {
-                  method: 'PUT',
+                  method: "PUT",
                   headers: { "Content-Type": "application/json" },
-                  body: JSON.stringify(updatedData)
+                  body: JSON.stringify(updatedData),
                 })
-                  .then(response => {
+                  .then((response) => {
                     if (!response.ok) {
-                      return response.text().then(text => { throw new Error(text); });
+                      return response.text().then((text) => {
+                        throw new Error(text);
+                      });
                     }
                     return response.json();
                   })
-                  .then(data => {
+                  .then((data) => {
                     Swal.fire({
-                      icon: 'success',
-                      title: '¡Actualizado!',
-                      text: 'La reserva se actualizó correctamente.'
+                      icon: "success",
+                      title: "¡Actualizado!",
+                      text: "La reserva se actualizó correctamente.",
                     });
                     cargarHabitacionesOcupadas();
                   })
-                  .catch(error => {
+                  .catch((error) => {
                     Swal.fire({
-                      icon: 'error',
-                      title: 'Error',
-                      text: error.message
+                      icon: "error",
+                      title: "Error",
+                      text: error.message,
                     });
                   });
               }
@@ -706,15 +723,15 @@ function inicializarApp() {
           btnAgregarProductos.addEventListener("click", () => {
             if (!habitacion.reserva) {
               Swal.fire({
-                icon: 'info',
-                title: 'Sin reserva',
-                text: 'No hay reserva asociada para agregar productos.'
+                icon: "info",
+                title: "Sin reserva",
+                text: "No hay reserva asociada para agregar productos.",
               });
               return;
             }
             fetch("/api/productos")
-              .then(resp => resp.json())
-              .then(productos => {
+              .then((resp) => resp.json())
+              .then((productos) => {
                 let htmlProductos = `<table class="table table-striped" style="text-align:center;">
                   <thead>
                     <tr>
@@ -724,7 +741,7 @@ function inicializarApp() {
                     </tr>
                   </thead>
                   <tbody>`;
-                productos.forEach(prod => {
+                productos.forEach((prod) => {
                   htmlProductos += `<tr>
                       <td>${prod.nombreProducto}</td>
                       <td>$${prod.precio}</td>
@@ -734,61 +751,67 @@ function inicializarApp() {
                 htmlProductos += `</tbody></table>`;
 
                 Swal.fire({
-                  title: 'Agregar Productos',
+                  title: "Agregar Productos",
                   html: htmlProductos,
                   showCancelButton: true,
-                  confirmButtonText: 'Guardar',
+                  confirmButtonText: "Guardar",
                   preConfirm: () => {
                     const consumos = [];
-                    productos.forEach(prod => {
-                      const cantidad = document.getElementById(`cantidad-${prod.idProducto}`).value;
+                    productos.forEach((prod) => {
+                      const cantidad = document.getElementById(
+                        `cantidad-${prod.idProducto}`
+                      ).value;
                       const cant = parseInt(cantidad);
                       if (cant > 0) {
                         consumos.push({
                           idProducto: prod.idProducto,
-                          cantidad: cant
+                          cantidad: cant,
                         });
                       }
                     });
                     if (consumos.length === 0) {
-                      Swal.showValidationMessage("Debes seleccionar al menos un producto con cantidad mayor a 0");
+                      Swal.showValidationMessage(
+                        "Debes seleccionar al menos un producto con cantidad mayor a 0"
+                      );
                     }
                     return consumos;
-                  }
-                }).then(result => {
+                  },
+                }).then((result) => {
                   if (result.isConfirmed) {
                     const consumos = result.value;
                     const reservaId = habitacion.reserva.idReserva;
-                    Promise.all(consumos.map(consumo =>
-                      fetch(`/api/reservas/${reservaId}/consumos`, {
-                        method: 'POST',
-                        headers: { "Content-Type": "application/json" },
-                        body: JSON.stringify(consumo)
-                      })
-                    ))
+                    Promise.all(
+                      consumos.map((consumo) =>
+                        fetch(`/api/reservas/${reservaId}/consumos`, {
+                          method: "POST",
+                          headers: { "Content-Type": "application/json" },
+                          body: JSON.stringify(consumo),
+                        })
+                      )
+                    )
                       .then(() => {
                         Swal.fire({
-                          icon: 'success',
-                          title: 'Guardado',
-                          text: 'Productos agregados a la reserva'
+                          icon: "success",
+                          title: "Guardado",
+                          text: "Productos agregados a la reserva",
                         });
                         cargarHabitacionesOcupadas();
                       })
-                      .catch(error => {
+                      .catch((error) => {
                         Swal.fire({
-                          icon: 'error',
-                          title: 'Error',
-                          text: error.message
+                          icon: "error",
+                          title: "Error",
+                          text: error.message,
                         });
                       });
                   }
                 });
               })
-              .catch(error => {
+              .catch((error) => {
                 Swal.fire({
-                  icon: 'error',
-                  title: 'Error',
-                  text: 'No se pudo cargar los productos.'
+                  icon: "error",
+                  title: "Error",
+                  text: "No se pudo cargar los productos.",
                 });
               });
           });
@@ -802,15 +825,15 @@ function inicializarApp() {
           btnDetalle.addEventListener("click", () => {
             if (!habitacion.reserva) {
               Swal.fire({
-                icon: 'info',
-                title: 'Sin reserva',
-                text: 'No hay datos de reserva para mostrar.'
+                icon: "info",
+                title: "Sin reserva",
+                text: "No hay datos de reserva para mostrar.",
               });
               return;
             }
             fetch(`/api/reservas/${habitacion.reserva.idReserva}`)
-              .then(response => response.json())
-              .then(detalle => {
+              .then((response) => response.json())
+              .then((detalle) => {
                 let htmlDetalle = `<strong>Habitación:</strong> ${habitacion.nombreHabitacion} <br/>
                                     <strong>Precio de habitación:</strong> $${habitacion.precio} <br/><hr/>
                                     <strong>Huésped:</strong> ${detalle.nombre} ${detalle.apellido} <br/>
@@ -826,7 +849,7 @@ function inicializarApp() {
                                       </tr>
                                     </thead>
                                     <tbody>`;
-                  detalle.consumos.forEach(consumo => {
+                  detalle.consumos.forEach((consumo) => {
                     htmlDetalle += `<tr>
                                       <td>${consumo.producto.nombreProducto}</td>
                                       <td>${consumo.cantidad}</td>
@@ -839,16 +862,16 @@ function inicializarApp() {
                 }
 
                 Swal.fire({
-                  title: 'Detalle de Reserva',
+                  title: "Detalle de Reserva",
                   html: htmlDetalle,
-                  width: '600px'
+                  width: "600px",
                 });
               })
-              .catch(error => {
+              .catch((error) => {
                 Swal.fire({
-                  icon: 'error',
-                  title: 'Error',
-                  text: 'No se pudo cargar el detalle de la reserva.'
+                  icon: "error",
+                  title: "Error",
+                  text: "No se pudo cargar el detalle de la reserva.",
                 });
               });
           });
@@ -862,42 +885,44 @@ function inicializarApp() {
           btnEliminar.addEventListener("click", () => {
             if (!habitacion.reserva) {
               Swal.fire({
-                icon: 'info',
-                title: 'Sin reserva',
-                text: 'No hay reserva para eliminar.'
+                icon: "info",
+                title: "Sin reserva",
+                text: "No hay reserva para eliminar.",
               });
               return;
             }
             Swal.fire({
-              title: '¿Estás seguro?',
+              title: "¿Estás seguro?",
               text: "Se eliminará la reserva, sus consumos y la habitación quedará libre.",
-              icon: 'warning',
+              icon: "warning",
               showCancelButton: true,
-              confirmButtonText: 'Sí, eliminar',
-              cancelButtonText: 'Cancelar'
-            }).then(result => {
+              confirmButtonText: "Sí, eliminar",
+              cancelButtonText: "Cancelar",
+            }).then((result) => {
               if (result.isConfirmed) {
                 fetch(`/api/reservas/${habitacion.reserva.idReserva}`, {
-                  method: 'DELETE'
+                  method: "DELETE",
                 })
-                  .then(response => {
+                  .then((response) => {
                     if (response.ok) {
                       Swal.fire({
-                        icon: 'success',
-                        title: 'Eliminado',
-                        text: 'La reserva se eliminó correctamente.'
+                        icon: "success",
+                        title: "Eliminado",
+                        text: "La reserva se eliminó correctamente.",
                       });
                       cargarHabitacionesOcupadas();
                       cargarHabitacionesLibres();
                     } else {
-                      return response.text().then(text => { throw new Error(text); });
+                      return response.text().then((text) => {
+                        throw new Error(text);
+                      });
                     }
                   })
-                  .catch(error => {
+                  .catch((error) => {
                     Swal.fire({
-                      icon: 'error',
-                      title: 'Error',
-                      text: error.message
+                      icon: "error",
+                      title: "Error",
+                      text: error.message,
                     });
                   });
               }
@@ -913,17 +938,17 @@ function inicializarApp() {
           btnCheckout.addEventListener("click", () => {
             if (!habitacion.reserva) {
               Swal.fire({
-                icon: 'info',
-                title: 'Sin reserva',
-                text: 'No hay reserva para realizar el checkout.'
+                icon: "info",
+                title: "Sin reserva",
+                text: "No hay reserva para realizar el checkout.",
               });
               return;
             }
 
             // Se obtiene el detalle actualizado de la reserva
             fetch(`/api/reservas/${habitacion.reserva.idReserva}`)
-              .then(response => response.json())
-              .then(reservaDetalle => {
+              .then((response) => response.json())
+              .then((reservaDetalle) => {
                 // Calcular cantidad de días (suponiendo que las fechas sean ISO string "YYYY-MM-DD")
                 const fechaDesde = new Date(reservaDetalle.fechaDesde);
                 const fechaHasta = new Date(reservaDetalle.fechaHasta);
@@ -936,8 +961,11 @@ function inicializarApp() {
                 // Armar detalles de consumos
                 let totalConsumos = 0;
                 let detallesConsumosHTML = "";
-                if (reservaDetalle.consumos && reservaDetalle.consumos.length > 0) {
-                  reservaDetalle.consumos.forEach(consumo => {
+                if (
+                  reservaDetalle.consumos &&
+                  reservaDetalle.consumos.length > 0
+                ) {
+                  reservaDetalle.consumos.forEach((consumo) => {
                     const subtotal = consumo.producto.precio * consumo.cantidad;
                     totalConsumos += subtotal;
                     detallesConsumosHTML += `<tr>
@@ -956,10 +984,16 @@ function inicializarApp() {
   <div class="container">
     <h3 class="text-center mb-3">Factura</h3>
     <div class="mb-3">
-      <strong>Cliente:</strong> ${reservaDetalle.nombre} ${reservaDetalle.apellido}<br/>
+      <strong>Cliente:</strong> ${reservaDetalle.nombre} ${
+                  reservaDetalle.apellido
+                }<br/>
       <strong>DNI:</strong> ${reservaDetalle.dni}<br/>
-      <strong>Habitación:</strong> ${habitacion.nombreHabitacion} ($${habitacion.precio.toFixed(2)} x día)<br/>
-      <strong>Fechas:</strong> ${reservaDetalle.fechaDesde} - ${reservaDetalle.fechaHasta} (${diffDays} días)<br/>
+      <strong>Habitación:</strong> ${
+        habitacion.nombreHabitacion
+      } ($${habitacion.precio.toFixed(2)} x día)<br/>
+      <strong>Fechas:</strong> ${reservaDetalle.fechaDesde} - ${
+                  reservaDetalle.fechaHasta
+                } (${diffDays} días)<br/>
       <strong>Total Habitación:</strong> $${totalHabitacion.toFixed(2)}
     </div>
     <hr/>
@@ -974,7 +1008,10 @@ function inicializarApp() {
         </tr>
       </thead>
       <tbody>
-        ${detallesConsumosHTML || '<tr><td colspan="4" class="text-center">Sin consumos</td></tr>'}
+        ${
+          detallesConsumosHTML ||
+          '<tr><td colspan="4" class="text-center">Sin consumos</td></tr>'
+        }
       </tbody>
     </table>
     <hr/>
@@ -988,62 +1025,67 @@ function inicializarApp() {
   </div>
 `;
 
-
                 Swal.fire({
-                  title: 'Factura de Checkout',
+                  title: "Factura de Checkout",
                   html: htmlFactura,
-                  width: '800px',
-                  showConfirmButton: false
+                  width: "800px",
+                  showConfirmButton: false,
                 });
 
                 // Evento para imprimir la factura
-                document.getElementById("btnImprimirFactura").addEventListener("click", () => {
-                  window.print();
-                });
-                document.getElementById("btnCancelarCheckout").addEventListener("click", () => {
-                  Swal.close();
-                });
+                document
+                  .getElementById("btnImprimirFactura")
+                  .addEventListener("click", () => {
+                    window.print();
+                  });
+                document
+                  .getElementById("btnCancelarCheckout")
+                  .addEventListener("click", () => {
+                    Swal.close();
+                  });
 
                 // Evento para confirmar checkout y eliminar la reserva
                 // en lugar de DELETE /api/reservas...
-                document.getElementById("btnConfirmarCheckout")
+                document
+                  .getElementById("btnConfirmarCheckout")
                   .addEventListener("click", () => {
                     fetch(`/api/facturas/${habitacion.reserva.idReserva}`, {
-                      method: 'POST'
+                      method: "POST",
                     })
-                      .then(r => {
-                        if (!r.ok) return r.text().then(t => { throw new Error(t) });
+                      .then((r) => {
+                        if (!r.ok)
+                          return r.text().then((t) => {
+                            throw new Error(t);
+                          });
                         return r.json();
                       })
-                      .then(factura => {
-
+                      .then((factura) => {
                         descargarPdf(factura);
 
                         Swal.fire({
-                          icon: 'success',
-                          title: 'Checkout finalizado',
+                          icon: "success",
+                          title: "Checkout finalizado",
                           html: `
           <p>Factura #${factura.id}</p>
           <p>Total habitación: $${factura.totalHabitacion}</p>
           <p>Total consumos: $${factura.totalConsumos}</p>
           <h4>Total: $${factura.totalFinal}</h4>
-        `
+        `,
                         });
                         // recarga UI
                         cargarHabitacionesOcupadas();
                         cargarHabitacionesLibres();
                       })
-                      .catch(err => {
-                        Swal.fire('Error', err.message, 'error');
+                      .catch((err) => {
+                        Swal.fire("Error", err.message, "error");
                       });
                   });
-
               })
-              .catch(error => {
+              .catch((error) => {
                 Swal.fire({
-                  icon: 'error',
-                  title: 'Error',
-                  text: 'No se pudo generar la factura de checkout.'
+                  icon: "error",
+                  title: "Error",
+                  text: "No se pudo generar la factura de checkout.",
                 });
               });
           });
@@ -1054,12 +1096,12 @@ function inicializarApp() {
           tablaOcupadasBody.appendChild(tr);
         });
       })
-      .catch(error => {
+      .catch((error) => {
         console.error("Error al cargar habitaciones ocupadas:", error);
         Swal.fire({
-          icon: 'error',
-          title: 'Error',
-          text: 'Error al cargar la información de habitaciones ocupadas.'
+          icon: "error",
+          title: "Error",
+          text: "Error al cargar la información de habitaciones ocupadas.",
         });
       });
   }
@@ -1068,9 +1110,9 @@ function inicializarApp() {
   function validarFechas(fechaDesde, fechaHasta) {
     if (fechaDesde >= fechaHasta) {
       Swal.fire({
-        icon: 'warning',
-        title: 'Fechas inválidas',
-        text: 'La fecha "Desde" debe ser anterior a la fecha "Hasta".'
+        icon: "warning",
+        title: "Fechas inválidas",
+        text: 'La fecha "Desde" debe ser anterior a la fecha "Hasta".',
       });
       return false;
     }
@@ -1089,9 +1131,9 @@ function inicializarApp() {
 
     if (!idHabitacion) {
       Swal.fire({
-        icon: 'warning',
-        title: 'Atención',
-        text: 'Seleccione una habitación disponible.'
+        icon: "warning",
+        title: "Atención",
+        text: "Seleccione una habitación disponible.",
       });
       return;
     }
@@ -1103,45 +1145,42 @@ function inicializarApp() {
       dni: dni,
       fechaDesde: fechaDesde,
       fechaHasta: fechaHasta,
-      idHabitacion: Number(idHabitacion)
+      idHabitacion: Number(idHabitacion),
     };
 
     fetch("/api/reservas", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(reservaDTO)
+      body: JSON.stringify(reservaDTO),
     })
-      .then(response => {
+      .then((response) => {
         if (!response.ok) {
-          return response.text().then(text => { throw new Error(text); });
+          return response.text().then((text) => {
+            throw new Error(text);
+          });
         }
         return response.json();
       })
-      .then(data => {
+      .then((data) => {
         Swal.fire({
-          icon: 'success',
-          title: 'Éxito',
-          text: 'Reserva realizada exitosamente.'
+          icon: "success",
+          title: "Éxito",
+          text: "Reserva realizada exitosamente.",
         });
         reservationForm.reset();
         cargarHabitacionesLibres();
         cargarHabitacionesOcupadas();
       })
-      .catch(error => {
+      .catch((error) => {
         Swal.fire({
-          icon: 'error',
-          title: 'Error',
-          text: error.message
+          icon: "error",
+          title: "Error",
+          text: error.message,
         });
       });
   });
-
-
-
- 
 
   // Inicializar: cargar habitaciones libres y ocupadas al cargar la página
   cargarHabitacionesLibres();
   cargarHabitacionesOcupadas();
 }
-
