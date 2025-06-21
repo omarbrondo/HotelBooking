@@ -29,6 +29,9 @@ document.addEventListener("DOMContentLoaded", async () => {
   // 1) Pedir credenciales con un modal de SweetAlert2
   await pedirLogin();
 
+
+  ajustarPorRol();
+
   // 2) Una vez logueado, inicializar la app de reservas
   inicializarApp();
 
@@ -519,6 +522,10 @@ window.descargarPdf = async function (factura) {
 };
 
 async function pedirLogin() {
+
+
+
+
   const BACKDROP = `
     rgba(255,255,255,0.9)
     url('/img/patron-tematico-viaje-varias-ilustraciones-sobre-fondo-vectorial-repeticion-tema_1030164-4.avif')
@@ -548,17 +555,31 @@ async function pedirLogin() {
     }
 
     try {
-      const res = await fetch("/usuario/login", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(cred),
-      });
-      if (!res.ok) {
-        const msg = await res.text();
-        throw new Error(msg || "Credenciales inválidas");
-      }
-      console.log("Login OK:", await res.json());
-      return;
+const res = await fetch("/usuario/login", {
+  method: "POST",
+  headers: { "Content-Type": "application/json" },
+  body: JSON.stringify(cred)
+});
+if (!res.ok) {
+  // leo el texto sólo en el branch de error
+  const msg = await res.text();
+  throw new Error(msg || "Credenciales inválidas");
+}
+
+// leo el JSON UNA SOLA VEZ y lo guardo
+const userDto = await res.json();
+console.log("Login OK:", userDto);
+
+
+// almaceno el rol para ajustar la UI luego
+window.currentUserRole = userDto.rol;
+
+console.log("ROL LOGUEADO:", window.currentUserRole);
+// llamo a ajustarPorRol antes de inicializar app
+ajustarPorRol();
+
+return;
+
     } catch (err) {
       await Swal.fire({
         icon: "error",
@@ -574,6 +595,32 @@ async function pedirLogin() {
     }
   }
 }
+
+
+function ajustarPorRol() {
+  const rol = window.currentUserRole;
+  // Si es EMPLEADO: no muestro menú (solo reservas)
+  if (rol === "EMPLEADO") {
+    // oculto items de menú menos Reservas
+    document.querySelectorAll(".nav-link")
+      .forEach(a => {
+        if (a.id !== "optReservas") a.style.display = "none";
+      });
+
+    // oculto delete en tabla de ocupadas
+    document.querySelectorAll("#tablaOcupadas .btn-danger")
+      .forEach(b => b.style.display = "none");
+  }
+  // Si es ADMINISTRADOR: dejo todo
+}
+
+
+
+
+
+
+
+
 
 function inicializarApp() {
   const reservationForm = document.getElementById("reservationForm");
@@ -877,58 +924,68 @@ function inicializarApp() {
           });
           tdAcciones.appendChild(btnDetalle);
 
-          // Botón "Eliminar" (Bootstrap: btn, btn-danger, btn-sm)
-          const btnEliminar = document.createElement("button");
-          btnEliminar.textContent = "Eliminar";
-          btnEliminar.classList.add("btn", "btn-danger", "btn-sm");
-          btnEliminar.style.marginLeft = "5px";
-          btnEliminar.addEventListener("click", () => {
-            if (!habitacion.reserva) {
-              Swal.fire({
-                icon: "info",
-                title: "Sin reserva",
-                text: "No hay reserva para eliminar.",
-              });
-              return;
-            }
-            Swal.fire({
-              title: "¿Estás seguro?",
-              text: "Se eliminará la reserva, sus consumos y la habitación quedará libre.",
-              icon: "warning",
-              showCancelButton: true,
-              confirmButtonText: "Sí, eliminar",
-              cancelButtonText: "Cancelar",
-            }).then((result) => {
-              if (result.isConfirmed) {
-                fetch(`/api/reservas/${habitacion.reserva.idReserva}`, {
-                  method: "DELETE",
-                })
-                  .then((response) => {
-                    if (response.ok) {
-                      Swal.fire({
-                        icon: "success",
-                        title: "Eliminado",
-                        text: "La reserva se eliminó correctamente.",
-                      });
-                      cargarHabitacionesOcupadas();
-                      cargarHabitacionesLibres();
-                    } else {
-                      return response.text().then((text) => {
-                        throw new Error(text);
-                      });
-                    }
-                  })
-                  .catch((error) => {
-                    Swal.fire({
-                      icon: "error",
-                      title: "Error",
-                      text: error.message,
-                    });
-                  });
-              }
-            });
-          });
-          tdAcciones.appendChild(btnEliminar);
+         // … dentro de tu loop al construir tdAcciones …
+const btnEliminar = document.createElement("button");
+btnEliminar.textContent = "Eliminar";
+btnEliminar.classList.add("btn", "btn-danger", "btn-sm");
+btnEliminar.style.marginLeft = "5px";
+btnEliminar.addEventListener("click", () => {
+  // 1) Compruebo rol
+  if (window.currentUserRole !== "ADMINISTRADOR") {
+    Toastify({
+      text: "No tienes permisos para eliminar",
+      duration: 3000,
+      close: true,
+      gravity: "top",
+      position: "right",
+      style: {
+        background: "linear-gradient(to right, #D32F2F, #C62828)"
+      }
+    }).showToast();
+    return;
+  }
+
+  // 2) Si es ADMINISTRADOR, prosigo con el SweetAlert de confirmación
+  if (!habitacion.reserva) {
+    Swal.fire({
+      icon: "info",
+      title: "Sin reserva",
+      text: "No hay reserva para eliminar."
+    });
+    return;
+  }
+
+  Swal.fire({
+    title: "¿Estás seguro?",
+    text: "Se eliminará la reserva, sus consumos y la habitación quedará libre.",
+    icon: "warning",
+    showCancelButton: true,
+    confirmButtonText: "Sí, eliminar",
+    cancelButtonText: "Cancelar"
+  }).then(result => {
+    if (!result.isConfirmed) return;
+    fetch(`/api/reservas/${habitacion.reserva.idReserva}`, {
+      method: "DELETE"
+    })
+    .then(response => {
+      if (!response.ok) {
+        return response.text().then(text => { throw new Error(text) });
+      }
+      return response;
+    })
+    .then(() => {
+      Swal.fire("Eliminado", "La reserva se eliminó correctamente.", "success");
+      cargarHabitacionesOcupadas();
+      cargarHabitacionesLibres();
+    })
+    .catch(error => {
+      Swal.fire("Error", error.message, "error");
+    });
+  });
+});
+
+tdAcciones.appendChild(btnEliminar);
+
 
           // Botón "Checkout" (Bootstrap: btn, btn-info, btn-sm)
           const btnCheckout = document.createElement("button");
