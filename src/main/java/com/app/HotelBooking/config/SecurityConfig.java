@@ -39,9 +39,12 @@ public class SecurityConfig {
     @Autowired
     private PasswordEncoder passwordEncoder;
 
+    /**
+     * Configura el AuthenticationManager para que use tu UsuarioService + PasswordEncoder.
+     */
     @Bean
     public AuthenticationManager authenticationManager(HttpSecurity http) throws Exception {
-        AuthenticationManagerBuilder authBuilder =
+        AuthenticationManagerBuilder authBuilder = 
             http.getSharedObject(AuthenticationManagerBuilder.class);
 
         authBuilder
@@ -52,7 +55,7 @@ public class SecurityConfig {
                 .orElseThrow(() ->
                   new UsernameNotFoundException("Usuario no encontrado: " + username)
                 );
-              // 2) Convierto a UserDetails
+              // 2) Convierto a UserDetails con ROLE_ prefijo
               List<SimpleGrantedAuthority> authorities = List.of(
                 new SimpleGrantedAuthority("ROLE_" + u.getRol())
               );
@@ -68,37 +71,56 @@ public class SecurityConfig {
         return authBuilder.build();
     }
 
- @Bean
-public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-  http
-    .csrf(csrf -> csrf.disable())
-.authorizeHttpRequests(auth -> auth
+    /**
+     * Cadena de filtros de seguridad: 
+     * - CSRF desactivado  
+     * - Frame-Options sameOrigin (para H2)  
+     * - Rutas públicas (assets, Swagger, H2, login/registro)  
+     * - REST Stateless + JWTFilter  
+     */
+    @Bean
+    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+        http
+          // 1) Deshabilito CSRF (necesario para H2 console y APIs REST)
+          .csrf(csrf -> csrf.disable())
 
-        // 1) Permitimos tus vistas y assets de la app
-        .requestMatchers(
-          "/", "/index.html",
-          "/js/**", "/css/**", "/img/**", "/favicon.ico"
-        ).permitAll()
+          // 2) Configuro quién puede acceder a qué
+          .authorizeHttpRequests(auth -> auth
+            // 2.1) Recursos estáticos y página principal
+            .requestMatchers(
+              "/", "/index.html",
+              "/js/**", "/css/**", "/img/**", "/favicon.ico"
+            ).permitAll()
 
-        // 2) Permitimos Swagger UI y OpenAPI
-        .requestMatchers(
-          "/swagger-ui/**",
-          "/swagger-ui.html",
-          "/v3/api-docs/**",
-          "/webjars/**"     // si usas webjars de Swagger
-        ).permitAll()
+            // 2.2) Swagger / OpenAPI
+            .requestMatchers(
+              "/swagger-ui/**",
+              "/swagger-ui.html",
+              "/v3/api-docs/**",
+              "/webjars/**"
+            ).permitAll()
 
-      // 2) Login/registro
-      .requestMatchers("/usuario/login", "/usuario").permitAll()
+            // 2.3) H2 console
+            .requestMatchers("/h2-console/**").permitAll()
 
-      // 3) El resto con JWT
-      .anyRequest().authenticated()
-    )
-    .sessionManagement(sm ->
-      sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-    )
-    .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
+            // 2.4) Login y registro (sin token)
+            .requestMatchers("/usuario/login", "/usuario").permitAll()
 
-  return http.build();
-}
+            // 2.5) Cualquier otra petición requiere JWT
+            .anyRequest().authenticated()
+          )
+
+          // 3) Permito iframes desde el mismo origen (para H2 console)
+          .headers(headers -> headers
+            .frameOptions(frame -> frame.sameOrigin())
+          )
+
+          // 4) Stateless session + nuestro filtro JWT
+          .sessionManagement(sm ->
+            sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+          )
+          .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
+
+        return http.build();
+    }
 }

@@ -144,44 +144,42 @@ function hideAllSections() {
   // 2) función para cargar productos
   /*---------------------------------------------------------- */
   async function cargarProductos() {
-    try {
-      const resp = await authedFetch("/api/productos");
-      const prods = await resp.json();
-      tablaProductsBody.innerHTML = "";
+  try {
+    const resp = await authedFetch("/api/productos");
+    // 1) Controlar si el status no es 2xx
+    if (!resp.ok) {
+      // leo el cuerpo como texto (será “Ocurrió un error…”) y lanzo
+      const msg = await resp.text();
+      throw new Error(msg);
+    }
 
-      prods.forEach((p) => {
-        const tr = document.createElement("tr");
-        tr.innerHTML = `
+    // 2) Ahora sí parseo JSON porque sé que fue 200
+    const prods = await resp.json();
+    tablaProductsBody.innerHTML = "";
+
+    prods.forEach((p) => {
+      const tr = document.createElement("tr");
+      tr.innerHTML = `
         <td>${p.idProducto}</td>
         <td>${p.nombreProducto}</td>
         <td>$${p.precio.toFixed(2)}</td>
         <td>
-          <button class="btn btn-sm btn-warning btn-edit" data-id="${
-            p.idProducto
-          }">
-            Editar
-          </button>
-          <button class="btn btn-sm btn-danger btn-del" data-id="${
-            p.idProducto
-          }">
-            Borrar
-          </button>
-        </td>
-      `;
-        tablaProductsBody.appendChild(tr);
-      });
+          <button class="btn btn-sm btn-warning btn-edit" data-id="${p.idProducto}">Editar</button>
+          <button class="btn btn-sm btn-danger btn-del"  data-id="${p.idProducto}">Borrar</button>
+        </td>`;
+      tablaProductsBody.appendChild(tr);
+    });
 
-      document
-        .querySelectorAll(".btn-edit")
-        .forEach((b) => b.addEventListener("click", onClickEditar));
-      document
-        .querySelectorAll(".btn-del")
-        .forEach((b) => b.addEventListener("click", onClickBorrar));
-    } catch (err) {
-      console.error(err);
-      Swal.fire("Error", "No se pudieron cargar productos", "error");
-    }
+    document.querySelectorAll(".btn-edit")
+            .forEach(b => b.addEventListener("click", onClickEditar));
+    document.querySelectorAll(".btn-del")
+            .forEach(b => b.addEventListener("click", onClickBorrar));
+
+  } catch (err) {
+    console.error("Error al cargar productos:", err);
+    Swal.fire("Error", err.message, "error");
   }
+}
 
 
   // 3. Listener para “Reservas”

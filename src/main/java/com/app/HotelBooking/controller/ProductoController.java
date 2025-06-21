@@ -1,11 +1,12 @@
 package com.app.HotelBooking.controller;
 
 import com.app.HotelBooking.model.Producto;
-import com.app.HotelBooking.repository.ProductoRepository;
+import com.app.HotelBooking.service.ProductoService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import jakarta.persistence.*;
 import java.util.List;
 import java.util.Optional;
 
@@ -13,58 +14,74 @@ import java.util.Optional;
 @RequestMapping("/api/productos")
 public class ProductoController {
 
-    private final ProductoRepository productoRepository;
+  private final ProductoService productoService;
 
-    @Autowired
-    public ProductoController(ProductoRepository productoRepository) {
-        this.productoRepository = productoRepository;
-    }
+  @Autowired
+  public ProductoController(ProductoService productoService) {
+    this.productoService = productoService;
+  }
 
-    // LISTAR todos
-    @GetMapping
-    public ResponseEntity<List<Producto>> listar() {
-        return ResponseEntity.ok(productoRepository.findAll());
-    }
+  // LISTAR solo los activos
+  @GetMapping
+  public ResponseEntity<List<Producto>> listar() {
+    List<Producto> activos = productoService.listarActivos();
+    return ResponseEntity.ok(activos);
+  }
 
-    // OBTENER uno por ID
-    @GetMapping("/{id}")
-    public ResponseEntity<Producto> obtener(@PathVariable Long id) {
-        Optional<Producto> opt = productoRepository.findById(id);
-        return opt
-            .map(ResponseEntity::ok)
-            .orElse(ResponseEntity.notFound().build());
-    }
+  // OBTENER uno por ID (solo si está activo)
+  @GetMapping("/{id}")
+  public ResponseEntity<Producto> obtener(@PathVariable Long id) {
+    Optional<Producto> opt = productoService
+      .listarActivos()
+      .stream()
+      .filter(p -> p.getIdProducto().equals(id))
+      .findFirst();
 
-    // CREAR uno nuevo
-    @PostMapping
-    public ResponseEntity<Producto> crear(@RequestBody Producto nuevo) {
-        Producto guardado = productoRepository.save(nuevo);
-        return ResponseEntity.ok(guardado);
-    }
+    return opt
+      .map(ResponseEntity::ok)
+      .orElse(ResponseEntity.notFound().build());
+  }
 
-    // ACTUALIZAR existente
-    @PutMapping("/{id}")
-    public ResponseEntity<Producto> actualizar(
-        @PathVariable Long id,
-        @RequestBody Producto datos
-    ) {
-        return productoRepository.findById(id)
-            .map(existente -> {
-                existente.setNombreProducto(datos.getNombreProducto());
-                existente.setPrecio(datos.getPrecio());
-                Producto actualizado = productoRepository.save(existente);
-                return ResponseEntity.ok(actualizado);
-            })
-            .orElse(ResponseEntity.notFound().build());
-    }
+  // CREAR uno nuevo (activo por defecto)
+  @PostMapping
+  public ResponseEntity<Producto> crear(@RequestBody Producto nuevo) {
+    Producto guardado = productoService.crear(nuevo);
+    return ResponseEntity.ok(guardado);
+  }
 
-    // BORRAR por ID
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Void> borrar(@PathVariable Long id) {
-        if (!productoRepository.existsById(id)) {
-            return ResponseEntity.notFound().build();
-        }
-        productoRepository.deleteById(id);
-        return ResponseEntity.noContent().build();
+  // ACTUALIZAR existente (solo activo)
+  @PutMapping("/{id}")
+  public ResponseEntity<Producto> actualizar(
+    @PathVariable Long id,
+    @RequestBody Producto datos
+  ) {
+    try {
+      Producto actualizado = productoService.actualizar(id, datos);
+      return ResponseEntity.ok(actualizado);
+    } catch (EntityNotFoundException ex) {
+      return ResponseEntity.notFound().build();
     }
+  }
+
+  // BORRAR lógicamente (activo = false)
+  @DeleteMapping("/{id}")
+  public ResponseEntity<Void> borrar(@PathVariable Long id) {
+    try {
+      productoService.eliminarLogico(id);
+      return ResponseEntity.noContent().build();
+    } catch (EntityNotFoundException ex) {
+      return ResponseEntity.notFound().build();
+    }
+  }
+
+  // (Opcional) ENDPOINT para restaurar un producto
+  @PatchMapping("/{id}/restaurar")
+  public ResponseEntity<Void> restaurar(@PathVariable Long id) {
+    try {
+      productoService.restaurar(id);
+      return ResponseEntity.noContent().build();
+    } catch (EntityNotFoundException ex) {
+      return ResponseEntity.notFound().build();
+    }
+  }
 }
