@@ -79,48 +79,36 @@ public class SecurityConfig {
      * - REST Stateless + JWTFilter  
      */
     @Bean
-    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-        http
-          // 1) Deshabilito CSRF (necesario para H2 console y APIs REST)
-          .csrf(csrf -> csrf.disable())
+public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+    http
+      .csrf(csrf -> csrf.disable())
+      .authorizeHttpRequests(auth -> auth
+        // → Rutas públicas:
+        .requestMatchers(
+          "/", "/index.html",
+          "/js/**", "/css/**", "/img/**", "/favicon.ico",
+          "/swagger-ui/**", "/v3/api-docs/**",
+          "/h2-console/**",
+          "/usuario/login", "/usuario"
+        ).permitAll()
 
-          // 2) Configuro quién puede acceder a qué
-          .authorizeHttpRequests(auth -> auth
-            // 2.1) Recursos estáticos y página principal
-            .requestMatchers(
-              "/", "/index.html",
-              "/js/**", "/css/**", "/img/**", "/favicon.ico"
-            ).permitAll()
+        // → Dashboard: permiso público
+        .requestMatchers("/api/dashboard/**").permitAll()
 
-            // 2.2) Swagger / OpenAPI
-            .requestMatchers(
-              "/swagger-ui/**",
-              "/swagger-ui.html",
-              "/v3/api-docs/**",
-              "/webjars/**"
-            ).permitAll()
+        // → O, para que sólo ADMIN lo vea:
+        // .requestMatchers("/api/dashboard/**")
+        //   .hasRole("ADMINISTRADOR")
 
-            // 2.3) H2 console
-            .requestMatchers("/h2-console/**").permitAll()
+        // → El resto requiere autenticación
+        .anyRequest().authenticated()
+      )
+      .headers(headers -> headers.frameOptions(frame -> frame.sameOrigin()))
+      .sessionManagement(sm ->
+        sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+      )
+      .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
 
-            // 2.4) Login y registro (sin token)
-            .requestMatchers("/usuario/login", "/usuario").permitAll()
+    return http.build();
+}
 
-            // 2.5) Cualquier otra petición requiere JWT
-            .anyRequest().authenticated()
-          )
-
-          // 3) Permito iframes desde el mismo origen (para H2 console)
-          .headers(headers -> headers
-            .frameOptions(frame -> frame.sameOrigin())
-          )
-
-          // 4) Stateless session + nuestro filtro JWT
-          .sessionManagement(sm ->
-            sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-          )
-          .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
-
-        return http.build();
-    }
 }

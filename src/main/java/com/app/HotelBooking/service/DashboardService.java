@@ -1,6 +1,5 @@
 package com.app.HotelBooking.service;
 
-import java.math.BigDecimal;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -8,53 +7,47 @@ import org.springframework.stereotype.Service;
 
 import com.app.HotelBooking.dto.DashboardDTO;
 import com.app.HotelBooking.dto.DashboardDTO.ItemCount;
-import com.app.HotelBooking.repository.DetalleConsumoRepository;
+import com.app.HotelBooking.repository.DetalleFacturaRepository;
 import com.app.HotelBooking.repository.FacturaRepository;
-import com.app.HotelBooking.repository.ReservaRepository;
 
 @Service
 public class DashboardService {
 
-    private final DetalleConsumoRepository consumoRepo;
-    private final ReservaRepository        reservaRepo;
+    private final DetalleFacturaRepository detalleFacturaRepo;
     private final FacturaRepository        facturaRepo;
 
     @Autowired
     public DashboardService(
-        DetalleConsumoRepository consumoRepo,
-        ReservaRepository        reservaRepo,
+        DetalleFacturaRepository detalleFacturaRepo,
         FacturaRepository        facturaRepo
     ) {
-        this.consumoRepo = consumoRepo;
-        this.reservaRepo = reservaRepo;
-        this.facturaRepo = facturaRepo;
+        this.detalleFacturaRepo = detalleFacturaRepo;
+        this.facturaRepo        = facturaRepo;
     }
 
     public DashboardDTO getStats() {
         DashboardDTO dto = new DashboardDTO();
 
-        dto.topProductos = consumoRepo
+        // 1) Productos más vendidos
+        dto.topProductos = detalleFacturaRepo
           .sumCantidadByProducto()
           .stream()
-          .map(o -> new ItemCount((String) o[0], (Long) o[1]))
+          .map(o -> new ItemCount((String)o[0], (Long)o[1]))
           .toList();
 
-        dto.topHabitaciones = reservaRepo
-          .countByHabitacion()
+        // 2) Habitaciones más facturadas (snapshot en factura.habitacionNombre)
+        dto.topHabitaciones = facturaRepo
+          .countByHabitacionNombre()
           .stream()
-          .map(o -> new ItemCount((String) o[0], (Long) o[1]))
+          .map(o -> new ItemCount((String)o[0], (Long)o[1]))
           .toList();
 
-        dto.topFechas = reservaRepo
+        // 3) Fechas de Reserva más frecuentes (snapshot en factura.fechaDesde)
+        dto.topFechas = facturaRepo
           .countByFechaDesde()
           .stream()
-          .map(o -> new ItemCount(o[0].toString(), (Long) o[1]))
+          .map(o -> new ItemCount(o[0].toString(), (Long)o[1]))
           .toList();
-
-        BigDecimal ingresoHab = facturaRepo.sumTotalFinal();
-        BigDecimal ingresoCon = consumoRepo.sumTotalSubtotales();
-        dto.ingresoTotal = ingresoHab
-            .add(ingresoCon == null ? BigDecimal.ZERO : ingresoCon);
 
         return dto;
     }

@@ -1,6 +1,6 @@
+// src/main/java/com/app/HotelBooking/controller/DashboardController.java
 package com.app.HotelBooking.controller;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -13,11 +13,13 @@ import com.app.HotelBooking.service.DashboardService;
 @RequestMapping("/api/dashboard")
 public class DashboardController {
 
-    @Autowired
-    private DashboardService dashboardService;
+  private final DashboardService dashboardService;
+  public DashboardController(DashboardService svc) {
+    this.dashboardService = svc;
+  }
 
-    @GetMapping
-    public ResponseEntity<DashboardDTO> getDashboard() {
-        return ResponseEntity.ok(dashboardService.getStats());
-    }
+  @GetMapping
+  public ResponseEntity<DashboardDTO> stats() {
+    return ResponseEntity.ok(dashboardService.getStats());
+  }
 }

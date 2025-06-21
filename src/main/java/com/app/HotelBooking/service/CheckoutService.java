@@ -4,6 +4,7 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
@@ -16,6 +17,8 @@ import com.app.HotelBooking.model.Habitacion;
 import com.app.HotelBooking.repository.FacturaRepository;
 import com.app.HotelBooking.repository.HabitacionRepository;
 import com.app.HotelBooking.repository.ReservaRepository;
+import java.time.LocalDate;
+
 
 @Service
 public class CheckoutService {
@@ -73,6 +76,8 @@ public class CheckoutService {
             fac.setTotalHabitacion(totalHab);
             fac.setTotalConsumos(totalCon);
             fac.setTotalFinal(totalFinal);
+            fac.setHabitacionNombre(res.getHabitacion().getNombreHabitacion());
+fac.setFechaDesde(res.getFechaDesde());
 
             // Detalles
             res.getConsumos().forEach(c -> {
@@ -85,7 +90,7 @@ public class CheckoutService {
                 df.setSubtotal(p.multiply(BigDecimal.valueOf(c.getCantidad())));
                 fac.getDetalles().add(df);
             });
-
+fac.setHabitacionNombre(res.getHabitacion().getNombreHabitacion());
             return facturaRepo.save(fac);
         });
     }

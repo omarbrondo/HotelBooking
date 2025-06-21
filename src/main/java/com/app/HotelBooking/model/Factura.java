@@ -6,6 +6,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
+import java.time.LocalDate;
 
 @Entity
 @Table(name = "factura")
@@ -30,6 +31,12 @@ public class Factura {
 
     @Column(name = "total_final", nullable = false)
     private BigDecimal totalFinal;
+
+      @Column(name="habitacion_nombre", nullable=false)
+  private String habitacionNombre;
+
+  @Column(name = "fecha_desde", nullable = false)
+  private LocalDate fechaDesde;
 
     @OneToMany(mappedBy = "factura", 
                cascade = CascadeType.ALL, 
@@ -94,4 +101,20 @@ public class Factura {
     public void setDetalles(List<DetalleFactura> detalles) {
         this.detalles = detalles;
     }
+
+      public String getHabitacionNombre() {
+    return habitacionNombre;
+  }
+
+  public void setHabitacionNombre(String habitacionNombre) {
+    this.habitacionNombre = habitacionNombre;
+  }
+
+  public LocalDate getFechaDesde() {
+    return fechaDesde;
+  }
+
+  public void setFechaDesde(LocalDate fechaDesde) {
+    this.fechaDesde = fechaDesde;
+  }
 }
