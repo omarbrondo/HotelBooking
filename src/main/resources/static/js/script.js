@@ -3,6 +3,16 @@ document.addEventListener("DOMContentLoaded", async () => {
   const reservationForm = document.getElementById("reservationForm");
   const occupiedSection = document.querySelector(".occupied-section");
   const facturasContainer = document.getElementById("facturasContainer");
+const optProductos       = document.getElementById("optProductos");
+const productosContainer = document.getElementById("productosContainer");
+const formProducto       = document.getElementById("productoForm");
+const tablaProductsBody  = document.querySelector("#tablaProductos tbody");
+const inpProdId          = document.getElementById("prodId");
+const inpProdNombre      = document.getElementById("prodNombre");
+const inpProdPrecio      = document.getElementById("prodPrecio");
+
+
+
 
 document.querySelectorAll('.btn-imprimir').forEach(btn => {
   btn.addEventListener('click', () => {
@@ -18,9 +28,19 @@ document.querySelectorAll('.btn-imprimir').forEach(btn => {
   // 2) Una vez logueado, inicializar la app de reservas
   inicializarApp();
 
-  // 1) Función para pintar la tabla de facturas
 
-  // función para cargar facturas
+
+
+
+
+
+
+
+/*---------------------------------------------------------- */
+  // 1) función para cargar facturas
+/*---------------------------------------------------------- */
+
+
   async function cargarFacturas() {
     try {
       const resp = await fetch("/api/facturas");
@@ -82,15 +102,129 @@ document.querySelectorAll('.btn-imprimir').forEach(btn => {
     }
   }
 
+/*---------------------------------------------------------- */
+  // FIN de función para cargar facturas
+/*---------------------------------------------------------- */
 
 
-  document.getElementById("optProductos")
-    .addEventListener("click", e => {
-      e.preventDefault();
-      // marca activo
-      setActive("optProductos");
-      console.log("Mostrar Productos");
+/*---------------------------------------------------------- */
+  // 2) función para cargar productos
+/*---------------------------------------------------------- */
+async function cargarProductos() {
+  try {
+    const resp = await fetch("/api/productos");
+    const prods = await resp.json();
+    tablaProductsBody.innerHTML = "";
+
+    prods.forEach(p => {
+      const tr = document.createElement("tr");
+      tr.innerHTML = `
+        <td>${p.idProducto}</td>
+        <td>${p.nombreProducto}</td>
+        <td>$${p.precio.toFixed(2)}</td>
+        <td>
+          <button class="btn btn-sm btn-warning btn-edit" data-id="${p.idProducto}">
+            Editar
+          </button>
+          <button class="btn btn-sm btn-danger btn-del" data-id="${p.idProducto}">
+            Borrar
+          </button>
+        </td>
+      `;
+      tablaProductsBody.appendChild(tr);
     });
+
+    document.querySelectorAll(".btn-edit")
+      .forEach(b => b.addEventListener("click", onClickEditar));
+    document.querySelectorAll(".btn-del")
+      .forEach(b => b.addEventListener("click", onClickBorrar));
+  } catch (err) {
+    console.error(err);
+    Swal.fire("Error", "No se pudieron cargar productos", "error");
+  }
+}
+
+/*---------------------------------------------------------- */
+  // FIN de función para cargar productos
+/*---------------------------------------------------------- */
+
+
+
+
+
+
+
+
+
+
+
+// 1) Mostrar sección Productos en una reserva
+optProductos.addEventListener("click", e => {
+  e.preventDefault();
+  setActive("optProductos");
+
+  // oculto otras secciones
+  reservationForm.hidden   = true;
+  occupiedSection.hidden   = true;
+  facturasContainer.hidden = true;
+
+  // muestro CRUD de productos
+  productosContainer.hidden = false;
+  cargarProductos();
+});
+
+// 3) Alta / edición de producto
+formProducto.addEventListener("submit", async e => {
+  e.preventDefault();
+  const id    = inpProdId.value;
+  const body  = {
+    nombreProducto: inpProdNombre.value.trim(),
+    precio: +inpProdPrecio.value
+  };
+  const url   = id ? `/api/productos/${id}` : `/api/productos`;
+  const method= id ? 'PUT' : 'POST';
+
+  try {
+    const res = await fetch(url, {
+      method,
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(body)
+    });
+    if (!res.ok) throw new Error(await res.text());
+    await cargarProductos();
+    formProducto.reset();
+    inpProdId.value = "";
+    Swal.fire("OK","Producto guardado","success");
+  } catch (e) {
+    Swal.fire("Error", e.message, "error");
+  }
+});
+
+// 4) Click en “Editar”
+async function onClickEditar(e) {
+  const id = e.target.dataset.id;
+  const res= await fetch(`/api/productos/${id}`);
+  const p  = await res.json();
+  inpProdId.value     = p.idProducto;
+  inpProdNombre.value = p.nombreProducto;
+  inpProdPrecio.value = p.precio;
+}
+
+// 5) Click en “Borrar”
+function onClickBorrar(e) {
+  const id = e.target.dataset.id;
+  Swal.fire({
+    title: '¿Confirmar borrado?',
+    icon: 'warning',
+    showCancelButton: true
+  }).then(async ans => {
+    if (!ans.isConfirmed) return;
+    await fetch(`/api/productos/${id}`, { method:'DELETE' });
+    await cargarProductos();
+    Swal.fire("OK","Producto eliminado","success");
+  });
+}
+
 
   document.getElementById("optUsuarios")
     .addEventListener("click", e => {
@@ -109,6 +243,7 @@ document.querySelectorAll('.btn-imprimir').forEach(btn => {
       // **oculto el form de reservas y ocupadas**
       reservationForm.hidden = true;
       occupiedSection.hidden = true;
+      productosContainer.hidden = true;
 
       // **muestro solo facturas**
       facturasContainer.hidden = false;
@@ -118,6 +253,44 @@ document.querySelectorAll('.btn-imprimir').forEach(btn => {
   // 3) Asegúrate de que, al inicio, la sección facturas esté oculta
   facturasContainer.hidden = true;
 });
+
+
+async function cargarProductos() {
+  try {
+    const resp = await fetch("/api/productos");
+    const prods = await resp.json();
+    tablaProductsBody.innerHTML = ""; 
+
+    prods.forEach(p => {
+      const tr = document.createElement("tr");
+      tr.innerHTML = `
+        <td>${p.idProducto}</td>
+        <td>${p.nombreProducto}</td>
+        <td>$${p.precio.toFixed(2)}</td>
+        <td>
+          <button class="btn btn-sm btn-warning btn-edit" data-id="${p.idProducto}">
+            Editar
+          </button>
+          <button class="btn btn-sm btn-danger btn-del" data-id="${p.idProducto}">
+            Borrar
+          </button>
+        </td>`;
+      tablaProductsBody.appendChild(tr);
+    });
+
+    // listeners de edición y borrado
+    document.querySelectorAll(".btn-edit")
+      .forEach(b => b.addEventListener("click", onClickEditar));
+    document.querySelectorAll(".btn-del")
+      .forEach(b => b.addEventListener("click", onClickBorrar));
+  } catch (err) {
+    console.error(err);
+    Swal.fire("Error", "No se pudieron cargar productos", "error");
+  }
+}
+
+
+
 
 function setActive(id) {
   document.querySelectorAll(".nav-link")

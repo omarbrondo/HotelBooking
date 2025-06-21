@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
   <meta charset="UTF-8">
   <title>Reserva de Habitaciones</title>
@@ -7,27 +8,28 @@
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
   <!-- SweetAlert2 CSS -->
   <link href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css" rel="stylesheet">
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
 
   <!-- CSS personalizado -->
   <link rel="stylesheet" href="css/styles.css">
 </head>
+
 <body>
   <nav class="navbar navbar-expand bg-light mb-4">
-  <div class="container">
-    <ul class="navbar-nav">
-      <li class="nav-item">
-        <a class="nav-link" href="#" id="optProductos">Productos</a>
-      </li>
-      <li class="nav-item">
-        <a class="nav-link" href="#" id="optUsuarios">Usuarios</a>
-      </li>
-      <li class="nav-item">
-        <a class="nav-link" href="#" id="optFacturas">Facturas</a>
-      </li>
-    </ul>
-  </div>
-</nav>
+    <div class="container">
+      <ul class="navbar-nav">
+        <li class="nav-item">
+          <a class="nav-link" href="#" id="optProductos">Productos</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="#" id="optUsuarios">Usuarios</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="#" id="optFacturas">Facturas</a>
+        </li>
+      </ul>
+    </div>
+  </nav>
 
 
 
@@ -35,13 +37,51 @@
   <div class="container mt-5 form-container">
     <!-- Contenedor blanco para encabezados -->
     <div class="header-container mb-4">
-  <h1 class="d-flex justify-content-between align-items-center">
-    <i class="fa-solid fa-plane-departure"></i>
-    <span>Reserva de Habitaciones</span>
-    <i class="fa-solid fa-suitcase"></i>
-  </h1>
+      <h1 class="d-flex justify-content-between align-items-center">
+        <i class="fa-solid fa-plane-departure"></i>
+        <span>Reserva de Habitaciones</span>
+        <i class="fa-solid fa-suitcase"></i>
+      </h1>
+    </div>
+
+    <!-- tabla de facturas -->
+    <div id="facturasContainer" class="mt-4" hidden></div>
+
+<!-- CRUD Productos -->
+<div id="productosContainer" class="container mt-5" hidden>
+  <h2>Gestión de Productos</h2>
+  <form id="productoForm" class="row g-3 mb-4">
+    <input type="hidden" id="prodId">
+
+    <div class="col-md-6">
+      <label for="prodNombre" class="form-label">Nombre</label>
+      <input type="text" id="prodNombre" class="form-control" required>
+    </div>
+
+    <div class="col-md-4">
+      <label for="prodPrecio" class="form-label">Precio</label>
+      <input type="number" id="prodPrecio" class="form-control" step="0.01" required>
+    </div>
+
+    <div class="col-md-2 d-flex align-items-end">
+      <button type="submit" class="btn btn-primary w-100">Guardar</button>
+    </div>
+  </form>
+
+  <table id="tablaProductos" class="table table-bordered">
+    <thead>
+      <tr>
+        <th>ID</th><th>Nombre</th><th>Precio</th><th>Acciones</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
 </div>
-<div id="facturasContainer" class="mt-4" hidden></div>
+
+
+
+
+
     <form id="reservationForm">
       <div class="mb-3">
         <label for="nombre" class="form-label">Nombre:</label>
@@ -104,8 +144,8 @@
     </div>
   </section>
 
-    <!-- para la factura en pdf -->
- <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
+  <!-- para la factura en pdf -->
+  <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/jspdf-autotable@3.5.23/dist/jspdf.plugin.autotable.min.js"></script>
 
   <!-- Bootstrap JS Bundle -->
@@ -115,4 +155,5 @@
   <!-- JavaScript-->
   <script src="js/script.js"></script>
 </body>
+
 </html>
