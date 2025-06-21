@@ -616,9 +616,9 @@ window.descargarPdf = async function (factura) {
   const lh = 18;
 
   // 3) Header con logo y datos
-  doc.addImage(logoDataUrl, "PNG", margin, 20, 80, 40);
+  doc.addImage(logoDataUrl, "PNG", margin, 20, 60, 60);
   doc.setFont("helvetica", "bold").setFontSize(18);
-  doc.text("Hotel Acme", margin + 90, 40);
+  doc.text("King Hotel", margin + 90, 40);
   doc.setFont("helvetica", "normal").setFontSize(12);
   doc.text(`Factura #${factura.id}`, W - margin, 30, { align: "right" });
   doc.text(
