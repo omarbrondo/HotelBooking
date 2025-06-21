@@ -8,13 +8,6 @@ function authedFetch(url, opts = {}) {
   return fetch(url, { ...opts, headers });
 }
 
-
-
-
-
-
-
-
 document.addEventListener("DOMContentLoaded", async () => {
   const reservationForm = document.getElementById("reservationForm");
   const occupiedSection = document.querySelector(".occupied-section");
@@ -458,7 +451,7 @@ function loadImageAsDataURL(url) {
 window.descargarPdf = async function (factura) {
   // 1) Generamos el DataURL del logo en tiempo real
   const logoDataUrl = await loadImageAsDataURL(
-    "/img/hotel-logo-silhouette-hotel-icon-vector.jpg"
+    "/img/hotel-logo-design-service.png"
   );
 
   // 2) Creamos el PDF

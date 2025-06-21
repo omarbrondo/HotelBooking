@@ -21,24 +21,37 @@
 </head>
 
 <body>
-<nav class="navbar navbar-expand bg-light mb-4">
-  <div class="container">
+<nav class="navbar navbar-expand-lg navbar-light bg-light py-4 mb-4">
+  <div class="container position-relative">
+
+    <!-- 1) Links de la izquierda -->
     <ul class="navbar-nav">
+      <li class="nav-item"><a class="nav-link" href="#" id="optReservas">Reservas</a></li>
+      <li class="nav-item"><a class="nav-link" href="#" id="optProductos">Productos</a></li>
+      <li class="nav-item"><a class="nav-link" href="#" id="optUsuarios">Usuarios</a></li>
+      <li class="nav-item"><a class="nav-link" href="#" id="optFacturas">Facturas</a></li>
+    </ul>
+
+    <!-- 2) Logo centrado ABSOLUTO -->
+    <a class="navbar-brand position-absolute start-50 translate-middle-x" href="#">
+      <img src="img/hotel-logo-design-service.png" alt="Mi Logo" class="logo-navbar">
+
+    </a>
+
+    <!-- 3) Logout a la derecha -->
+    <ul class="navbar-nav ms-auto">
       <li class="nav-item">
-        <a class="nav-link" href="#" id="optReservas">Reservas</a>
-      </li>
-      <li class="nav-item">
-        <a class="nav-link" href="#" id="optProductos">Productos</a>
-      </li>
-      <li class="nav-item">
-        <a class="nav-link" href="#" id="optUsuarios">Usuarios</a>
-      </li>
-      <li class="nav-item">
-        <a class="nav-link" href="#" id="optFacturas">Facturas</a>
+        <button id="btnLogout" class="btn btn-outline-danger">
+          <i class="fa fa-sign-out-alt"></i> Cerrar sesión
+        </button>
       </li>
     </ul>
+
   </div>
 </nav>
+
+
+
 
 
 
@@ -126,7 +139,6 @@
 <!-- FORMULARIO DE RESERVAS -->
 
     <form id="reservationForm">
-      <button id="btnLogout">Cerrar sesión</button>
 
       <div class="mb-3">
         <label for="nombre" class="form-label">Nombre:</label>
