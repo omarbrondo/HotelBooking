@@ -10,6 +10,14 @@ const tablaProductsBody  = document.querySelector("#tablaProductos tbody");
 const inpProdId          = document.getElementById("prodId");
 const inpProdNombre      = document.getElementById("prodNombre");
 const inpProdPrecio      = document.getElementById("prodPrecio");
+const optUsuarios       = document.getElementById("optUsuarios");
+const usuariosContainer = document.getElementById("usuariosContainer");
+const usuarioForm       = document.getElementById("usuarioForm");
+const tablaUsuariosBody = document.querySelector("#tablaUsuarios tbody");
+const inpUsuarioId      = document.getElementById("usuarioId");
+const inpUsuarioNombre  = document.getElementById("usuarioNombre");
+const inpUsuarioPass    = document.getElementById("usuarioPass");
+const inpUsuarioRol     = document.getElementById("usuarioRol");
 
 
 
@@ -172,6 +180,109 @@ optProductos.addEventListener("click", e => {
   productosContainer.hidden = false;
   cargarProductos();
 });
+
+
+optUsuarios.addEventListener("click", e => {
+  e.preventDefault();
+  setActive("optUsuarios");
+
+  // ocultar todas las demás secciones
+  reservationForm.hidden   = true;
+  occupiedSection.hidden   = true;
+  facturasContainer.hidden = true;
+  productosContainer.hidden= true;
+
+  // mostrar Usuarios y cargar datos
+  usuariosContainer.hidden = false;
+  cargarUsuarios();
+});
+
+// 3) Cargar listado de usuarios (sin password)
+async function cargarUsuarios() {
+  try {
+    const res  = await fetch("/usuario/dto");
+    const list = await res.json(); // List<UsuarioDTO>
+    tablaUsuariosBody.innerHTML = "";
+    list.forEach(u => {
+      const tr = document.createElement("tr");
+      tr.innerHTML = `
+        <td>${u.idUsuario}</td>
+        <td>${u.nombreUsuario}</td>
+        <td>${u.rol}</td>
+        <td>
+          <button class="btn btn-sm btn-warning btn-edit-usr" data-id="${u.idUsuario}">Editar</button>
+          <button class="btn btn-sm btn-danger btn-del-usr"  data-id="${u.idUsuario}">Borrar</button>
+        </td>`;
+      tablaUsuariosBody.appendChild(tr);
+    });
+
+    // enganchar eventos
+    tablaUsuariosBody.querySelectorAll(".btn-edit-usr")
+      .forEach(b => b.addEventListener("click", onClickEditarUsuario));
+    tablaUsuariosBody.querySelectorAll(".btn-del-usr")
+      .forEach(b => b.addEventListener("click", onClickBorrarUsuario));
+  } catch (err) {
+    console.error(err);
+    Swal.fire("Error","No se pudieron cargar usuarios","error");
+  }
+}
+
+// 4) Editar usuario: trae password
+async function onClickEditarUsuario(e) {
+  const id = e.target.dataset.id;
+  const res= await fetch(`/usuario/${id}`);
+  if (!res.ok) return Swal.fire("Error","Usuario no existe","error");
+  const u = await res.json(); // Usuario completo
+  inpUsuarioId.value     = u.idUsuario;
+  inpUsuarioNombre.value = u.nombreUsuario;
+  inpUsuarioPass.value   = u.password;
+  inpUsuarioRol.value    = u.rol;
+}
+
+// 5) Borrar usuario
+function onClickBorrarUsuario(e) {
+  const id = e.target.dataset.id;
+  Swal.fire({
+    title: '¿Confirmar borrado?',
+    icon: 'warning',
+    showCancelButton: true
+  }).then(async ans => {
+    if (!ans.isConfirmed) return;
+    await fetch(`/usuario/${id}`, { method: 'DELETE' });
+    await cargarUsuarios();
+    Swal.fire("OK","Usuario eliminado","success");
+  });
+}
+
+// 6) Alta / Edición en el form
+usuarioForm.addEventListener("submit", async e => {
+  e.preventDefault();
+  const id = inpUsuarioId.value;
+  const payload = {
+    nombreUsuario: inpUsuarioNombre.value.trim(),
+    password:      inpUsuarioPass.value,
+    rol:           inpUsuarioRol.value
+  };
+  const url    = id ? `/usuario/${id}` : `/usuario`;
+  const method = id ? "PUT" : "POST";
+
+  try {
+    const res = await fetch(url, {
+      method,
+      headers: { "Content-Type":"application/json" },
+      body: JSON.stringify(payload)
+    });
+    if (!res.ok) throw new Error(await res.text());
+    await cargarUsuarios();
+    usuarioForm.reset();
+    inpUsuarioId.value = "";
+    Swal.fire("OK","Usuario guardado","success");
+  } catch (err) {
+    Swal.fire("Error", err.message, "error");
+  }
+});
+
+
 
 // 3) Alta / edición de producto
 formProducto.addEventListener("submit", async e => {

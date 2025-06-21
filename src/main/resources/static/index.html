@@ -78,9 +78,42 @@
   </table>
 </div>
 
+<!-- CRUD Usuarios -->
+<div id="usuariosContainer" class="container mt-5" hidden>
+  <h2>Gestión de Usuarios</h2>
+  <form id="usuarioForm" class="row g-3 mb-4">
+    <input type="hidden" id="usuarioId">
+    <div class="col-md-4">
+      <label for="usuarioNombre" class="form-label">Usuario</label>
+      <input type="text" id="usuarioNombre" class="form-control" required>
+    </div>
+    <div class="col-md-4">
+      <label for="usuarioPass" class="form-label">Password</label>
+      <input type="password" id="usuarioPass" class="form-control" required>
+    </div>
+    <div class="col-md-4">
+      <label for="usuarioRol" class="form-label">Rol</label>
+      <select id="usuarioRol" class="form-select" required>
+        <option value="ADMININISTRADOR">ADMINISTRADOR</option>
+        <option value="EMPLEADO">EMPLEADO</option>
+      </select>
+    </div>
+    <div class="col-12 text-end">
+      <button type="submit" class="btn btn-primary">Guardar Usuario</button>
+    </div>
+  </form>
+  <table id="tablaUsuarios" class="table table-bordered">
+    <thead>
+      <tr><th>ID</th><th>Usuario</th><th>Rol</th><th>Acciones</th></tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+</div>
 
 
 
+
+<!-- FORMULARIO DE RESERVAS -->
 
     <form id="reservationForm">
       <div class="mb-3">

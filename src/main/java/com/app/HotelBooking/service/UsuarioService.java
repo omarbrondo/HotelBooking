@@ -11,4 +11,9 @@ public interface UsuarioService {
     List<UsuarioDTO> listarUsuarioDTO();
     Usuario guardarUsuario(Usuario u);
     Optional<Usuario> login(String nombreUsuario, String password);
+
+    // <<< NUEVOS MÉTODOS >>>
+    Optional<Usuario> buscarPorId(Long id);
+    boolean existePorId(Long id);
+    void eliminarUsuario(Long id);
 }
