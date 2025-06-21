@@ -1,16 +1,12 @@
 package com.app.HotelBooking.repository;
 
 import java.util.List;
-
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
-
 import com.app.HotelBooking.model.DetalleFactura;
 
-public interface DetalleFacturaRepository 
-     extends JpaRepository<DetalleFactura, Long> {
+public interface DetalleFacturaRepository extends JpaRepository<DetalleFactura, Long> {
 
-  /** Producto + unidades vendidas en *facturas* */
   @Query("""
     SELECT df.producto.nombreProducto, SUM(df.cantidad)
     FROM DetalleFactura df

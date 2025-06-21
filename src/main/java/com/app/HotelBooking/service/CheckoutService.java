@@ -77,7 +77,9 @@ public class CheckoutService {
             fac.setTotalConsumos(totalCon);
             fac.setTotalFinal(totalFinal);
             fac.setHabitacionNombre(res.getHabitacion().getNombreHabitacion());
-fac.setFechaDesde(res.getFechaDesde());
+            fac.setHabitacionNombre(res.getHabitacion().getNombreHabitacion());
+            fac.setFechaDesde(res.getFechaDesde());
+
 
             // Detalles
             res.getConsumos().forEach(c -> {
@@ -90,7 +92,7 @@ fac.setFechaDesde(res.getFechaDesde());
                 df.setSubtotal(p.multiply(BigDecimal.valueOf(c.getCantidad())));
                 fac.getDetalles().add(df);
             });
-fac.setHabitacionNombre(res.getHabitacion().getNombreHabitacion());
+
             return facturaRepo.save(fac);
         });
     }

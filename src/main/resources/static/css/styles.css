@@ -2,7 +2,11 @@
 /* ========== Global Styles ========== */
 @import url('https://fonts.googleapis.com/css2?family=Lexend:wght@600&display=swap');
 
-
+.chart-wrapper {
+  position: relative;
+  height: 300px;    /* ajusta este valor al alto que quieras */
+  width: 100%;      /* el ancho seguirá siendo responsive */
+}
 /* Ahora aplicamos la fuente a H1 y H2 */
 /* 2. Aplicar Lexend a h1 y h2 */
 h1, h2 {

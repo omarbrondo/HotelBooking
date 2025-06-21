@@ -20,21 +20,23 @@ public interface FacturaRepository extends JpaRepository<Factura, Long> {
     @Query("SELECT SUM(f.totalHabitacion) FROM Factura f")
     BigDecimal sumTotalHabitacion();
 
+  @Query("SELECT SUM(f.totalFinal) FROM Factura f")
+  BigDecimal sumTotalFinal();
+  
     /** 3) Conteo de facturas por habitación (para dashboard) */
-    @Query("""
-      SELECT f.habitacionNombre, COUNT(f)
-      FROM Factura f
-      GROUP BY f.habitacionNombre
-      ORDER BY COUNT(f) DESC
-      """)
-    List<Object[]> countByHabitacionNombre();
+  @Query("""
+    SELECT f.habitacionNombre, COUNT(f)
+    FROM Factura f
+    GROUP BY f.habitacionNombre
+    ORDER BY COUNT(f) DESC
+  """)
+  List<Object[]> countByHabitacionNombre();
 
-    /** 4) Conteo de facturas por fechaDesde (para dashboard fechas) */
-    @Query("""
-      SELECT f.fechaDesde, COUNT(f)
-      FROM Factura f
-      GROUP BY f.fechaDesde
-      ORDER BY COUNT(f) DESC
-      """)
-    List<Object[]> countByFechaDesde();
+  @Query("""
+    SELECT f.fechaDesde, COUNT(f)
+    FROM Factura f
+    GROUP BY f.fechaDesde
+    ORDER BY COUNT(f) DESC
+  """)
+  List<Object[]> countByFechaDesde();
 }

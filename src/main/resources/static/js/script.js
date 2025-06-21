@@ -28,7 +28,9 @@ document.addEventListener("DOMContentLoaded", async () => {
   const inpUsuarioPass = document.getElementById("usuarioPass");
   const inpUsuarioRol = document.getElementById("usuarioRol");
   const token = localStorage.getItem("token");
-
+  let chartProductos = null;
+  let chartHabitaciones = null;
+  let chartFechas = null;
 
    if (!token) {
     await pedirLogin();
@@ -39,13 +41,84 @@ document.addEventListener("DOMContentLoaded", async () => {
 
 // 1) Listener para Dashboard
 document.getElementById("optDashboard").addEventListener("click", e => {
-  e.preventDefault();
-  setActive("optDashboard");        // marca el menú activo
-  hideAllSections();                // oculta todo
-  document.getElementById("dashboardSection").hidden = false;  // muestra dashboard
-  renderDashboard();                // carga y dibuja los charts
-});
+    e.preventDefault();
+    setActive("optDashboard");
+    hideAllSections();
+    document.getElementById("dashboardSection").hidden = false;
+    renderDashboard();
+  });
 
+  // 3) renderDashboard ahora destruye instancias previas
+  async function renderDashboard() {
+    try {
+      const res  = await authedFetch("/api/dashboard");
+      if (!res.ok) throw new Error(await res.text());
+      const data = await res.json();
+
+      // === PRODUCTOS (barra) ===
+      // Si ya había un chart, lo destruimos
+      if (chartProductos) chartProductos.destroy();
+
+      chartProductos = new Chart(
+        document.getElementById("chartProductos"),
+        {
+          type: 'bar',
+          data: {
+            labels: data.topProductos.map(x => x.key),
+            datasets: [{
+              label: 'Unidades',
+              data: data.topProductos.map(x => x.count),
+              backgroundColor: 'rgba(54,162,235,0.6)'
+            }]
+          }
+        }
+      );
+
+      // === HABITACIONES (pie) ===
+      if (chartHabitaciones) chartHabitaciones.destroy();
+
+      chartHabitaciones = new Chart(
+        document.getElementById("chartHabitaciones"),
+        {
+          type: 'pie',
+          data: {
+            labels: data.topHabitaciones.map(x => x.key),
+            datasets: [{
+              data: data.topHabitaciones.map(x => x.count),
+              backgroundColor: ['#ff6384','#36a2eb','#ffcd56','#4bc0c0','#9966ff']
+            }]
+          }
+        }
+      );
+
+      // === FECHAS (línea) ===
+      if (chartFechas) chartFechas.destroy();
+
+      chartFechas = new Chart(
+        document.getElementById("chartFechas"),
+        {
+          type: 'line',
+          data: {
+            labels: data.topFechas.map(x => x.key),
+            datasets: [{
+              label: 'Reservas iniciadas',
+              data: data.topFechas.map(x => x.count),
+              borderColor: 'rgba(255,99,132,0.8)',
+              fill: false
+            }]
+          }
+        }
+      );
+
+      // === INGRESO TOTAL ===
+      document.getElementById("ingresoTotal")
+        .textContent = `$ ${Number(data.ingresoTotal).toFixed(2)}`;
+
+    } catch (err) {
+      console.error("Error Dashboard:", err);
+      Swal.fire("Error", err.message, "error");
+    }
+  }
 document.getElementById("btnLogout")
   .addEventListener("click", () => {
     localStorage.clear();
@@ -65,76 +138,17 @@ document.getElementById("btnLogout")
 
 
 // 2. Función utilitaria para ocultar todas las secciones
-function hideAllSections() {
-  reservationForm.hidden    = true;
-  occupiedSection.hidden    = true;
-  productosContainer.hidden = true;
-  usuariosContainer.hidden  = true;
-  facturasContainer.hidden  = true;
-  document.getElementById("dashboardSection").hidden = true;
-}
-
-
-// 2) Función principal
-async function renderDashboard() {
-  try {
-    const resp = await authedFetch("/api/dashboard");
-    if (!resp.ok) throw new Error(await resp.text());
-    const data = await resp.json();
-
-    // 1) Productos (barra)
-    new Chart(
-      document.getElementById("chartProductos"),
-      {
-        type: 'bar',
-        data: {
-          labels: data.topProductos.map(x => x.key),
-          datasets: [{
-            label: 'Unidades Consumidas',
-            data: data.topProductos.map(x => x.count),
-            backgroundColor: 'rgba(75,192,192,0.6)'
-          }]
-        }
-      }
-    );
-
-    // 2) Fechas (línea)
-    new Chart(
-      document.getElementById("chartFechas"),
-      {
-        type: 'line',
-        data: {
-          labels: data.topFechas.map(x => x.key),
-          datasets: [{
-            label: 'Reservas iniciadas',
-            data: data.topFechas.map(x => x.count),
-            borderColor: 'rgba(153,102,255,0.8)',
-            fill: false
-          }]
-        }
-      }
-    );
-
-    // 3) Habitaciones (pastel)
-    new Chart(
-      document.getElementById("chartHabitaciones"),
-      {
-        type: 'pie',
-        data: {
-          labels: data.topHabitaciones.map(x => x.key),
-          datasets: [{
-            data: data.topHabitaciones.map(x => x.count),
-            backgroundColor: ['#ff6384','#36a2eb','#ffcd56','#4bc0c0','#9966ff']
-          }]
-        }
-      }
-    );
-
-  } catch (err) {
-    console.error("Dashboard error:", err);
-    Swal.fire("Error", err.message, "error");
+  function hideAllSections() {
+    reservationForm.hidden    = true;
+    occupiedSection.hidden    = true;
+    productosContainer.hidden = true;
+    usuariosContainer.hidden  = true;
+    facturasContainer.hidden  = true;
+    dashboardSection.hidden   = true;
   }
-}
+
+
+
 
 
   /*---------------------------------------------------------- */
@@ -282,6 +296,81 @@ async function cargarProductos() {
     Swal.fire("Error", err.message, "error");
   }
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+// RESERVAS
+  document.getElementById("optReservas").addEventListener("click", e => {
+    e.preventDefault();
+    setActive("optReservas");
+    hideAllSections();
+    reservationForm.hidden  = false;
+    occupiedSection.hidden  = false;
+  });
+
+  // PRODUCTOS
+  document.getElementById("optProductos").addEventListener("click", e => {
+    e.preventDefault();
+    setActive("optProductos");
+    hideAllSections();
+    productosContainer.hidden = false;
+    cargarProductos();
+  });
+
+  // USUARIOS
+  document.getElementById("optUsuarios").addEventListener("click", e => {
+    e.preventDefault();
+    setActive("optUsuarios");
+    hideAllSections();
+    usuariosContainer.hidden = false;
+    cargarUsuarios();
+  });
+
+  // FACTURAS
+  document.getElementById("optFacturas").addEventListener("click", e => {
+    e.preventDefault();
+    setActive("optFacturas");
+    hideAllSections();
+    facturasContainer.hidden = false;
+    cargarFacturas();
+  });
+
+  // DASHBOARD
+  document.getElementById("optDashboard").addEventListener("click", e => {
+    e.preventDefault();
+    setActive("optDashboard");
+    hideAllSections();
+    dashboardSection.hidden = false;
+    renderDashboard();
+  });
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
