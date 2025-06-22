@@ -35,12 +35,17 @@ public class UsuarioServiceImpl implements UsuarioService {
             .collect(Collectors.toList());
     }
 
-    @Override
-    public Usuario guardarUsuario(Usuario u) {
-        // Al crear/editar, guardamos el hash
-        u.setPassword(passwordEncoder.encode(u.getPassword()));
-        return repo.save(u);
+@Override
+public Usuario guardarUsuario(Usuario u) {
+    String pwd = u.getPassword();
+    // Si pwd es null o vacío, no lo tocamos;
+    // si ya empieza con el prefijo BCrypt, tampoco lo rehasheamos
+    if (pwd != null && !pwd.isBlank() && !pwd.startsWith("$2a$")) {
+        u.setPassword(passwordEncoder.encode(pwd));
     }
+    return repo.save(u);
+}
+
 
 @Override
 public Optional<Usuario> login(String nombreUsuario, String password) {
