@@ -1,3 +1,32 @@
 En hotelbooking-backend ejecutar
 
 mvn spring-boot:run
+
+-----------------------------
+
+EJECUTAR CON DOCKER (recomendado para producción o despliegue):
+
+1. Abrir una terminal en la carpeta hotelbooking-backend
+2. Construir la imagen Docker:
+   docker build -t hotelbooking-app .
+3. Ejecutar el contenedor manualmente:
+   docker run --name HotelBooking -p 8080:8080 hotelbooking-app
+
+Si quieres que el backend use la misma base de datos H2 (archivos hoteldb.mv.db y hoteldb.trace.db) que usas fuera de Docker, ejecuta el contenedor así:
+   docker run --name HotelBooking -p 8080:8080 -v %cd%/data:/app/data hotelbooking-app
+
+-----------------------------
+
+EJECUTAR CON DOCKER COMPOSE (recomendado para desarrollo y automatización):
+
+1. Asegúrate de tener el archivo docker-compose.yml en la raíz del proyecto.
+2. Construye la imagen si es la primera vez o si cambiaste el código:
+   docker compose build
+3. Levanta el contenedor con:
+   docker compose up
+
+Esto creará y levantará el contenedor HotelBooking, expondrá el puerto 8080 y montará la carpeta data para compartir la base de datos entre tu máquina y Docker.
+
+Puedes gestionar el contenedor fácilmente desde Docker Desktop.
+
+La aplicación estará disponible en http://localhost:8080 sirviendo tanto el backend como el frontend.

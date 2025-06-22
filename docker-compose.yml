@@ -1,0 +1,9 @@
+version: '3.8'
+services:
+  hotelbooking:
+    image: hotelbooking-app
+    container_name: HotelBooking
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./hotelbooking-backend/data:/app/data

@@ -1,0 +1,11 @@
+# Evita copiar archivos innecesarios al contenedor
+/target
+/.mvn
+*.iml
+*.log
+*.md
+*.txt
+.DS_Store
+.idea
+*.db
+*.trace.db
