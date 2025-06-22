@@ -1,7 +1,6 @@
 // src/main/java/com/app/HotelBooking/repository/DetalleConsumoRepository.java
 package com.app.HotelBooking.repository;
 
-import java.math.BigDecimal;
 import java.util.List;
 
 import org.springframework.data.jpa.repository.JpaRepository;

@@ -1,271 +1,334 @@
 <!DOCTYPE html>
 <html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
-<head>
-  <meta charset="UTF-8">
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <title>Hotel Booking</title>
 
-  <title>Reserva de Habitaciones</title>
+    <!-- toastify -->
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css"
+    />
 
-  <!-- toastify -->
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css"/>
+    <!-- Bootstrap CSS -->
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <!-- SweetAlert2 CSS -->
+    <link
+      href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
 
-  <!-- Bootstrap CSS -->
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-  <!-- SweetAlert2 CSS -->
-  <link href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css" rel="stylesheet">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css"
+    />
 
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css"/>
+    <!-- CSS personalizado -->
+    <link rel="stylesheet" href="css/styles.css" />
+  </head>
 
-  <!-- CSS personalizado -->
-  <link rel="stylesheet" href="css/styles.css">
-</head>
+  <body>
+    <nav class="navbar navbar-expand-lg navbar-light bg-light py-4 mb-4">
+      <div class="container position-relative">
+        <!-- 1) Links de la izquierda -->
+        <ul class="navbar-nav">
+          <li class="nav-item">
+            <a class="nav-link" href="#" id="optReservas">Reservas</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="#" id="optProductos">Productos</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="#" id="optUsuarios">Usuarios</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="#" id="optFacturas">Facturas</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="#" id="optDashboard">Dashboard</a>
+          </li>
+        </ul>
 
-<body>
-<nav class="navbar navbar-expand-lg navbar-light bg-light py-4 mb-4">
-  <div class="container position-relative">
+        <!-- 2) Logo centrado ABSOLUTO -->
+        <a
+          class="navbar-brand position-absolute start-50 translate-middle-x"
+          href="#"
+        >
+          <img
+            src="img/hotel-logo-design-service.png"
+            alt="Mi Logo"
+            class="logo-navbar"
+          />
+        </a>
 
-    <!-- 1) Links de la izquierda -->
-    <ul class="navbar-nav">
-      <li class="nav-item"><a class="nav-link" href="#" id="optReservas">Reservas</a></li>
-      <li class="nav-item"><a class="nav-link" href="#" id="optProductos">Productos</a></li>
-      <li class="nav-item"><a class="nav-link" href="#" id="optUsuarios">Usuarios</a></li>
-      <li class="nav-item"><a class="nav-link" href="#" id="optFacturas">Facturas</a></li>
-      <li class="nav-item"><a class="nav-link" href="#" id="optDashboard">Dashboard</a></li>
-    </ul>
+        <!-- 3) Logout a la derecha -->
+        <ul class="navbar-nav ms-auto">
+          <li class="nav-item">
+            <button id="btnLogout" class="btn btn-outline-danger">
+              <i class="fa fa-sign-out-alt"></i> Cerrar sesión
+            </button>
+          </li>
+        </ul>
+      </div>
+    </nav>
 
+    <!-- Contenedor general con recuadro gris para el contenido -->
+    <div class="container mt-5 form-container">
+      <!-- Contenedor blanco para encabezados -->
+      <div class="header-container mb-4">
+        <h1 class="d-flex justify-content-between align-items-center">
+          <i class="fa-solid fa-plane-departure"></i>
+          <span>Hotel Booking</span>
+          <i class="fa-solid fa-suitcase"></i>
+        </h1>
+      </div>
+      <!-- Dashboard -->
+      <section id="dashboardSection" hidden>
+        <div class="container mt-4">
+          <h2>Dashboard Estadísticas</h2>
+          <div class="row">
+            <div class="col-md-6">
+              <div class="chart-wrapper">
+                <canvas id="chartProductos"></canvas>
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="chart-wrapper">
+                <canvas id="chartHabitaciones"></canvas>
+              </div>
+            </div>
+            <div class="col-md-6 mt-4">
+              <div class="chart-wrapper">
+                <canvas id="chartFechas"></canvas>
+              </div>
+            </div>
+            <div class="col-md-6 mt-4">
+              <div class="card text-white bg-primary">
+                <div class="card-body">
+                  <h5 class="card-title">Ingreso Total</h5>
+                  <p id="ingresoTotal" class="card-text display-4"></p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
 
+      <!-- tabla de facturas -->
+      <div id="facturasContainer" class="mt-4" hidden></div>
 
+      <!-- CRUD Productos -->
+      <div id="productosContainer" class="container mt-5" hidden>
+        <h2>Gestión de Productos</h2>
+        <form id="productoForm" class="row g-3 mb-4">
+          <input type="hidden" id="prodId" />
 
+          <div class="col-md-6">
+            <label for="prodNombre" class="form-label">Nombre</label>
+            <input type="text" id="prodNombre" class="form-control" required />
+          </div>
 
-    <!-- 2) Logo centrado ABSOLUTO -->
-    <a class="navbar-brand position-absolute start-50 translate-middle-x" href="#">
-      <img src="img/hotel-logo-design-service.png" alt="Mi Logo" class="logo-navbar">
+          <div class="col-md-4">
+            <label for="prodPrecio" class="form-label">Precio</label>
+            <input
+              type="number"
+              id="prodPrecio"
+              class="form-control"
+              step="0.01"
+              required
+            />
+          </div>
 
-    </a>
+          <div class="col-md-2 d-flex align-items-end">
+            <button type="submit" class="btn btn-primary w-100">Guardar</button>
+          </div>
+        </form>
 
-    <!-- 3) Logout a la derecha -->
-    <ul class="navbar-nav ms-auto">
-      <li class="nav-item">
-        <button id="btnLogout" class="btn btn-outline-danger">
-          <i class="fa fa-sign-out-alt"></i> Cerrar sesión
-        </button>
-      </li>
-    </ul>
+        <table id="tablaProductos" class="table table-bordered">
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Nombre</th>
+              <th>Precio</th>
+              <th>Estado</th>
+              <!-- antes ahí iba “Acciones” -->
+              <th>Editar</th>
+              <!-- nueva columna para editar -->
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
 
-  </div>
-</nav>
+      <!-- CRUD Usuarios -->
+      <div id="usuariosContainer" class="container mt-5" hidden>
+        <h2>Gestión de Usuarios</h2>
+        <form id="usuarioForm" class="row g-3 mb-4">
+          <input type="hidden" id="usuarioId" />
+          <div class="col-md-4">
+            <label for="usuarioNombre" class="form-label">Usuario</label>
+            <input
+              type="text"
+              id="usuarioNombre"
+              class="form-control"
+              required
+            />
+          </div>
+          <div class="col-md-4">
+            <label for="usuarioPass" class="form-label">Password</label>
+            <input
+              type="password"
+              id="usuarioPass"
+              class="form-control"
+              required
+            />
+          </div>
+          <div class="col-md-4">
+            <label for="usuarioRol" class="form-label">Rol</label>
+            <select id="usuarioRol" class="form-select" required>
+              <option value="ADMINISTRADOR">ADMINISTRADOR</option>
+              <option value="EMPLEADO">EMPLEADO</option>
+            </select>
+          </div>
+          <div class="col-12 text-end">
+            <button type="submit" class="btn btn-primary">
+              Guardar Usuario
+            </button>
+          </div>
+        </form>
+        <table id="tablaUsuarios" class="table table-bordered">
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Usuario</th>
+              <th>Rol</th>
+              <th>Acciones</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
 
+      <!-- FORMULARIO DE RESERVAS -->
 
-
-
-
-
-
-  <!-- Contenedor general con recuadro gris para el contenido -->
-  <div class="container mt-5 form-container">
-
-
-
-
-
-
-
-
-
-
-    <!-- Contenedor blanco para encabezados -->
-    <div class="header-container mb-4">
-      <h1 class="d-flex justify-content-between align-items-center">
-        <i class="fa-solid fa-plane-departure"></i>
-        <span>Reserva de Habitaciones</span>
-        <i class="fa-solid fa-suitcase"></i>
-      </h1>
+      <form id="reservationForm">
+        <div class="mb-3">
+          <label for="nombre" class="form-label">Nombre:</label>
+          <input
+            type="text"
+            id="nombre"
+            name="nombre"
+            class="form-control"
+            required
+          />
+        </div>
+        <div class="mb-3">
+          <label for="apellido" class="form-label">Apellido:</label>
+          <input
+            type="text"
+            id="apellido"
+            name="apellido"
+            class="form-control"
+            required
+          />
+        </div>
+        <div class="mb-3">
+          <label for="dni" class="form-label">DNI:</label>
+          <input
+            type="text"
+            id="dni"
+            name="dni"
+            class="form-control"
+            required
+          />
+        </div>
+        <div class="row mb-3">
+          <div class="col-md-6">
+            <label for="fechaDesde" class="form-label">Fecha Desde:</label>
+            <input
+              type="date"
+              id="fechaDesde"
+              name="fechaDesde"
+              class="form-control"
+              required
+            />
+          </div>
+          <div class="col-md-6">
+            <label for="fechaHasta" class="form-label">Fecha Hasta:</label>
+            <input
+              type="date"
+              id="fechaHasta"
+              name="fechaHasta"
+              class="form-control"
+              required
+            />
+          </div>
+        </div>
+        <div class="mb-3">
+          <label for="habitacion" class="form-label">Habitación:</label>
+          <select
+            id="habitacion"
+            name="habitacion"
+            class="form-select"
+            required
+          >
+            <option value="">Seleccione una habitación</option>
+            <!-- Opciones dinámicas -->
+          </select>
+        </div>
+        <button type="submit" class="btn btn-primary">Reservar</button>
+      </form>
     </div>
-<!-- Dashboard -->
-<section id="dashboardSection" hidden>
-  <div class="container mt-4">
-    <h2>Dashboard Estadísticas</h2>
-    <div class="row">
-      <div class="col-md-6">
-        <div class="chart-wrapper">
-          <canvas id="chartProductos"></canvas>
-        </div>
-      </div>
-      <div class="col-md-6">
-        <div class="chart-wrapper">
-          <canvas id="chartHabitaciones"></canvas>
-        </div>
-      </div>
-      <div class="col-md-6 mt-4">
-        <div class="chart-wrapper">
-          <canvas id="chartFechas"></canvas>
-        </div>
-      </div>
-      <div class="col-md-6 mt-4">
-        <div class="card text-white bg-primary">
+
+    <!-- Sección para mostrar la tabla de habitaciones ocupadas -->
+    <section class="occupied-section mt-5">
+      <div class="container">
+        <div class="card">
+          <div class="card-header">
+            <h2>Habitaciones Ocupadas</h2>
+          </div>
           <div class="card-body">
-            <h5 class="card-title">Ingreso Total</h5>
-            <p id="ingresoTotal" class="card-text display-4"></p>
+            <table id="tablaOcupadas" class="table table-striped">
+              <thead>
+                <tr>
+                  <th>Habitación</th>
+                  <th>Precio</th>
+                  <th>Huésped</th>
+                  <th>Fecha Desde</th>
+                  <th>Fecha Hasta</th>
+                  <th>Acciones</th>
+                </tr>
+              </thead>
+              <tbody>
+                <!-- Las filas se insertarán dinámicamente -->
+              </tbody>
+            </table>
           </div>
         </div>
       </div>
-    </div>
-  </div>
-</section>
+    </section>
 
-    <!-- tabla de facturas -->
-    <div id="facturasContainer" class="mt-4" hidden></div>
+    <script src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
 
-<!-- CRUD Productos -->
-<div id="productosContainer" class="container mt-5" hidden>
-  <h2>Gestión de Productos</h2>
-  <form id="productoForm" class="row g-3 mb-4">
-    <input type="hidden" id="prodId">
+    <!-- para la factura en pdf -->
+    <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
 
-    <div class="col-md-6">
-      <label for="prodNombre" class="form-label">Nombre</label>
-      <input type="text" id="prodNombre" class="form-control" required>
-    </div>
+    <script src="https://cdn.jsdelivr.net/npm/jspdf-autotable@3.5.23/dist/jspdf.plugin.autotable.min.js"></script>
 
-    <div class="col-md-4">
-      <label for="prodPrecio" class="form-label">Precio</label>
-      <input type="number" id="prodPrecio" class="form-control" step="0.01" required>
-    </div>
-
-    <div class="col-md-2 d-flex align-items-end">
-      <button type="submit" class="btn btn-primary w-100">Guardar</button>
-    </div>
-  </form>
-
-<table id="tablaProductos" class="table table-bordered">
-  <thead>
-    <tr>
-      <th>ID</th>
-      <th>Nombre</th>
-      <th>Precio</th>
-      <th>Estado</th>       <!-- antes ahí iba “Acciones” -->
-      <th>Editar</th>       <!-- nueva columna para editar -->
-    </tr>
-  </thead>
-  <tbody></tbody>
-</table>
-</div>
-
-<!-- CRUD Usuarios -->
-<div id="usuariosContainer" class="container mt-5" hidden>
-  <h2>Gestión de Usuarios</h2>
-  <form id="usuarioForm" class="row g-3 mb-4">
-    <input type="hidden" id="usuarioId">
-    <div class="col-md-4">
-      <label for="usuarioNombre" class="form-label">Usuario</label>
-      <input type="text" id="usuarioNombre" class="form-control" required>
-    </div>
-    <div class="col-md-4">
-      <label for="usuarioPass" class="form-label">Password</label>
-      <input type="password" id="usuarioPass" class="form-control" required>
-    </div>
-    <div class="col-md-4">
-      <label for="usuarioRol" class="form-label">Rol</label>
-      <select id="usuarioRol" class="form-select" required>
-        <option value="ADMINISTRADOR">ADMINISTRADOR</option>
-        <option value="EMPLEADO">EMPLEADO</option>
-      </select>
-    </div>
-    <div class="col-12 text-end">
-      <button type="submit" class="btn btn-primary">Guardar Usuario</button>
-    </div>
-  </form>
-  <table id="tablaUsuarios" class="table table-bordered">
-    <thead>
-      <tr><th>ID</th><th>Usuario</th><th>Rol</th><th>Acciones</th></tr>
-    </thead>
-    <tbody></tbody>
-  </table>
-</div>
-
-
-
-
-<!-- FORMULARIO DE RESERVAS -->
-
-    <form id="reservationForm">
-
-      <div class="mb-3">
-        <label for="nombre" class="form-label">Nombre:</label>
-        <input type="text" id="nombre" name="nombre" class="form-control" required>
-      </div>
-      <div class="mb-3">
-        <label for="apellido" class="form-label">Apellido:</label>
-        <input type="text" id="apellido" name="apellido" class="form-control" required>
-      </div>
-      <div class="mb-3">
-        <label for="dni" class="form-label">DNI:</label>
-        <input type="text" id="dni" name="dni" class="form-control" required>
-      </div>
-      <div class="row mb-3">
-        <div class="col-md-6">
-          <label for="fechaDesde" class="form-label">Fecha Desde:</label>
-          <input type="date" id="fechaDesde" name="fechaDesde" class="form-control" required>
-        </div>
-        <div class="col-md-6">
-          <label for="fechaHasta" class="form-label">Fecha Hasta:</label>
-          <input type="date" id="fechaHasta" name="fechaHasta" class="form-control" required>
-        </div>
-      </div>
-      <div class="mb-3">
-        <label for="habitacion" class="form-label">Habitación:</label>
-        <select id="habitacion" name="habitacion" class="form-select" required>
-          <option value="">Seleccione una habitación</option>
-          <!-- Opciones dinámicas -->
-        </select>
-      </div>
-      <button type="submit" class="btn btn-primary">Reservar</button>
-    </form>
-  </div>
-
-  <!-- Sección para mostrar la tabla de habitaciones ocupadas -->
-  <section class="occupied-section mt-5">
-    <div class="container">
-      <div class="card">
-        <div class="card-header">
-          <h2>Habitaciones Ocupadas</h2>
-        </div>
-        <div class="card-body">
-          <table id="tablaOcupadas" class="table table-striped">
-            <thead>
-              <tr>
-                <th>Habitación</th>
-                <th>Precio</th>
-                <th>Huésped</th>
-                <th>Fecha Desde</th>
-                <th>Fecha Hasta</th>
-                <th>Acciones</th>
-              </tr>
-            </thead>
-            <tbody>
-              <!-- Las filas se insertarán dinámicamente -->
-            </tbody>
-          </table>
-        </div>
-      </div>
-    </div>
-  </section>
-
-<script src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
-
-  <!-- para la factura en pdf -->
-  <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
-
-  <script src="https://cdn.jsdelivr.net/npm/jspdf-autotable@3.5.23/dist/jspdf.plugin.autotable.min.js"></script>
-
-  <!-- Bootstrap JS Bundle -->
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-  <!-- SweetAlert2 JS -->
-  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-  <!-- JavaScript-->
-  <script src="js/script.js"></script>
-</body>
-
+    <!-- Bootstrap JS Bundle -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- SweetAlert2 JS -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <!-- JavaScript-->
+    <script src="js/script.js"></script>
+  </body>
 </html>

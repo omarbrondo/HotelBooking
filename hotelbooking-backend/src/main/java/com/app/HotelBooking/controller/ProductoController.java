@@ -3,7 +3,6 @@ package com.app.HotelBooking.controller;
 import java.util.List;
 import jakarta.persistence.EntityNotFoundException;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -16,7 +15,6 @@ public class ProductoController {
 
     private final ProductoService service;
 
-    @Autowired
     public ProductoController(ProductoService service) {
         this.service = service;
     }

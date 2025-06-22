@@ -2,7 +2,6 @@ package com.app.HotelBooking.controller;
 
 import com.app.HotelBooking.model.Habitacion;
 import com.app.HotelBooking.service.HabitacionService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -14,7 +13,6 @@ public class HabitacionController {
 
     private final HabitacionService habitacionService;
 
-    @Autowired
     public HabitacionController(HabitacionService habitacionService) {
         this.habitacionService = habitacionService;
     }

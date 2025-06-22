@@ -9,7 +9,6 @@ import com.app.HotelBooking.repository.DetalleConsumoRepository;
 import com.app.HotelBooking.repository.ProductoRepository;
 import com.app.HotelBooking.service.ReservaService;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -22,7 +21,6 @@ public class ReservaController {
     private final ProductoRepository productoRepository;
     private final DetalleConsumoRepository detalleConsumoRepository;
 
-    @Autowired
     public ReservaController(
             ReservaService reservaService,
             ProductoRepository productoRepository,

@@ -1,7 +1,6 @@
 package com.app.HotelBooking.service;
 
 import java.math.BigDecimal;
-import java.util.List;
 import org.springframework.stereotype.Service;
 import com.app.HotelBooking.dto.DashboardDTO;
 import com.app.HotelBooking.dto.DashboardDTO.ItemCount;

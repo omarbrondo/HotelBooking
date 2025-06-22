@@ -3,12 +3,9 @@ package com.app.HotelBooking.controller;
 import com.app.HotelBooking.model.Factura;
 import com.app.HotelBooking.service.CheckoutService;
 import com.app.HotelBooking.service.FacturaService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import io.swagger.v3.oas.annotations.security.SecurityRequirement;
-import io.swagger.v3.oas.annotations.tags.Tag;
 
 import java.util.List;
 
@@ -19,7 +16,6 @@ public class FacturaController {
     private final CheckoutService checkoutService;
     private final FacturaService facturaService;
 
-    @Autowired
     public FacturaController(CheckoutService checkoutService,
                              FacturaService facturaService) {
         this.checkoutService = checkoutService;
