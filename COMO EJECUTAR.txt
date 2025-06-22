@@ -1,0 +1,3 @@
+En hotelbooking-backend ejecutar
+
+mvn spring-boot:run
