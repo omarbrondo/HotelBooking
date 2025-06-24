@@ -8,11 +8,13 @@ import org.springframework.stereotype.Service;
 
 import com.app.HotelBooking.model.Producto;
 import com.app.HotelBooking.repository.ProductoRepository;
-
+// ProductoService.java
+// Servicio para manejar la lógica de negocio relacionada con productos
 @Service
 public class ProductoService {
-
-    @Autowired
+// Repositorio para acceder a los datos de productos
+// Permite realizar operaciones CRUD y consultas personalizadas
+    @Autowired // Inyección de dependencias del repositorio
     private ProductoRepository repo;
 
     /** 1) Lista solo los productos activos */
@@ -55,7 +57,7 @@ public class ProductoService {
         p.setActivo(true);
         repo.save(p);
     }
-
+// Buscar un producto por ID
     public Producto findById(Long id) {
   return repo.findById(id)
              .orElseThrow(() -> new EntityNotFoundException("Producto no existe: " + id));

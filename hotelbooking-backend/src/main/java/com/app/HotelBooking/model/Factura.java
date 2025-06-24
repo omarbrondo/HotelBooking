@@ -9,8 +9,8 @@ import com.fasterxml.jackson.annotation.JsonManagedReference;
 import java.time.LocalDate;
 
 @Entity
-@Table(name = "factura")
-public class Factura {
+@Table(name = "factura") // Factura representa una factura generada para una reserva
+public class Factura { // Atributos de la factura
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

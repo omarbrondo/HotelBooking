@@ -21,7 +21,7 @@ public class UsuarioController {
     @Autowired
     private UsuarioService service;
 
-    @Autowired                             // ← inyecta el JwtUtil
+    @Autowired                             
     private JwtUtil jwtUtil;
 
     // 1) Listar todos
@@ -78,7 +78,7 @@ public class UsuarioController {
         return ResponseEntity.noContent().build();
     }
 
-    // 7) Login (ya lo tenés)
+    // 7) Login 
     @PostMapping("/login")
 public ResponseEntity<Map<String,String>> login(@RequestBody Usuario cred) {
   Optional<Usuario> opt = service.login(cred.getNombreUsuario(), cred.getPassword());

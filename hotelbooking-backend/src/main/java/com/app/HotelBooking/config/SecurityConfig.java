@@ -39,9 +39,7 @@ public class SecurityConfig {
     @Autowired
     private PasswordEncoder passwordEncoder;
 
-    /**
-     * Configura el AuthenticationManager para que use tu UsuarioService + PasswordEncoder.
-     */
+
     @Bean
     public AuthenticationManager authenticationManager(HttpSecurity http) throws Exception {
         AuthenticationManagerBuilder authBuilder = 
@@ -95,11 +93,11 @@ public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         // → Dashboard: permiso público
         .requestMatchers("/api/dashboard/**").permitAll()
 
-        // → O, para que sólo ADMIN lo vea:
+        // para que sólo ADMIN lo vea:
         // .requestMatchers("/api/dashboard/**")
         //   .hasRole("ADMINISTRADOR")
 
-        // → El resto requiere autenticación
+        // El resto requiere autenticación
         .anyRequest().authenticated()
       )
       .headers(headers -> headers.frameOptions(frame -> frame.sameOrigin()))

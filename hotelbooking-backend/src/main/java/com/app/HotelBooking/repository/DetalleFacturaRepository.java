@@ -6,7 +6,7 @@ import org.springframework.data.jpa.repository.Query;
 import com.app.HotelBooking.model.DetalleFactura;
 
 public interface DetalleFacturaRepository extends JpaRepository<DetalleFactura, Long> {
-
+// Producto + suma de todas sus cantidades
   @Query("""
     SELECT df.producto.nombreProducto, SUM(df.cantidad)
     FROM DetalleFactura df

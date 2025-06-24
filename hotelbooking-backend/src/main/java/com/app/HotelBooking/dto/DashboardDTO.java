@@ -7,7 +7,7 @@ public class DashboardDTO {
   public List<ItemCount> topProductos;
   public List<ItemCount> topHabitaciones;
   public List<ItemCount> topFechas;
-  public BigDecimal ingresoTotal;           // <— nuevo
+  public BigDecimal ingresoTotal;           
 
   public static class ItemCount {
     public String key;

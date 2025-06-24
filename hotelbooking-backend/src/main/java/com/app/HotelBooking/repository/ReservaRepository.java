@@ -6,7 +6,7 @@ import org.springframework.data.jpa.repository.Query;
 import com.app.HotelBooking.model.Reserva;
 
 public interface ReservaRepository extends JpaRepository<Reserva, Long> {
-
+// Métodos de consulta personalizados para la entidad Reserva
   @Query("""
     SELECT r.habitacion.nombreHabitacion, COUNT(r)
     FROM Reserva r
@@ -14,7 +14,7 @@ public interface ReservaRepository extends JpaRepository<Reserva, Long> {
     ORDER BY COUNT(r) DESC
   """)
   List<Object[]> countByHabitacion();
-
+// Método para contar reservas por fecha de inicio
   @Query("""
     SELECT r.fechaDesde, COUNT(r)
     FROM Reserva r

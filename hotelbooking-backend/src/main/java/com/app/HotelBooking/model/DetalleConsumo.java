@@ -13,7 +13,7 @@ public class DetalleConsumo {
     // Relación muchos a uno con Reserva
     @ManyToOne
     @JoinColumn(name = "reserva_id")
-    @JsonBackReference  // Evita ciclo en la serialización, ya que la lista de consumos se gestiona en Reserva
+    @JsonBackReference  //para la serializacion y evitar bucles infinitos
     private Reserva reserva;
     
     // Relación muchos a uno con Producto
@@ -46,7 +46,7 @@ public class DetalleConsumo {
     }
     
     public void setReserva(Reserva reserva) {
-        this.reserva = reserva;
+        this.reserva = reserva; //para establecer la relación con la reserva
     }
     
     public Producto getProducto() {

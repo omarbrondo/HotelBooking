@@ -7,6 +7,8 @@ import com.app.HotelBooking.dto.DashboardDTO.ItemCount;
 import com.app.HotelBooking.repository.DetalleFacturaRepository;
 import com.app.HotelBooking.repository.FacturaRepository;
 
+// DashboardService.java
+// Servicio para obtener estadísticas del dashboard
 @Service
 public class DashboardService {
 
@@ -20,7 +22,8 @@ public class DashboardService {
     this.dfRepo = dfRepo;
     this.fRepo  = fRepo;
   }
-
+// Método para obtener estadísticas del dashboard
+// Devuelve un objeto DashboardDTO con los datos requeridos
   public DashboardDTO getStats() {
     DashboardDTO dto = new DashboardDTO();
 

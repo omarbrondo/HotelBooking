@@ -5,14 +5,15 @@ import java.util.List;
 import java.util.Optional;
 import com.app.HotelBooking.dto.UsuarioDTO;
 import com.app.HotelBooking.model.Usuario;
-
+// Interfaz para el servicio de Usuarios
+// define métodos para manejar usuarios, incluyendo login y operaciones CRUD
 public interface UsuarioService {
     List<Usuario> listarUsuarios();
     List<UsuarioDTO> listarUsuarioDTO();
     Usuario guardarUsuario(Usuario u);
 Optional<Usuario> login(String nombreUsuario, String password);
 
-    // <<< NUEVOS MÉTODOS >>>
+// Métodos CRUD 
     Optional<Usuario> buscarPorId(Long id);
 Optional<Usuario> buscarPorNombre(String nombreUsuario);
 

@@ -7,7 +7,8 @@ import com.app.HotelBooking.repository.HabitacionRepository;
 import com.app.HotelBooking.repository.ReservaRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
+// ReservaServiceImpl.java
+// Implementación del servicio de reservas
 @Service
 public class ReservaServiceImpl implements ReservaService {
 
@@ -18,13 +19,14 @@ public class ReservaServiceImpl implements ReservaService {
         this.reservaRepository = reservaRepository;
         this.habitacionRepository = habitacionRepository;
     }
-
+// Implementación de los métodos definidos en ReservaService
     @Override
     public Reserva obtenerReservaPorId(Long id) {
         return reservaRepository.findById(id)
                 .orElseThrow(() -> new ReservaException("Reserva no encontrada"));
     }
-
+// Método para crear una nueva reserva
+    // Verifica que la habitación esté libre antes de crear la reserva
     @Override
     public Reserva crearReserva(Reserva reserva, Long idHabitacion) {
         // Buscar la habitación por su id
@@ -46,7 +48,8 @@ public class ReservaServiceImpl implements ReservaService {
 
         return reservaGuardada;
     }
-
+// Método para actualizar una reserva existente
+    // Permite actualizar los datos de una reserva existente
     @Override
     public Reserva actualizarReserva(Long id, Reserva reservaActualizada) {
         // Buscamos la reserva existente, de lo contrario, se lanza excepción
@@ -62,7 +65,8 @@ public class ReservaServiceImpl implements ReservaService {
 
         return reservaRepository.save(reservaExistente);
     }
-    
+    // Método para eliminar una reserva
+    // Elimina una reserva y libera la habitación asociada
     @Override
     @Transactional
     public void eliminarReserva(Long id) {

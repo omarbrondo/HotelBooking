@@ -11,7 +11,7 @@ public class Habitacion {
 
     private String nombreHabitacion;
     private Double precio;
-    private String estado; // "libre" o "ocupado"
+    private String estado; // Estado puede ser "Disponible", "Ocupada", etc.
 
     @OneToOne
     @JoinColumn(name = "idReserva", unique = true)

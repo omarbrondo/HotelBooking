@@ -31,7 +31,7 @@ public class ProductoController {
         return ResponseEntity.ok(service.listarTodos());
     }
 
-    // ===> NUEVO: Obtener uno por ID <===
+    // Obtener uno por ID 
     @GetMapping("/{id}")
     public ResponseEntity<Producto> obtenerPorId(@PathVariable Long id) {
         try {

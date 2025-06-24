@@ -11,11 +11,11 @@ import com.app.HotelBooking.model.DetalleConsumo;
 public interface DetalleConsumoRepository extends JpaRepository<DetalleConsumo, Long> {
 
     /** Producto + suma de todas sus cantidades */
-    @Query("""
+    @Query(""" 
       SELECT dc.producto.nombreProducto, SUM(dc.cantidad)
       FROM DetalleConsumo dc
       GROUP BY dc.producto.nombreProducto
-      ORDER BY SUM(dc.cantidad) DESC
-      """)
+      ORDER BY SUM(dc.cantidad) DESC 
+      """) // Listar productos por cantidad consumida // más consumidos primero
     List<Object[]> sumCantidadByProducto();
 }

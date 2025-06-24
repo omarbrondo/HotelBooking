@@ -50,7 +50,7 @@ public class CheckoutService {
 
         return fac;
     }
-
+// Genera la factura de forma aislada (idempotente)
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     protected Factura generarFactura(Long reservaId) {
         // Si ya existe, devolverla (idempotente)

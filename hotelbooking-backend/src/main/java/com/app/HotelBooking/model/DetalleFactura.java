@@ -6,7 +6,7 @@ import java.math.BigDecimal;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 
 @Entity
-@Table(name = "detalle_factura")
+@Table(name = "detalle_factura") //
 public class DetalleFactura {
 
     @Id

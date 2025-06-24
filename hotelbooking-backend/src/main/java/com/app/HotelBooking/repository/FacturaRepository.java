@@ -19,7 +19,7 @@ public interface FacturaRepository extends JpaRepository<Factura, Long> {
     /** 2) Suma total de las habitaciones facturadas */
     @Query("SELECT SUM(f.totalHabitacion) FROM Factura f")
     BigDecimal sumTotalHabitacion();
-
+// Suma total de los consumos facturados
   @Query("SELECT SUM(f.totalFinal) FROM Factura f")
   BigDecimal sumTotalFinal();
   
@@ -31,7 +31,9 @@ public interface FacturaRepository extends JpaRepository<Factura, Long> {
     ORDER BY COUNT(f) DESC
   """)
   List<Object[]> countByHabitacionNombre();
-
+// Conteo de facturas por fecha de inicio (para dashboard)
+  /** 4) Conteo de facturas por fecha de inicio (para dashboard) */
+  
   @Query("""
     SELECT f.fechaDesde, COUNT(f)
     FROM Factura f

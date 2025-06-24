@@ -10,7 +10,7 @@ import jakarta.persistence.Id;
 public class Producto {
     
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.IDENTITY) // Generación automática del ID
     private Long idProducto;
     
     private String nombreProducto;

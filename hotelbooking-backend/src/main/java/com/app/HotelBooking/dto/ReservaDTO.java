@@ -8,7 +8,7 @@ public class ReservaDTO {
     private String dni;
     private LocalDate fechaDesde;
     private LocalDate fechaHasta;
-    private Long idHabitacion; // Identificador de la habitación a reservar
+    private Long idHabitacion; 
 
     public ReservaDTO() {
     }

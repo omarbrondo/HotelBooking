@@ -44,7 +44,7 @@ public class ReservaController {
         return ResponseEntity.status(HttpStatus.CREATED).body(guardada);
     }
 
-    // Obtener el detalle de una reserva (incluye consumos)
+    // Obtener el detalle de una reserva con consumos
     @GetMapping("/{id}")
     public ResponseEntity<Reserva> obtenerDetalleReserva(@PathVariable Long id) {
         Reserva reserva = reservaService.obtenerReservaPorId(id);
@@ -75,7 +75,7 @@ public class ReservaController {
         return ResponseEntity.status(HttpStatus.CREATED).body(guardado);
     }
 
-    // Eliminar una reserva (y liberará la habitación)
+    // Eliminar una reserva (y libera la habitación)
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> eliminarReserva(@PathVariable Long id) {
         reservaService.eliminarReserva(id);

@@ -5,7 +5,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
-
+// HabitacionRepository.java
 @Repository
 public interface HabitacionRepository extends JpaRepository<Habitacion, Long> {
     // Método derivado para filtrar por estado

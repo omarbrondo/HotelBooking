@@ -10,7 +10,8 @@ import org.springframework.stereotype.Service;
 import com.app.HotelBooking.dto.UsuarioDTO;
 import com.app.HotelBooking.model.Usuario;
 import com.app.HotelBooking.repository.UsuarioRepository;
-
+// UsuarioServiceImpl.java
+// Implementación del servicio de Usuarios
 @Service
 public class UsuarioServiceImpl implements UsuarioService {
 
@@ -24,7 +25,8 @@ public class UsuarioServiceImpl implements UsuarioService {
     public List<Usuario> listarUsuarios() {
         return repo.findAll();
     }
-
+// Nuevo método para listar DTOs
+    // sin password, para que no se exponga en la API
     @Override
     public List<UsuarioDTO> listarUsuarioDTO() {
         return repo.findAll().stream()
@@ -34,7 +36,8 @@ public class UsuarioServiceImpl implements UsuarioService {
                 u.getRol()))
             .collect(Collectors.toList());
     }
-
+// Método para guardar un nuevo usuario
+    // si el password no empieza con $2a$, lo rehasheamos
 @Override
 public Usuario guardarUsuario(Usuario u) {
     String pwd = u.getPassword();
@@ -46,7 +49,7 @@ public Usuario guardarUsuario(Usuario u) {
     return repo.save(u);
 }
 
-
+// Método para login    
 @Override
 public Optional<Usuario> login(String nombreUsuario, String password) {
   Optional<Usuario> opt = repo.findByNombreUsuario(nombreUsuario);
@@ -59,23 +62,26 @@ public Optional<Usuario> login(String nombreUsuario, String password) {
 
 
 
-    // >>> Nuevo método requerido por SecurityConfig:
+    // Método para buscar usuario por nombre
+    // devuelve un Optional<Usuario> para manejar el caso de no encontrarlo
     @Override
     public Optional<Usuario> buscarPorNombre(String nombreUsuario) {
         return repo.findByNombreUsuario(nombreUsuario);
     }
 
-    // Métodos CRUD que ya tenías:
+    // Métodos CRUD 
     @Override
     public Optional<Usuario> buscarPorId(Long id) {
         return repo.findById(id);
     }
-
+// Verifica si existe un usuario por su ID
+    // devuelve true o false según corresponda
     @Override
     public boolean existePorId(Long id) {
         return repo.existsById(id);
     }
-
+// Elimina un usuario por su ID
+    // lanza una excepción si no existe
     @Override
     public void eliminarUsuario(Long id) {
         repo.deleteById(id);

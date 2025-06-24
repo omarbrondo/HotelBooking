@@ -21,11 +21,12 @@ import jakarta.servlet.http.HttpServletResponse;
 
 import com.app.HotelBooking.util.JwtUtil;
 
-
+// JwtFilter.java
+// Filtro para validar el JWT en cada petición
 @Component
 public class JwtFilter extends OncePerRequestFilter {
   @Autowired private JwtUtil jwtUtil;
-
+// Filter para validar el JWT en cada petición
   @Override
   protected void doFilterInternal(
       @SuppressWarnings("null") HttpServletRequest req,
@@ -45,6 +46,6 @@ public class JwtFilter extends OncePerRequestFilter {
         return;
       }
     }
-    chain.doFilter(req, res);
+    chain.doFilter(req, res);// Continuar con la cadena de filtros
   }
 }
